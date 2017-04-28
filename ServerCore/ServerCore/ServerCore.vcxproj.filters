@@ -10,6 +10,12 @@
     <ClInclude Include="SessionManager.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="Socket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Accepter.cpp">
@@ -19,6 +25,12 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="SessionManager.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
