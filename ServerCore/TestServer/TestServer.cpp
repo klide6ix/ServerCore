@@ -10,7 +10,7 @@ int main()
 {
 	Application application;
 	application.InitApplication( MODEL_IOCP );
-	application.Listen( SERVER_PORT );
+	//application.Listen( SERVER_PORT );
 
     return 0;
 }
