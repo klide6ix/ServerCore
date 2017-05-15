@@ -13,8 +13,10 @@ protected:
 public:
 
 	Socket();
+	Socket( SOCKET socket );
 	virtual ~Socket();
 
+	void	SetSocket( SOCKET socket );
 	SOCKET	CreateSocket();
 	void	CloseSocket();
 	

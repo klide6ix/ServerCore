@@ -16,6 +16,11 @@ Socket::~Socket()
 {
 }
 
+void Socket::SetSocket( SOCKET socket )
+{
+	socket_ = socket;
+}
+
 SOCKET Socket::CreateSocket()
 {
 	socket_ = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
