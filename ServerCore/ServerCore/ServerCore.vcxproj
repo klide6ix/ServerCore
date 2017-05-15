@@ -83,6 +83,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Lib>
+      <AdditionalDependencies>ws2_32.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -113,6 +116,9 @@
   <ItemGroup>
     <ClInclude Include="Accepter.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="IThread.h" />
+    <ClInclude Include="NetworkModel.h" />
+    <ClInclude Include="ServerSocket.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
     <ClInclude Include="Socket.h" />
@@ -120,6 +126,9 @@
   <ItemGroup>
     <ClCompile Include="Accepter.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="IThread.cpp" />
+    <ClCompile Include="NetworkModel.cpp" />
+    <ClCompile Include="ServerSocket.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SessionManager.cpp" />
     <ClCompile Include="Socket.cpp" />

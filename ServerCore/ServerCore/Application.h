@@ -1,18 +1,19 @@
 #pragma once
-
-enum SERVER_MODEL
-{
-	MODEL_EPOLL,
-	MODEL_IOCP,
-	MODEL_SELECT,
-};
+#include "NetworkModel.h"
+#include "Accepter.h"
 
 class Application
 {
+	Accepter accepter_;
+
 public:
 	Application();
 	~Application();
 
-	void InitApplication( SERVER_MODEL serverModel );
+	bool InitApplication( SERVER_MODEL serverModel );
+	
+	bool AddAcceptPort( int port );
+
+	void StartServer();
 };
 

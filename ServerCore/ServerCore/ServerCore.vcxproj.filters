@@ -4,23 +4,29 @@
     <ClInclude Include="Session.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="Accepter.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="SessionManager.h">
-      <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="Socket.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="ServerSocket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="Socket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="Accepter.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkModel.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="IThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Accepter.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="Session.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -30,13 +36,31 @@
     <ClCompile Include="Application.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="ServerSocket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
     <ClCompile Include="Socket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="Accepter.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkModel.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="IThread.cpp">
+      <Filter>Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Network">
       <UniqueIdentifier>{5f143fe7-a317-4e37-be63-efacd94afb3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket">
+      <UniqueIdentifier>{000df72e-4623-482e-98e1-b0a2817695a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{be08dde8-2c4d-4a03-bf69-483945fece92}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
