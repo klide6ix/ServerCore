@@ -118,6 +118,7 @@
     <ClInclude Include="Application.h" />
     <ClInclude Include="IThread.h" />
     <ClInclude Include="NetworkModel.h" />
+    <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="ServerSocket.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />

@@ -25,6 +25,9 @@
     <ClInclude Include="IThread.h">
       <Filter>Thread</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectPool.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Session.cpp">
@@ -61,6 +64,9 @@
     </Filter>
     <Filter Include="Thread">
       <UniqueIdentifier>{be08dde8-2c4d-4a03-bf69-483945fece92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{493e19cf-06d4-42d9-90d2-2380d311ac60}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

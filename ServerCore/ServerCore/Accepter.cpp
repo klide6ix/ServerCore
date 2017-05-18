@@ -1,6 +1,6 @@
 #include "Accepter.h"
-#include "Session.h"
-
+#include "SessionManager.h"
+#include "Application.h"
 
 Accepter::Accepter()
 {
@@ -29,7 +29,7 @@ bool Accepter::_RegistServerSocket( std::shared_ptr<ServerSocket> socket )
 	if( event == WSA_INVALID_EVENT )
 		return false;
 
-	if( WSAEventSelect( socket->GetSocket(), event, FD_ACCEPT | FD_CLOSE ) != 0 )
+	if( WSAEventSelect( socket->GetSocket(), event, FD_ACCEPT ) != 0 )
 		return false;
 
 	acceptEventSocket_[acceptEventCount_] = socket;
@@ -144,7 +144,10 @@ void Accepter::Process()
 			if( newSocket == INVALID_SOCKET )
 				continue;
 
-			Session newSession( newSocket );
+			std::shared_ptr<Session> newSession = Application::GetInstance().getSessionManager()->CreateNewSession( newSocket );
+
+			if( newSession == nullptr )
+				continue;
 		}
 	}
 }
