@@ -2,8 +2,14 @@
 
 #include "Socket.h"
 #include "NetworkModel.h"
-#include "Accepter.h"
 #include "SessionManager.h"
+
+#include "Accepter.h"
+#include "WorkThread.h"
+#include "NetworkThread.h"
+
+#include "IOCPModel.h"
+#include "SelectModel.h"
 
 #include "Application.h"
 
@@ -34,12 +40,15 @@ Application::~Application()
 
 bool Application::InitApplication( SERVER_MODEL serverModel )
 {
-	printf("ServerModel : %d", serverModel );
-
 	try
 	{
 		accepter_ = std::make_shared<Accepter>();
+		workThread_ = std::make_shared<WorkThread>();
+		networkThread_ = std::make_shared<NetworkThread>();
+
 		sessionManager_ = std::make_shared<SessionManager>();
+		//networkModel_ = std::make_shared<IOCPModel>();
+		networkModel_ = std::make_shared<SelectModel>();
 	}
 	catch( std::bad_alloc& )
 	{
@@ -48,6 +57,9 @@ bool Application::InitApplication( SERVER_MODEL serverModel )
 
 	if( accepter_->InitAccepter() == false )
 		return false;
+
+	workThread_->SetThreadCount(4);
+	networkThread_->SetThreadCount(4);
 
 	return true;
 }
@@ -60,6 +72,25 @@ bool Application::AddAcceptPort( int port )
 void Application::StartServer()
 {
 	accepter_->StartThread();
+	networkThread_->StartThread();
+	workThread_->StartThread();
 
 	accepter_->JoinThread();
+	networkThread_->JoinThread();
+	workThread_->JoinThread();
+}
+
+void Application::AddSession( Session* newSession )
+{
+	networkModel_->AddSession( newSession );
+}
+
+void Application::RemoveSession( Session* session )
+{
+	networkModel_->RemoveSession( session );
+}
+
+void Application::SelectSession()
+{
+	networkModel_->SelectSession();
 }

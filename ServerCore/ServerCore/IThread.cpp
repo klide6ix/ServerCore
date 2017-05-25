@@ -4,7 +4,6 @@
 
 IThread::IThread()
 {
-	thread_ = nullptr;
 }
 
 
@@ -17,15 +16,21 @@ void IThread::StartThread()
 {
 	isRunning_ = true;
 
-	thread_ = new std::thread( [&] () { Process(); } );
+	for( int i = 0; i < threadCount_; ++i )
+	{
+		thread_.push_back( new std::thread( [&] () { Process(); } ) );
+	}
 }
 
 void IThread::JoinThread()
 {
-	if( thread_ != nullptr &&
-		thread_->joinable() == true )
+	for( auto thread : thread_ )
 	{
-		thread_->join();
+		if( thread != nullptr &&
+			thread->joinable() == true )
+		{
+			thread->join();
+		}
 	}
 }
 
@@ -33,10 +38,13 @@ void IThread::StopThread()
 {
 	isRunning_ = false;
 
-	if( thread_ != nullptr )
+	for( auto thread : thread_ )
 	{
-		delete thread_;
-	}
+		if( thread != nullptr )
+		{
+			delete thread;
+		}
 
-	thread_ = nullptr;
+		thread = nullptr;
+	}
 }

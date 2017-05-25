@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include "ObjectPool.h"
 #include "Session.h"
 
@@ -7,11 +9,13 @@
 class SessionManager
 {
 	ObjectPool<Session>	sessionPool_;
+	std::mutex	mutex_;
 
 public:
 	SessionManager();
 	~SessionManager();
 
-	std::shared_ptr<Session> CreateNewSession( SOCKET socket );
+	Session* CreateSession( SOCKET socket );
+	void RestoreSession( Session* session );
 };
 

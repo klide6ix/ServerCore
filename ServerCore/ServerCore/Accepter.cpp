@@ -144,10 +144,12 @@ void Accepter::Process()
 			if( newSocket == INVALID_SOCKET )
 				continue;
 
-			std::shared_ptr<Session> newSession = Application::GetInstance().getSessionManager()->CreateNewSession( newSocket );
+			Session* newSession = Application::GetInstance().getSessionManager()->CreateSession( newSocket );
 
 			if( newSession == nullptr )
 				continue;
+
+			Application::GetInstance().AddSession( newSession );
 		}
 	}
 }

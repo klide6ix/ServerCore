@@ -12,14 +12,26 @@ SessionManager::~SessionManager()
 {
 }
 
-std::shared_ptr<Session> SessionManager::CreateNewSession( SOCKET socket )
+Session* SessionManager::CreateSession( SOCKET socket )
 {
-	printf("CreateNewSession\n");
-	std::shared_ptr<Session> newSession = sessionPool_.Alloc();
+	std::unique_lock<std::mutex> lock { mutex_ };
+
+	Session* newSession = sessionPool_.Alloc();
 
 	if( newSession == nullptr )
 		return nullptr;
 
 	newSession->SetSocket( socket );
 	return newSession;
+}
+
+void SessionManager::RestoreSession( Session* session )
+{
+	if( session == nullptr )
+		return;
+
+	std::unique_lock<std::mutex> lock { mutex_ };
+
+	session->~Session();
+	sessionPool_.Free( session );
 }

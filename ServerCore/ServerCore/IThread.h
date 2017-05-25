@@ -1,17 +1,21 @@
 #pragma once
 #include <thread>
+#include <vector>
 
 class IThread
 {
 private:
 
-	std::thread* thread_;
-	bool isRunning_;
+	std::vector<std::thread*>	thread_;
+	int							threadCount_ = 1;
+	
+	volatile bool				isRunning_ = false;
 
 public:
 	IThread();
 	virtual ~IThread();
 
+	void SetThreadCount( int count ) { threadCount_ = count; }
 	bool IsRunning() { return isRunning_; }
 
 	void StartThread();
