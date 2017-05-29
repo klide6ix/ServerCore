@@ -1,6 +1,6 @@
 #include "NetworkThread.h"
-#include "Application.h"
-
+#include "ServerEngine.h"
+#include "Session.h"
 
 NetworkThread::NetworkThread()
 {
@@ -15,6 +15,6 @@ void NetworkThread::Process()
 {
 	while( IsRunning() == true )
 	{
-		Application::GetInstance().SelectSession();
+		ServerEngine::GetInstance().SelectSession();
 	}
 }

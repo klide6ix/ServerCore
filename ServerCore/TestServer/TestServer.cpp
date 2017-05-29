@@ -5,16 +5,16 @@
 
 #include "NetworkModel.h"
 #include "Accepter.h"
-#include "Application.h"
+#include "ServerEngine.h"
 
 #define SERVER_PORT 1500
 
 int main()
 {
-	Application::GetInstance().InitApplication( MODEL_IOCP );
-	Application::GetInstance().AddAcceptPort( SERVER_PORT );
+	ServerEngine::GetInstance().InitApplication( MODEL_IOCP );
+	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );
 	
-	Application::GetInstance().StartServer();
+	ServerEngine::GetInstance().StartServer();
 
     return 0;
 }

@@ -57,18 +57,16 @@ void SelectModel::SelectSession()
 {
 	fd_set temps = fdReads_;
 
-	int nfds = 0;
 	int nfdmax = 0;
 
 #ifdef WIN32
-	nfds = (int)fdReads_.fd_count;
 #else
 	nfdmax = fdMax_ + 1;
-	nfds = FD_SETSIZE;
 #endif
 
-	if( select( nfdmax, &temps, 0, 0, 0 ) == SOCKET_ERROR )
+	if( select( nfdmax, &temps, nullptr, nullptr, nullptr ) == SOCKET_ERROR )
 	{
+		int err = GetLastError();
 		return;
 	}
 
@@ -77,6 +75,7 @@ void SelectModel::SelectSession()
 		if( FD_ISSET( itr->GetSocket(), &temps ) )
 		{
 			itr->RecvPacket();
+			//itr->PopPacket(
 		}
 	}
 }

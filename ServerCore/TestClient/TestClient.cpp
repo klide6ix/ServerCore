@@ -4,13 +4,13 @@
 #include "stdafx.h"
 
 #include "Socket.h"
-#include "Application.h"
+#include "ServerEngine.h"
 
 #define SERVER_PORT 1500
 
 int main()
 {
-	Application::GetInstance();
+	ServerEngine::GetInstance();
 
 	Socket socket;
 	socket.CreateSocket();

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "Socket.h"
-#include "CircularBuffer.h"
+#include "NetworkBuffer.h"
 
 #define  ASYNCFLAG_SEND				0x01
 #define  ASYNCFLAG_RECEIVE			0x02
@@ -20,7 +20,7 @@ class Session
 	OVERLAPPEDEX overlappedSend_;
 	OVERLAPPEDEX overlappedRecv_;
 
-	CircularBuffer recvBuffer_;
+	NetworkBuffer recvBuffer_;
 
 public:
 	Session();
@@ -31,7 +31,7 @@ public:
 	SOCKET GetSocket();
 
 	bool RecvPost();
-	void RecvPacket();
+	int  RecvPacket();
 	void RecvProcess( DWORD bytesTransfer );
 
 	void CleanUp();

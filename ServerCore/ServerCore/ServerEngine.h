@@ -18,7 +18,7 @@ class Accepter;
 class WorkThread;
 class NetworkThread;
 
-class Application
+class ServerEngine
 {
 private:
 	std::shared_ptr<SessionManager>		sessionManager_;
@@ -28,16 +28,16 @@ private:
 	std::shared_ptr<WorkThread>			workThread_;
 	std::shared_ptr<NetworkThread>		networkThread_;
 
-	static std::unique_ptr<Application> instance_;
+	static std::unique_ptr<ServerEngine> instance_;
 	static std::once_flag				onceFlag_;
 
-	Application();
-	Application(const Application& src) = delete;
-	Application& operator=(const Application& rhs) = delete;
+	ServerEngine();
+	ServerEngine(const ServerEngine& src) = delete;
+	ServerEngine& operator=(const ServerEngine& rhs) = delete;
 
 public:
-	virtual ~Application();
-	static Application& GetInstance();
+	virtual ~ServerEngine();
+	static ServerEngine& GetInstance();
 
 	std::shared_ptr<SessionManager> getSessionManager() { return sessionManager_; }
 

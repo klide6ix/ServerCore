@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Application.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="ServerSocket.h">
       <Filter>Socket</Filter>
     </ClInclude>
@@ -43,11 +40,14 @@
     <ClInclude Include="SelectModel.h">
       <Filter>Network\Model</Filter>
     </ClInclude>
+    <ClInclude Include="ServerEngine.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkBuffer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="ServerSocket.cpp">
       <Filter>Socket</Filter>
     </ClCompile>
@@ -80,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="SelectModel.cpp">
       <Filter>Network\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerEngine.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

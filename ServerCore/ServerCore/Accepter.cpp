@@ -1,6 +1,6 @@
 #include "Accepter.h"
 #include "SessionManager.h"
-#include "Application.h"
+#include "ServerEngine.h"
 
 Accepter::Accepter()
 {
@@ -144,12 +144,12 @@ void Accepter::Process()
 			if( newSocket == INVALID_SOCKET )
 				continue;
 
-			Session* newSession = Application::GetInstance().getSessionManager()->CreateSession( newSocket );
+			Session* newSession = ServerEngine::GetInstance().getSessionManager()->CreateSession( newSocket );
 
 			if( newSession == nullptr )
 				continue;
 
-			Application::GetInstance().AddSession( newSession );
+			ServerEngine::GetInstance().AddSession( newSession );
 		}
 	}
 }

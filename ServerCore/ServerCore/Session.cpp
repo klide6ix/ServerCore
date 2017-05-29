@@ -2,7 +2,7 @@
 
 #include "Session.h"
 #include "SessionManager.h"
-#include "Application.h"
+#include "ServerEngine.h"
 
 Session::Session()
 {
@@ -42,7 +42,7 @@ bool Session::RecvPost()
 
 	// WSABUF 구조체 셋팅
 	WSABUF wsaBuffer;
-	wsaBuffer.buf = recvBuffer_.GetBuffer();
+	wsaBuffer.buf = recvBuffer_.GetBufferPos();
 	wsaBuffer.len = recvBuffer_.GetBufferSize();
 
 	DWORD dwRecvBytes = 0;
@@ -76,47 +76,48 @@ void Session::RecvProcess( DWORD bytesTransfer )
 	recvBuffer_.ConsumeBuffer( static_cast<int>(bytesTransfer) );
 }
 
-void Session::RecvPacket()
+int Session::RecvPacket()
 {
 	if( socket_.GetSocket() == INVALID_SOCKET )
 	{
-		return;
+		return -1;
 	}
 
 	if( MAX_NET_BUFFER - recvBuffer_.GetBufferSize() <= 0 )
 	{
-		return;
+		return -1;
 	}
 
-	//! receive buffer size calculate
-	int size = recv( socket_.GetSocket(), recvBuffer_.GetBuffer(), MAX_NET_BUFFER - recvBuffer_.GetBufferSize(), 0  );
+	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPos(), MAX_NET_BUFFER - recvBuffer_.GetBufferSize(), 0  );
 
 	if ( size < 0 )
 	{
 		int err = GetLastError();
 		if( EWOULDBLOCK == err )
 		{
-			return;
+			return 0;
 		}
 		else
 		{
 			CleanUp();
-			return;
+			return -1;
 		}
 	}
 	else if ( size == 0 ) 
 	{
 		CleanUp();
-		return;
+		return 0;
 	}
 
 	recvBuffer_.ConsumeBuffer( size );
+
+	return size;
 }
 
 void Session::CleanUp()
 {
-	Application::GetInstance().getSessionManager()->RestoreSession( this );
-	Application::GetInstance().RemoveSession( this );
+	ServerEngine::GetInstance().getSessionManager()->RestoreSession( this );
+	ServerEngine::GetInstance().RemoveSession( this );
 
 	socket_.CloseSocket();
 }

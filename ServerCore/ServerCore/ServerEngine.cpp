@@ -11,34 +11,34 @@
 #include "IOCPModel.h"
 #include "SelectModel.h"
 
-#include "Application.h"
+#include "ServerEngine.h"
 
 
-std::unique_ptr<Application> Application::instance_;
-std::once_flag Application::onceFlag_;
+std::unique_ptr<ServerEngine> ServerEngine::instance_;
+std::once_flag ServerEngine::onceFlag_;
 
-Application& Application::GetInstance()
+ServerEngine& ServerEngine::GetInstance()
 {
 	std::call_once( onceFlag_, [] 
 	{
-		instance_.reset(new Application);
+		instance_.reset(new ServerEngine);
 	});
 
 	return *instance_.get();
 }
 
-Application::Application()
+ServerEngine::ServerEngine()
 {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 }
 
-Application::~Application()
+ServerEngine::~ServerEngine()
 {
 	WSACleanup();
 }
 
-bool Application::InitApplication( SERVER_MODEL serverModel )
+bool ServerEngine::InitApplication( SERVER_MODEL serverModel )
 {
 	try
 	{
@@ -58,18 +58,21 @@ bool Application::InitApplication( SERVER_MODEL serverModel )
 	if( accepter_->InitAccepter() == false )
 		return false;
 
+	if( networkModel_->InitNetworkModel() == false )
+		return false;
+
 	workThread_->SetThreadCount(4);
-	networkThread_->SetThreadCount(4);
+	networkThread_->SetThreadCount(1);
 
 	return true;
 }
 
-bool Application::AddAcceptPort( int port )
+bool ServerEngine::AddAcceptPort( int port )
 {
 	return accepter_->AddAcceptPort( port );
 }
 
-void Application::StartServer()
+void ServerEngine::StartServer()
 {
 	accepter_->StartThread();
 	networkThread_->StartThread();
@@ -80,17 +83,17 @@ void Application::StartServer()
 	workThread_->JoinThread();
 }
 
-void Application::AddSession( Session* newSession )
+void ServerEngine::AddSession( Session* newSession )
 {
 	networkModel_->AddSession( newSession );
 }
 
-void Application::RemoveSession( Session* session )
+void ServerEngine::RemoveSession( Session* session )
 {
 	networkModel_->RemoveSession( session );
 }
 
-void Application::SelectSession()
+void ServerEngine::SelectSession()
 {
 	networkModel_->SelectSession();
 }
