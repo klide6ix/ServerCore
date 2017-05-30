@@ -64,7 +64,7 @@ void SelectModel::SelectSession()
 	nfdmax = fdMax_ + 1;
 #endif
 
-	if( select( nfdmax, &temps, nullptr, nullptr, nullptr ) == SOCKET_ERROR )
+	if( select( nfdmax, &fdReads_, nullptr, nullptr, nullptr ) == SOCKET_ERROR )
 	{
 		int err = GetLastError();
 		return;

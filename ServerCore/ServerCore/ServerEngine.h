@@ -45,6 +45,7 @@ public:
 	bool InitApplication( SERVER_MODEL serverModel );	
 	bool AddAcceptPort( int port );
 	void StartServer();
+	void StartClient();
 	
 	void AddSession( Session* newSession );
 	void RemoveSession( Session* session );

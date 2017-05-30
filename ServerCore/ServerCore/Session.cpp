@@ -73,6 +73,8 @@ bool Session::RecvPost()
 
 void Session::RecvProcess( DWORD bytesTransfer )
 {
+	printf("%s\n", recvBuffer_.GetBufferOrg() );
+
 	recvBuffer_.ConsumeBuffer( static_cast<int>(bytesTransfer) );
 }
 
@@ -120,4 +122,12 @@ void Session::CleanUp()
 	ServerEngine::GetInstance().RemoveSession( this );
 
 	socket_.CloseSocket();
+}
+
+int Session::SendPacket( const char* message, int length )
+{
+	if( socket_.GetSocket() == INVALID_SOCKET )
+		return 0;
+
+	return send( socket_.GetSocket(), message, length, 0 );
 }

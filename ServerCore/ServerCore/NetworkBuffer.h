@@ -36,8 +36,7 @@ public:
 
 	inline int ConsumeBuffer( int size )
 	{
-		bufferPos_ += size;
-		bufferSize_ -= size;
+		memmove( buffer_, buffer_ + size, bufferSize_ - size );
 
 		return bufferSize_;
 	}

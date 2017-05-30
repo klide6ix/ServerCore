@@ -34,5 +34,7 @@ public:
 	int  RecvPacket();
 	void RecvProcess( DWORD bytesTransfer );
 
+	int  SendPacket( const char* message, int length );
+
 	void CleanUp();
 };

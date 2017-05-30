@@ -47,11 +47,15 @@ bool ServerEngine::InitApplication( SERVER_MODEL serverModel )
 		networkThread_ = std::make_shared<NetworkThread>();
 
 		sessionManager_ = std::make_shared<SessionManager>();
-		//networkModel_ = std::make_shared<IOCPModel>();
-		networkModel_ = std::make_shared<SelectModel>();
+		
+		if( serverModel == MODEL_IOCP )
+			networkModel_ = std::make_shared<IOCPModel>();
+		else
+			networkModel_ = std::make_shared<SelectModel>();
 	}
-	catch( std::bad_alloc& )
+	catch( std::bad_alloc& err )
 	{
+		printf("error : %s\n", err.what() );
 		return false;
 	}
 
@@ -62,7 +66,7 @@ bool ServerEngine::InitApplication( SERVER_MODEL serverModel )
 		return false;
 
 	workThread_->SetThreadCount(4);
-	networkThread_->SetThreadCount(1);
+	networkThread_->SetThreadCount(4);
 
 	return true;
 }
@@ -81,6 +85,15 @@ void ServerEngine::StartServer()
 	accepter_->JoinThread();
 	networkThread_->JoinThread();
 	workThread_->JoinThread();
+}
+
+void ServerEngine::StartClient()
+{
+	networkThread_->StartThread();
+	workThread_->StartThread();
+
+	//networkThread_->JoinThread();
+	//workThread_->JoinThread();
 }
 
 void ServerEngine::AddSession( Session* newSession )
