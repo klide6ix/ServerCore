@@ -11,9 +11,12 @@
 
 int main()
 {
-	ServerEngine::GetInstance().InitApplication( MODEL_IOCP );
+	ServerEngine::GetInstance().InitializeEngine( MODEL_IOCP );
+	
+	ServerEngine::GetInstance().InitializeAccepter();
 	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );
 	
+	ServerEngine::GetInstance().StartAccepter();
 	ServerEngine::GetInstance().StartServer();
 
     return 0;

@@ -1,12 +1,9 @@
 #include <stdio.h>
 
 #include "Session.h"
-#include "SessionManager.h"
-#include "ServerEngine.h"
 
 Session::Session()
 {
-	printf("Init Session\n");
 }
 
 Session::Session( SOCKET socket )
@@ -17,7 +14,6 @@ Session::Session( SOCKET socket )
 
 Session::~Session()
 {
-	printf("Release Session\n");
 }
 
 void Session::SetSocket( SOCKET socket )
@@ -59,11 +55,6 @@ bool Session::RecvPost()
 		int nErrorCode = WSAGetLastError();
 		if( nErrorCode != ERROR_IO_PENDING )
 		{
-			if( nErrorCode == WSAECONNRESET || nErrorCode == WSAENETRESET || nErrorCode == WSAENOTCONN || nErrorCode == WSAECONNABORTED )
-			{
-				CleanUp();
-			}
-
 			return false;
 		}
 	}
@@ -71,11 +62,9 @@ bool Session::RecvPost()
 	return true;
 }
 
-void Session::RecvProcess( DWORD bytesTransfer )
+void Session::RecvBufferConsume( int size )
 {
-	printf("%s\n", recvBuffer_.GetBufferOrg() );
-
-	recvBuffer_.ConsumeBuffer( static_cast<int>(bytesTransfer) );
+	recvBuffer_.ConsumeBuffer( size );
 }
 
 int Session::RecvPacket()
@@ -101,26 +90,19 @@ int Session::RecvPacket()
 		}
 		else
 		{
-			CleanUp();
 			return -1;
 		}
 	}
 	else if ( size == 0 ) 
 	{
-		CleanUp();
-		return 0;
+		return -2;
 	}
-
-	recvBuffer_.ConsumeBuffer( size );
 
 	return size;
 }
 
 void Session::CleanUp()
 {
-	ServerEngine::GetInstance().getSessionManager()->RestoreSession( this );
-	ServerEngine::GetInstance().RemoveSession( this );
-
 	socket_.CloseSocket();
 }
 

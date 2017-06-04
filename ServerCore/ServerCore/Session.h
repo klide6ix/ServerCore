@@ -32,7 +32,9 @@ public:
 
 	bool RecvPost();
 	int  RecvPacket();
-	void RecvProcess( DWORD bytesTransfer );
+	
+	char* RecvBufferPos() { return recvBuffer_.GetBufferOrg(); }
+	void  RecvBufferConsume( int size );
 
 	int  SendPacket( const char* message, int length );
 

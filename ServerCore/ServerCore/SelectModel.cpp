@@ -1,6 +1,8 @@
+#include "ServerEngine.h"
+
 #include "SelectModel.h"
 #include "Session.h"
-
+#include "MessageObject.h"
 
 SelectModel::SelectModel()
 {
@@ -74,8 +76,27 @@ void SelectModel::SelectSession()
 	{
 		if( FD_ISSET( itr->GetSocket(), &temps ) )
 		{
-			itr->RecvPacket();
-			//itr->PopPacket(
+			int recvSize = itr->RecvPacket();
+
+			if( recvSize < 0 )
+			{
+				ServerEngine::GetInstance().CloseSession( itr );
+				continue;
+			}
+
+			MessageObject* msg = ServerEngine::GetInstance().GetMessageObject();
+
+			if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, msg->messageBuffer_, msg->messageBufferSize_ ) == false )
+			{
+				ServerEngine::GetInstance().ReturnMessageObject( msg );
+			}
+			else
+			{
+				ServerEngine::GetInstance().PushMessageObject( msg );
+				itr->RecvBufferConsume( msg->messageBufferSize_ );
+			}
+			
+			itr->RecvBufferConsume( recvSize );
 		}
 	}
 }

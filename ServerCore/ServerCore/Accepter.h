@@ -9,6 +9,7 @@
 
 class Accepter : public IThread
 {
+	bool			isAccepter_ = false;
 
 #ifndef WIN32
 	int				epollFD_;

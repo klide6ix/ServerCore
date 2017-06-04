@@ -1,4 +1,9 @@
+#include "ServerEngine.h"
+
+#include "MessageObject.h"
 #include "Session.h"
+#include "SessionManager.h"
+
 #include "IOCPModel.h"
 
 
@@ -27,7 +32,11 @@ bool IOCPModel::AddSession( Session* newSession )
 	if( retHandle != iocpHandle_ )
 		return false;
 
-	newSession->RecvPost();
+	if( newSession->RecvPost() == false )
+	{
+		ServerEngine::GetInstance().CloseSession( newSession );
+		return false;
+	}
 
 	return true;
 }
@@ -57,7 +66,7 @@ void IOCPModel::SelectSession()
 			if( ( ret == FALSE && GetLastError() == ERROR_NETNAME_DELETED )	||	// 강제 종료
 				( ret == TRUE && dwBytesTransfer == 0 ) )						// Graceful 종료
 			{
-				session->CleanUp();
+				ServerEngine::GetInstance().CloseSession( session );
 			}
 			else
 			{
@@ -67,9 +76,24 @@ void IOCPModel::SelectSession()
 				{
 				case ASYNCFLAG_RECEIVE:
 					{
-						session->RecvProcess( dwBytesTransfer );
+						MessageObject* msg = ServerEngine::GetInstance().GetMessageObject();
+						
+						if( ServerEngine::GetInstance().DecodePacket( session->RecvBufferPos(), static_cast<int>(dwBytesTransfer), msg->messageBuffer_, msg->messageBufferSize_ ) == false )
+						{
+							ServerEngine::GetInstance().ReturnMessageObject( msg );
+						}
+						else
+						{
+							ServerEngine::GetInstance().PushMessageObject( msg );
+							session->RecvBufferConsume( msg->messageBufferSize_ );
+						}
 					}
 				break;
+				}
+
+				if( session->RecvPost() == false )
+				{
+					ServerEngine::GetInstance().CloseSession( session );
 				}
 			}
 		}

@@ -4,27 +4,25 @@
 
 class NetworkBuffer
 {
-	CHAR buffer_[MAX_NET_BUFFER];
-	int bufferPos_;
-	int bufferSize_;
+	char buffer_[MAX_NET_BUFFER] = {0};
+	int bufferPos_ = 0;
+	int bufferSize_ = MAX_NET_BUFFER;
 
 public:
 	NetworkBuffer()
 	{
-		bufferPos_ = 0;
-		bufferSize_ = MAX_NET_BUFFER;
 	}
 
 	~NetworkBuffer()
 	{
 	}
 
-	inline CHAR* GetBufferOrg()
+	inline char* GetBufferOrg()
 	{
 		return buffer_;
 	}
 
-	inline CHAR* GetBufferPos()
+	inline char* GetBufferPos()
 	{
 		return buffer_ + bufferPos_;
 	}

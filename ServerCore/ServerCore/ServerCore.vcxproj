@@ -116,7 +116,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h" />
+    <ClInclude Include="MessageObject.h" />
     <ClInclude Include="NetworkBuffer.h" />
+    <ClInclude Include="ObjectQueue.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="ServerEngine.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="IOCPModel.h" />
@@ -129,6 +132,7 @@
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="WorkQueue.h" />
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +147,7 @@
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SessionManager.cpp" />
     <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="WorkQueue.cpp" />
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

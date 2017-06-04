@@ -15,8 +15,7 @@ int main()
 {
 	ServerEngine::GetInstance();
 
-	ServerEngine::GetInstance().InitApplication( MODEL_IOCP );
-	ServerEngine::GetInstance().StartClient();
+	ServerEngine::GetInstance().InitializeEngine( MODEL_IOCP );
 
 	Socket socket;
 	socket.CreateSocket();
@@ -37,7 +36,7 @@ int main()
 		std::cout << "Message : ";
 		std::cin >> msg;
 		
-		newSession->SendPacket( msg.c_str(), msg.length() );
+		newSession->SendPacket( msg.c_str(), static_cast<int>(msg.length()) );
 	}
     
 	return 0;

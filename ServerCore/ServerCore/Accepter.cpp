@@ -125,6 +125,8 @@ bool Accepter::AddAcceptPort( int port )
 	if( serverSocket->Listen() != 0 )
 		return false;
 
+	isAccepter_ = true;
+
 	return true;
 }
 
@@ -132,10 +134,11 @@ void Accepter::Process()
 {
 	while( IsRunning() == true )
 	{
-		if( _SelectServerSocket() == false )
-		{
+		if( isAccepter_ == false )
 			return;
-		}
+
+		if( _SelectServerSocket() == false )
+			return;
 
 		for( auto listenSock  : acceptList_ )
 		{

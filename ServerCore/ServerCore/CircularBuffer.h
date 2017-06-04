@@ -4,7 +4,7 @@
 
 class CircularBuffer
 {
-	CHAR buffer_[MAX_NET_BUFFER];
+	char buffer_[MAX_NET_BUFFER];
 	int bufferPos_;
 	int bufferSize_;
 
@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	inline CHAR* GetBuffer()
+	inline char* GetBuffer()
 	{
 		return buffer_ + bufferPos_;
 	}
