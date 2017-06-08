@@ -120,6 +120,7 @@
     <ClInclude Include="NetworkBuffer.h" />
     <ClInclude Include="ObjectQueue.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="ServerApp.h" />
     <ClInclude Include="ServerEngine.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="IOCPModel.h" />

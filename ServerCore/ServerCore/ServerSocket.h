@@ -9,9 +9,11 @@ public:
 	ServerSocket();
 	virtual ~ServerSocket();
 
-	SOCKET InitServerSocket( int listenPort );
-	int Bind();
-	int Listen();
-	SOCKET Accept();
+	int			GetPort() { return listenPort_; }
+
+	SOCKET		InitServerSocket( int listenPort );
+	int			Bind();
+	int			Listen();
+	SOCKET		Accept();
 };
 

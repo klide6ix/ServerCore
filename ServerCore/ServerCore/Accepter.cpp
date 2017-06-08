@@ -142,17 +142,17 @@ void Accepter::Process()
 
 		for( auto listenSock  : acceptList_ )
 		{
-			SOCKET newSocket = listenSock->Accept();
+			Socket newSocket = listenSock->Accept();
 
-			if( newSocket == INVALID_SOCKET )
+			if( newSocket.GetSocket() == INVALID_SOCKET )
 				continue;
 
-			Session* newSession = ServerEngine::GetInstance().getSessionManager()->CreateSession( newSocket );
+			Session* newSession = ServerEngine::GetInstance().CreateSession( newSocket );
 
 			if( newSession == nullptr )
 				continue;
 
-			ServerEngine::GetInstance().AddSession( newSession );
+			ServerEngine::GetInstance().AddSession( newSession, listenSock->GetPort() );
 		}
 	}
 }

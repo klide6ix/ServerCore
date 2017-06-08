@@ -41,5 +41,5 @@ void WorkQueue::Push( MessageObject* obj )
 	messageQueue_.Push( obj );
 
 	std::unique_lock<std::mutex> lock( queueLock_ );
-	queueCond_.notify_all();
+	queueCond_.notify_one();
 }

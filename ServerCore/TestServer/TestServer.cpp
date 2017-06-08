@@ -1,18 +1,36 @@
-// TestServer.cpp : 콘솔 응용 프로그램에 대한 진입점을 정의합니다.
-//
-
+#include <list>
 #include "stdafx.h"
 
-#include "NetworkModel.h"
-#include "Accepter.h"
 #include "ServerEngine.h"
+#include "ServerApp.h"
+#include "Parser.h"
+#include "Session.h"
 
 #define SERVER_PORT 1500
+
+class TestServer : public ServerApp
+{
+	std::list<Session*>	clientList_;
+
+public:
+	virtual void OnAccept( int port, Session* session )
+	{
+		printf( "Accept Session [%d]\n", port );
+		clientList_.push_back( session );
+	}
+	virtual void OnClose( Session* session )
+	{
+		printf( "Close Session\n" );
+		clientList_.remove( session );
+	}
+};
 
 int main()
 {
 	ServerEngine::GetInstance().InitializeEngine( MODEL_IOCP );
-	
+	ServerEngine::GetInstance().InitializeParser( new ParserDefault );
+	ServerEngine::GetInstance().InitializeApplication( new TestServer );
+
 	ServerEngine::GetInstance().InitializeAccepter();
 	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );
 	

@@ -9,16 +9,13 @@ enum SERVER_MODEL
 	MODEL_SELECT,
 };
 
-class Session;
-class SessionManager;
-class NetworkModel;
+class Socket;
 class IParser;
-
-class Accepter;
-class WorkThread;
-class NetworkThread;
+class Session;
 class MessageObject;
-class WorkQueue;
+
+class ServerApp;
+class ServerImplement;
 
 class ServerEngine
 {
@@ -27,15 +24,7 @@ private:
 	static std::unique_ptr<ServerEngine> instance_;
 	static std::once_flag				 onceFlag_;
 
-	std::shared_ptr<SessionManager>		sessionManager_;
-	std::shared_ptr<NetworkModel>		networkModel_;
-	std::shared_ptr<IParser>			parser_;
-
-	std::shared_ptr<Accepter>			accepter_;
-	std::shared_ptr<WorkThread>			workThread_;
-	std::shared_ptr<NetworkThread>		networkThread_;
-
-	std::shared_ptr<WorkQueue>			workQueue_;
+	ServerImplement* serverImpl_ = nullptr;
 
 	ServerEngine();
 	ServerEngine(const ServerEngine& src) = delete;
@@ -45,21 +34,22 @@ public:
 	virtual ~ServerEngine();
 	static ServerEngine& GetInstance();
 
-	std::shared_ptr<SessionManager> getSessionManager() { return sessionManager_; }
-
-public:
 	bool InitializeEngine( SERVER_MODEL serverModel );
+	bool InitializeParser( IParser* parser );
+	bool InitializeApplication( ServerApp* application );
 	bool InitializeAccepter();
 	
 	void StartServer();
 
 	bool AddAcceptPort( int port );
 	void StartAccepter();
-	
-	void AddSession( Session* newSession );
+
+	Session* CreateSession( Socket& socket );
+
+	void AddSession( Session* newSession, int acceptPort );
 	void CloseSession( Session* session );
 	void SelectSession();
-
+	
 	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
 	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );
 
@@ -68,6 +58,5 @@ public:
 
 	void			PushMessageObject( MessageObject* obj );
 	MessageObject*	PopMessageObject();
-
 };
 

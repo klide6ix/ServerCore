@@ -39,12 +39,10 @@ int ServerSocket::Bind()
 
 int ServerSocket::Listen()
 {
-	/*
 	struct linger ling;
 	ling.l_onoff = 1;
 	ling.l_linger = 0;
 	setsockopt( socket_, SOL_SOCKET, SO_LINGER, (char *)&ling, sizeof( struct linger ));
-	*/
 
 	SetBlocking( false );
 

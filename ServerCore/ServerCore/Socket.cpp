@@ -3,8 +3,6 @@
 
 Socket::Socket()
 {
-	socket_ = INVALID_SOCKET;
-	lastError_ = 0;
 }
 
 Socket::Socket( SOCKET socket )

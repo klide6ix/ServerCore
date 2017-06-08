@@ -7,8 +7,8 @@ class Socket
 {
 protected:
 
-	SOCKET	socket_;
-	int		lastError_;
+	SOCKET	socket_ = INVALID_SOCKET;
+	int		lastError_ = 0;
 
 public:
 

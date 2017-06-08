@@ -11,8 +11,13 @@ WorkThread::~WorkThread()
 {
 }
 
+static int gIndex = 0;
+
 void WorkThread::Process()
 {
+	int thisThread = gIndex++;
+	printf("Start Thread [%d]\n", thisThread);
+
 	while( IsRunning() == true )
 	{
 		MessageObject* message = ServerEngine::GetInstance().PopMessageObject();
@@ -20,6 +25,6 @@ void WorkThread::Process()
 		if( message == nullptr )
 			continue;
 
-		printf("Message : %s\n", message->messageBuffer_ );
+		printf("[%d]Message : %s\n", thisThread, message->messageBuffer_ );
 	}
 }

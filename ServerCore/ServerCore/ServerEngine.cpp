@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include "Session.h"
+#include "ServerApp.h"
 #include "ServerEngine.h"
 
 #include "Socket.h"
@@ -15,6 +17,20 @@
 #include "IOCPModel.h"
 #include "SelectModel.h"
 
+class ServerImplement
+{
+public:
+	std::shared_ptr<SessionManager>		sessionManager_;
+	std::shared_ptr<NetworkModel>		networkModel_;
+	std::shared_ptr<IParser>			parser_;
+	std::shared_ptr<ServerApp>			serverApp_;
+
+	std::shared_ptr<Accepter>			accepter_;
+	std::shared_ptr<WorkThread>			workThread_;
+	std::shared_ptr<NetworkThread>		networkThread_;
+
+	std::shared_ptr<WorkQueue>			workQueue_;
+};
 
 std::unique_ptr<ServerEngine> ServerEngine::instance_;
 std::once_flag ServerEngine::onceFlag_;
@@ -37,6 +53,9 @@ ServerEngine::ServerEngine()
 
 ServerEngine::~ServerEngine()
 {
+	if( serverImpl_ != nullptr )
+		delete serverImpl_;
+
 	WSACleanup();
 }
 
@@ -44,35 +63,35 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 {
 	try
 	{
-		workThread_ = std::make_shared<WorkThread>();
-		networkThread_ = std::make_shared<NetworkThread>();
-		parser_ = std::make_shared<ParserDefault>();
+		serverImpl_ = new ServerImplement();
+		serverImpl_->workThread_ = std::make_shared<WorkThread>();
+		serverImpl_->networkThread_ = std::make_shared<NetworkThread>();
 
-		sessionManager_ = std::make_shared<SessionManager>();
+		serverImpl_->sessionManager_ = std::make_shared<SessionManager>();
 
-		workQueue_ = std::make_shared<WorkQueue>();
+		serverImpl_->workQueue_ = std::make_shared<WorkQueue>();
 		
 		if( serverModel == MODEL_IOCP )
-			networkModel_ = std::make_shared<IOCPModel>();
+			serverImpl_->networkModel_ = std::make_shared<IOCPModel>();
 		else
-			networkModel_ = std::make_shared<SelectModel>();
+			serverImpl_->networkModel_ = std::make_shared<SelectModel>();
 	}
 	catch( std::bad_alloc& )
 	{
 		return false;
 	}
 
-	if( workQueue_->Init() == false )
+	if( serverImpl_->workQueue_->Init() == false )
 		return false;
 
-	if( networkModel_->InitNetworkModel() == false )
+	if( serverImpl_->networkModel_->InitNetworkModel() == false )
 		return false;
 
-	workThread_->SetThreadCount(4);
-	networkThread_->SetThreadCount(4);
+	serverImpl_->workThread_->SetThreadCount(4);
+	serverImpl_->networkThread_->SetThreadCount(4);
 
-	networkThread_->StartThread();
-	workThread_->StartThread();
+	serverImpl_->networkThread_->StartThread();
+	serverImpl_->workThread_->StartThread();
 
 	return true;
 }
@@ -81,80 +100,123 @@ bool ServerEngine::InitializeAccepter()
 {
 	try
 	{
-		accepter_ = std::make_shared<Accepter>();
+		serverImpl_->accepter_ = std::make_shared<Accepter>();
 	}
 	catch( std::bad_alloc& )
 	{
 		return false;
 	}
 
-	if( accepter_->InitAccepter() == false )
+	if( serverImpl_->accepter_->InitAccepter() == false )
 		return false;
+
+	return true;
+}
+
+bool ServerEngine::InitializeApplication( ServerApp* application )
+{
+	if( application == nullptr )
+		return false;
+
+	try
+	{
+		serverImpl_->serverApp_.reset( application );
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ServerEngine::InitializeParser( IParser* parser )
+{
+	if( parser == nullptr )
+		return false;
+
+	try
+	{
+		serverImpl_->parser_.reset( parser );
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
 
 	return true;
 }
 
 bool ServerEngine::AddAcceptPort( int port )
 {
-	return accepter_->AddAcceptPort( port );
+	return serverImpl_->accepter_->AddAcceptPort( port );
 }
 
 void ServerEngine::StartServer()
 {
-	accepter_->JoinThread();
-	networkThread_->JoinThread();
-	workThread_->JoinThread();
+	serverImpl_->accepter_->JoinThread();
+	serverImpl_->networkThread_->JoinThread();
+	serverImpl_->workThread_->JoinThread();
 }
 
 void ServerEngine::StartAccepter()
 {
-	accepter_->StartThread();
+	serverImpl_->accepter_->StartThread();
 }
 
-void ServerEngine::AddSession( Session* newSession )
+Session* ServerEngine::CreateSession( Socket& socket )
 {
-	networkModel_->AddSession( newSession );
+	return serverImpl_->sessionManager_->CreateSession( socket.GetSocket() );
+}
+
+void ServerEngine::AddSession( Session* newSession, int acceptPort )
+{
+	serverImpl_->networkModel_->AddSession( newSession );
+
+	serverImpl_->serverApp_->OnAccept( acceptPort, newSession );
 }
 
 void ServerEngine::CloseSession( Session* session )
 {
-	networkModel_->RemoveSession( session );
-	sessionManager_->RestoreSession( session );
+	serverImpl_->networkModel_->RemoveSession( session );
+	serverImpl_->sessionManager_->RestoreSession( session );
 
 	session->CleanUp();
+
+	serverImpl_->serverApp_->OnClose( session );
 }
 
 void ServerEngine::SelectSession()
 {
-	networkModel_->SelectSession();
+	serverImpl_->networkModel_->SelectSession();
 }
 
 bool ServerEngine::EncodePacket( const char* src, int srcSize, char* dest, int& destSize )
 {
-	return parser_->encodeMessage( src, srcSize, dest, destSize );
+	return serverImpl_->parser_->encodeMessage( src, srcSize, dest, destSize );
 }
 
 bool ServerEngine::DecodePacket( const char* src, int srcSize, char* dest, int& destSize )
 {
-	return parser_->decodeMessage( src, srcSize, dest, destSize );
+	return serverImpl_->parser_->decodeMessage( src, srcSize, dest, destSize );
 }
 
 MessageObject* ServerEngine::GetMessageObject()
 {
-	return workQueue_->AllocObject();
+	return serverImpl_->workQueue_->AllocObject();
 }
 
 void ServerEngine::ReturnMessageObject( MessageObject* obj )
 {
-	workQueue_->RestoreObject( obj );
+	serverImpl_->workQueue_->RestoreObject( obj );
 }
 
 void ServerEngine::PushMessageObject( MessageObject* obj )
 {
-	workQueue_->Push( obj );
+	serverImpl_->workQueue_->Push( obj );
 }
 
 MessageObject* ServerEngine::PopMessageObject()
 {
-	return workQueue_->Pop();
+	return serverImpl_->workQueue_->Pop();
 }
