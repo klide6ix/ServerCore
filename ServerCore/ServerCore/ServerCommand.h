@@ -5,10 +5,10 @@
 class Packet;
 class ServerCommandHandler
 {
-	std::map< PROTOCOL_TYPE, ProtocolCommandFunction_t > serverCommand_;
+	std::map< PROTOCOL_TYPE, CommandFunction_t > serverCommand_;
 
 public:
 
-	void AddServerCommand( PROTOCOL_TYPE protocol, ProtocolCommandFunction_t command );
-	ProtocolCommandFunction_t GetServerCommand( PROTOCOL_TYPE protocol );
+	void AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command );
+	CommandFunction_t GetServerCommand( PROTOCOL_TYPE protocol );
 };

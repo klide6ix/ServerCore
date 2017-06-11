@@ -18,6 +18,12 @@ int main()
 	ServerEngine::GetInstance().InitializeParser( new ParserDefault );
 	ServerEngine::GetInstance().InitializeApplication( new ServerApp );
 
+	ServerEngine::GetInstance().AddServerCommand( 0, [] ( PROTOCOL_TYPE protocol, Packet* packet ) -> unsigned int
+	{
+		printf("Recv : %s\n", packet->GetPacketData() );
+		return 0;
+	} );
+
 	Socket socket;
 	socket.CreateSocket();
 

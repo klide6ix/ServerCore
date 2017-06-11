@@ -28,6 +28,7 @@ public:
 		return *(reinterpret_cast<PROTOCOL_TYPE*>( buffer_ ));
 	}
 
+	char* GetPacketBuffer() { return buffer_; }
 	unsigned short GetPacketSize()
 	{
 		return *(reinterpret_cast<unsigned short*>(buffer_ + sizeof(PROTOCOL_TYPE))) + sizeof( PROTOCOL_TYPE ) + sizeof( unsigned short );
@@ -47,6 +48,9 @@ public:
 		return true;
 	}
 
-	const char* GetPacketData() const { return buffer_; }
-	char* GetPacketBuffer() { return buffer_; }
+	const char* GetPacketData() const { return buffer_ + (sizeof( PROTOCOL_TYPE ) + sizeof( unsigned short )); }
+	unsigned short GetPacketDataSize()
+	{
+		return *(reinterpret_cast<unsigned short*>(buffer_ + sizeof(PROTOCOL_TYPE)));
+	}
 };

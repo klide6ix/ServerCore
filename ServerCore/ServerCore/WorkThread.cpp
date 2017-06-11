@@ -20,6 +20,12 @@ void WorkThread::Process()
 		if( packet == nullptr )
 			continue;
 
-		printf("[%d]Message(%d) : %s\n", packet->GetProtocol(), packet->GetPacketSize(), packet->GetPacketData() + 4 );
+		CommandFunction_t workFunc = ServerEngine::GetInstance().GetServerCommand( packet->GetProtocol() );
+
+		if( workFunc != nullptr )
+		{
+			workFunc( packet->GetProtocol(), packet );
+		}
+
 	}
 }

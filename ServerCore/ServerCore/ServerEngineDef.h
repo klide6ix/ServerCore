@@ -10,6 +10,6 @@ enum SERVER_MODEL
 class Packet;
 
 typedef unsigned short PROTOCOL_TYPE;
-typedef unsigned int (*ProtocolCommandFunction_t)( PROTOCOL_TYPE protocol, Packet* messageObj );
+typedef unsigned int (*CommandFunction_t)( PROTOCOL_TYPE protocol, Packet* messageObj );
 
 

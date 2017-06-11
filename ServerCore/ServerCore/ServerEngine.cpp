@@ -148,6 +148,11 @@ bool ServerEngine::InitializeParser( IParser* parser )
 	return true;
 }
 
+ServerApp* ServerEngine::GetServerApp()
+{
+	return serverImpl_->serverApp_.get();
+}
+
 bool ServerEngine::AddAcceptPort( int port )
 {
 	return serverImpl_->accepter_->AddAcceptPort( port );
@@ -220,4 +225,14 @@ void ServerEngine::PushPacket( Packet* obj )
 Packet* ServerEngine::PopPacket()
 {
 	return serverImpl_->workQueue_->Pop();
+}
+
+void ServerEngine::AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command )
+{
+	serverImpl_->serverCommand_->AddServerCommand( protocol, command );
+}
+
+CommandFunction_t ServerEngine::GetServerCommand( PROTOCOL_TYPE protocol )
+{
+	return serverImpl_->serverCommand_->GetServerCommand( protocol );
 }

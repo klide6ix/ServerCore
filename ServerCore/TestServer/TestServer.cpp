@@ -23,6 +23,8 @@ public:
 		printf( "Close Session\n" );
 		clientList_.remove( session );
 	}
+
+	std::list<Session*>& GetClientList() { return clientList_; }
 };
 
 int main()
@@ -33,6 +35,19 @@ int main()
 
 	ServerEngine::GetInstance().InitializeAccepter();
 	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );
+
+	ServerEngine::GetInstance().AddServerCommand( 0, [] ( PROTOCOL_TYPE protocol, Packet* packet ) -> unsigned int
+	{
+		ServerTest* serverApp = dynamic_cast<ServerTest*>(ServerEngine::GetInstance().GetServerApp());
+
+		Packet echoPacket;
+		echoPacket.AddPacketData( packet->GetPacketData(), packet->GetPacketDataSize() );
+		for( auto session : serverApp->GetClientList() )
+		{
+			session->SendPacket( echoPacket );
+		}
+		return 0;
+	} );
 	
 	ServerEngine::GetInstance().StartAccepter();
 	ServerEngine::GetInstance().StartServer();

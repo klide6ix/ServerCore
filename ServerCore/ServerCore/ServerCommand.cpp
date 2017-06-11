@@ -1,10 +1,10 @@
 #include "ServerCommand.h"
 
-void ServerCommandHandler::AddServerCommand( PROTOCOL_TYPE protocol, ProtocolCommandFunction_t command )
+void ServerCommandHandler::AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command )
 {
 	if( serverCommand_.find( protocol ) == serverCommand_.end() )
 	{
-		serverCommand_.insert( std::pair< PROTOCOL_TYPE, ProtocolCommandFunction_t >( protocol, command ) );
+		serverCommand_.insert( std::pair< PROTOCOL_TYPE, CommandFunction_t >( protocol, command ) );
 	}
 	else
 	{
@@ -12,7 +12,7 @@ void ServerCommandHandler::AddServerCommand( PROTOCOL_TYPE protocol, ProtocolCom
 	}
 }
 
-ProtocolCommandFunction_t ServerCommandHandler::GetServerCommand( PROTOCOL_TYPE protocol )
+CommandFunction_t ServerCommandHandler::GetServerCommand( PROTOCOL_TYPE protocol )
 {
 	if( serverCommand_.find( protocol ) == serverCommand_.end() )
 	{

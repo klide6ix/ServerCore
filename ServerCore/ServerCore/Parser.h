@@ -23,7 +23,7 @@ public:
 	virtual bool encodeMessage( Packet* packet, char* dest, int& destSize )
 	{
 		destSize = (static_cast<int>(packet->GetPacketSize()));
-		memcpy( dest, packet->GetPacketData(), destSize );
+		memcpy( dest, packet->GetPacketBuffer(), destSize );
 
 		return true;
 	}

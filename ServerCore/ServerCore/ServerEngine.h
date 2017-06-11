@@ -32,6 +32,8 @@ public:
 	bool InitializeParser( IParser* parser );
 	bool InitializeApplication( ServerApp* application );
 	bool InitializeAccepter();
+
+	ServerApp* GetServerApp();
 	
 	void StartServer();
 
@@ -52,5 +54,8 @@ public:
 
 	void	PushPacket( Packet* obj );
 	Packet*	PopPacket();
+
+	void				AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command );
+	CommandFunction_t	GetServerCommand( PROTOCOL_TYPE protocol );
 };
 

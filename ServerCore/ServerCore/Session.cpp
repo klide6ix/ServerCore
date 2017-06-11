@@ -111,5 +111,5 @@ int Session::SendPacket( Packet& packet )
 	if( socket_.GetSocket() == INVALID_SOCKET )
 		return 0;
 
-	return send( socket_.GetSocket(), packet.GetPacketData(), packet.GetPacketSize(), 0 );
+	return send( socket_.GetSocket(), packet.GetPacketBuffer(), packet.GetPacketSize(), 0 );
 }
