@@ -2,7 +2,7 @@
 
 #include "SelectModel.h"
 #include "Session.h"
-#include "MessageObject.h"
+#include "Packet.h"
 
 SelectModel::SelectModel()
 {
@@ -84,16 +84,19 @@ void SelectModel::SelectSession()
 				continue;
 			}
 
-			MessageObject* msg = ServerEngine::GetInstance().GetMessageObject();
+			Packet* packet = ServerEngine::GetInstance().AllocPacket();
 
-			if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, msg->messageBuffer_, msg->messageBufferSize_ ) == false )
+			if( packet == nullptr )
+				continue;
+
+			if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, packet ) == false )
 			{
-				ServerEngine::GetInstance().ReturnMessageObject( msg );
+				ServerEngine::GetInstance().FreePacket( packet );
 			}
 			else
 			{
-				ServerEngine::GetInstance().PushMessageObject( msg );
-				itr->RecvBufferConsume( msg->messageBufferSize_ );
+				ServerEngine::GetInstance().PushPacket( packet );
+				itr->RecvBufferConsume( packet->GetPacketSize() );
 			}
 			
 			itr->RecvBufferConsume( recvSize );

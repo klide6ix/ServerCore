@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+
+#include "Packet.h"
 #include "Socket.h"
 #include "NetworkBuffer.h"
 
@@ -36,7 +38,7 @@ public:
 	char* RecvBufferPos() { return recvBuffer_.GetBufferOrg(); }
 	void  RecvBufferConsume( int size );
 
-	int  SendPacket( const char* message, int length );
+	int  SendPacket( Packet& packet );
 
 	void CleanUp();
 };

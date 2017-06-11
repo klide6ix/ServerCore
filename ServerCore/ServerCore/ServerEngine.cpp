@@ -3,6 +3,7 @@
 #include "Session.h"
 #include "ServerApp.h"
 #include "ServerEngine.h"
+#include "ServerCommand.h"
 
 #include "Socket.h"
 #include "NetworkModel.h"
@@ -20,16 +21,17 @@
 class ServerImplement
 {
 public:
-	std::shared_ptr<SessionManager>		sessionManager_;
-	std::shared_ptr<NetworkModel>		networkModel_;
-	std::shared_ptr<IParser>			parser_;
-	std::shared_ptr<ServerApp>			serverApp_;
+	std::shared_ptr<SessionManager>			sessionManager_;
+	std::shared_ptr<NetworkModel>			networkModel_;
+	std::shared_ptr<IParser>				parser_;
+	std::shared_ptr<ServerApp>				serverApp_;
+	std::shared_ptr<ServerCommandHandler>	serverCommand_;
 
-	std::shared_ptr<Accepter>			accepter_;
-	std::shared_ptr<WorkThread>			workThread_;
-	std::shared_ptr<NetworkThread>		networkThread_;
+	std::shared_ptr<Accepter>				accepter_;
+	std::shared_ptr<WorkThread>				workThread_;
+	std::shared_ptr<NetworkThread>			networkThread_;
 
-	std::shared_ptr<WorkQueue>			workQueue_;
+	std::shared_ptr<WorkQueue>				workQueue_;
 };
 
 std::unique_ptr<ServerEngine> ServerEngine::instance_;
@@ -66,10 +68,9 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 		serverImpl_ = new ServerImplement();
 		serverImpl_->workThread_ = std::make_shared<WorkThread>();
 		serverImpl_->networkThread_ = std::make_shared<NetworkThread>();
-
 		serverImpl_->sessionManager_ = std::make_shared<SessionManager>();
-
 		serverImpl_->workQueue_ = std::make_shared<WorkQueue>();
+		serverImpl_->serverCommand_ = std::make_shared<ServerCommandHandler>();
 		
 		if( serverModel == MODEL_IOCP )
 			serverImpl_->networkModel_ = std::make_shared<IOCPModel>();
@@ -191,32 +192,32 @@ void ServerEngine::SelectSession()
 	serverImpl_->networkModel_->SelectSession();
 }
 
-bool ServerEngine::EncodePacket( const char* src, int srcSize, char* dest, int& destSize )
+bool ServerEngine::EncodePacket( Packet* packet, char* dest, int& destSize )
 {
-	return serverImpl_->parser_->encodeMessage( src, srcSize, dest, destSize );
+	return serverImpl_->parser_->encodeMessage( packet, dest, destSize );
 }
 
-bool ServerEngine::DecodePacket( const char* src, int srcSize, char* dest, int& destSize )
+bool ServerEngine::DecodePacket( const char* src, int srcSize, Packet* packet )
 {
-	return serverImpl_->parser_->decodeMessage( src, srcSize, dest, destSize );
+	return serverImpl_->parser_->decodeMessage( src, srcSize, packet );
 }
 
-MessageObject* ServerEngine::GetMessageObject()
+Packet* ServerEngine::AllocPacket()
 {
 	return serverImpl_->workQueue_->AllocObject();
 }
 
-void ServerEngine::ReturnMessageObject( MessageObject* obj )
+void ServerEngine::FreePacket( Packet* obj )
 {
 	serverImpl_->workQueue_->RestoreObject( obj );
 }
 
-void ServerEngine::PushMessageObject( MessageObject* obj )
+void ServerEngine::PushPacket( Packet* obj )
 {
 	serverImpl_->workQueue_->Push( obj );
 }
 
-MessageObject* ServerEngine::PopMessageObject()
+Packet* ServerEngine::PopPacket()
 {
 	return serverImpl_->workQueue_->Pop();
 }

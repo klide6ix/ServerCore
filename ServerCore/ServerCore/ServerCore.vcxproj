@@ -116,11 +116,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h" />
-    <ClInclude Include="MessageObject.h" />
+    <ClInclude Include="Packet.h" />
     <ClInclude Include="NetworkBuffer.h" />
     <ClInclude Include="ObjectQueue.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ServerApp.h" />
+    <ClInclude Include="ServerCommand.h" />
     <ClInclude Include="ServerEngine.h" />
     <ClInclude Include="CircularBuffer.h" />
     <ClInclude Include="IOCPModel.h" />
@@ -129,6 +130,7 @@
     <ClInclude Include="NetworkThread.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="SelectModel.h" />
+    <ClInclude Include="ServerEngineDef.h" />
     <ClInclude Include="ServerSocket.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
@@ -138,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Accepter.cpp" />
+    <ClCompile Include="ServerCommand.cpp" />
     <ClCompile Include="ServerEngine.cpp" />
     <ClCompile Include="IOCPModel.cpp" />
     <ClCompile Include="IThread.cpp" />

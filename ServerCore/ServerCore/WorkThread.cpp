@@ -1,6 +1,6 @@
 #include "WorkThread.h"
 #include "ServerEngine.h"
-#include "MessageObject.h"
+#include "Packet.h"
 
 WorkThread::WorkThread()
 {
@@ -11,20 +11,15 @@ WorkThread::~WorkThread()
 {
 }
 
-static int gIndex = 0;
-
 void WorkThread::Process()
 {
-	int thisThread = gIndex++;
-	printf("Start Thread [%d]\n", thisThread);
-
 	while( IsRunning() == true )
 	{
-		MessageObject* message = ServerEngine::GetInstance().PopMessageObject();
+		Packet* packet = ServerEngine::GetInstance().PopPacket();
 
-		if( message == nullptr )
+		if( packet == nullptr )
 			continue;
 
-		printf("[%d]Message : %s\n", thisThread, message->messageBuffer_ );
+		printf("[%d]Message(%d) : %s\n", packet->GetProtocol(), packet->GetPacketSize(), packet->GetPacketData() + 4 );
 	}
 }

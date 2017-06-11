@@ -36,8 +36,11 @@ int main()
 		std::string msg;
 		std::cout << "Message : ";
 		std::cin >> msg;
+
+		Packet packet;
 		
-		newSession->SendPacket( msg.c_str(), static_cast<int>(msg.length()) );
+		packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
+		newSession->SendPacket( packet );
 	}
     
 	return 0;

@@ -16,17 +16,17 @@ bool WorkQueue::Init()
 	return messagePool_.Init();
 }
 
-MessageObject* WorkQueue::AllocObject()
+Packet* WorkQueue::AllocObject()
 {
 	return messagePool_.Alloc();
 }
 
-void WorkQueue::RestoreObject( MessageObject* obj )
+void WorkQueue::RestoreObject( Packet* obj )
 {
 	messagePool_.Free( obj );
 }
 
-MessageObject* WorkQueue::Pop()
+Packet* WorkQueue::Pop()
 {
 	if( messageQueue_.Empty() == true )
 	{
@@ -36,7 +36,7 @@ MessageObject* WorkQueue::Pop()
 	return messageQueue_.Pop();
 }
 
-void WorkQueue::Push( MessageObject* obj )
+void WorkQueue::Push( Packet* obj )
 {
 	messageQueue_.Push( obj );
 

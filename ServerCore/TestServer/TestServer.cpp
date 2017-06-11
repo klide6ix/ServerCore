@@ -8,7 +8,7 @@
 
 #define SERVER_PORT 1500
 
-class TestServer : public ServerApp
+class ServerTest : public ServerApp
 {
 	std::list<Session*>	clientList_;
 
@@ -29,7 +29,7 @@ int main()
 {
 	ServerEngine::GetInstance().InitializeEngine( MODEL_IOCP );
 	ServerEngine::GetInstance().InitializeParser( new ParserDefault );
-	ServerEngine::GetInstance().InitializeApplication( new TestServer );
+	ServerEngine::GetInstance().InitializeApplication( new ServerTest );
 
 	ServerEngine::GetInstance().InitializeAccepter();
 	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );

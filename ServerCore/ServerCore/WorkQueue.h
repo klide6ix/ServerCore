@@ -3,7 +3,7 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "MessageObject.h"
+#include "Packet.h"
 #include "ObjectPool.h"
 #include "ObjectQueue.h"
 
@@ -12,18 +12,18 @@ class WorkQueue
 	std::mutex					queueLock_;
 	std::condition_variable		queueCond_;
 
-	ObjectPool<MessageObject>	messagePool_;
-	ObjectQueue<MessageObject>	messageQueue_;
+	ObjectPool<Packet>			messagePool_;
+	ObjectQueue<Packet>			messageQueue_;
 
 public:
 	WorkQueue();
 	virtual ~WorkQueue();
 
 	bool				Init();
-	MessageObject*		AllocObject();
-	void				RestoreObject( MessageObject* obj );
-	MessageObject*		Pop();
-	void				Push( MessageObject* obj );
+	Packet*		AllocObject();
+	void				RestoreObject( Packet* obj );
+	Packet*		Pop();
+	void				Push( Packet* obj );
 };
 
 

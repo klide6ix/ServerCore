@@ -1,6 +1,6 @@
 #include "ServerEngine.h"
 
-#include "MessageObject.h"
+#include "Packet.h"
 #include "Session.h"
 #include "SessionManager.h"
 
@@ -76,16 +76,19 @@ void IOCPModel::SelectSession()
 				{
 				case ASYNCFLAG_RECEIVE:
 					{
-						MessageObject* msg = ServerEngine::GetInstance().GetMessageObject();
+						Packet* packet = ServerEngine::GetInstance().AllocPacket();
+
+						if( packet == nullptr )
+							return;
 						
-						if( ServerEngine::GetInstance().DecodePacket( session->RecvBufferPos(), static_cast<int>(dwBytesTransfer), msg->messageBuffer_, msg->messageBufferSize_ ) == false )
+						if( ServerEngine::GetInstance().DecodePacket( session->RecvBufferPos(), static_cast<int>(dwBytesTransfer), packet ) == false )
 						{
-							ServerEngine::GetInstance().ReturnMessageObject( msg );
+							ServerEngine::GetInstance().FreePacket( packet );
 						}
 						else
 						{
-							ServerEngine::GetInstance().PushMessageObject( msg );
-							session->RecvBufferConsume( msg->messageBufferSize_ );
+							ServerEngine::GetInstance().PushPacket( packet );
+							session->RecvBufferConsume( packet->GetPacketSize() );
 						}
 					}
 				break;

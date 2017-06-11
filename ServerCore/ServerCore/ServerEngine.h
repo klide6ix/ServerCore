@@ -1,18 +1,12 @@
 #pragma once
 #include <memory>
 #include <mutex>
-
-enum SERVER_MODEL
-{
-	MODEL_EPOLL,
-	MODEL_IOCP,
-	MODEL_SELECT,
-};
+#include "ServerEngineDef.h"
 
 class Socket;
 class IParser;
 class Session;
-class MessageObject;
+class Packet;
 
 class ServerApp;
 class ServerImplement;
@@ -50,13 +44,13 @@ public:
 	void CloseSession( Session* session );
 	void SelectSession();
 	
-	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
-	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );
+	bool EncodePacket( Packet* packet, char* dest, int& destSize );
+	bool DecodePacket( const char* src, int srcSize, Packet* packet );
 
-	MessageObject*	GetMessageObject();
-	void			ReturnMessageObject( MessageObject* obj );
+	Packet*	AllocPacket();
+	void	FreePacket( Packet* obj );
 
-	void			PushMessageObject( MessageObject* obj );
-	MessageObject*	PopMessageObject();
+	void	PushPacket( Packet* obj );
+	Packet*	PopPacket();
 };
 

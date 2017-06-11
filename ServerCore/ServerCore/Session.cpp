@@ -106,10 +106,10 @@ void Session::CleanUp()
 	socket_.CloseSocket();
 }
 
-int Session::SendPacket( const char* message, int length )
+int Session::SendPacket( Packet& packet )
 {
 	if( socket_.GetSocket() == INVALID_SOCKET )
 		return 0;
 
-	return send( socket_.GetSocket(), message, length, 0 );
+	return send( socket_.GetSocket(), packet.GetPacketData(), packet.GetPacketSize(), 0 );
 }
