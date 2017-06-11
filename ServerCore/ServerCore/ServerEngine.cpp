@@ -1,9 +1,9 @@
+#include <map>
 #include <stdio.h>
 
 #include "Session.h"
 #include "ServerApp.h"
 #include "ServerEngine.h"
-#include "ServerCommand.h"
 
 #include "Socket.h"
 #include "NetworkModel.h"
@@ -21,11 +21,12 @@
 class ServerImplement
 {
 public:
+	std::map< PROTOCOL_TYPE, CommandFunction_t > serverCommand_;
+
 	std::shared_ptr<SessionManager>			sessionManager_;
 	std::shared_ptr<NetworkModel>			networkModel_;
 	std::shared_ptr<IParser>				parser_;
 	std::shared_ptr<ServerApp>				serverApp_;
-	std::shared_ptr<ServerCommandHandler>	serverCommand_;
 
 	std::shared_ptr<Accepter>				accepter_;
 	std::shared_ptr<WorkThread>				workThread_;
@@ -70,7 +71,6 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 		serverImpl_->networkThread_ = std::make_shared<NetworkThread>();
 		serverImpl_->sessionManager_ = std::make_shared<SessionManager>();
 		serverImpl_->workQueue_ = std::make_shared<WorkQueue>();
-		serverImpl_->serverCommand_ = std::make_shared<ServerCommandHandler>();
 		
 		if( serverModel == MODEL_IOCP )
 			serverImpl_->networkModel_ = std::make_shared<IOCPModel>();
@@ -229,10 +229,22 @@ Packet* ServerEngine::PopPacket()
 
 void ServerEngine::AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command )
 {
-	serverImpl_->serverCommand_->AddServerCommand( protocol, command );
+	if( serverImpl_->serverCommand_.find( protocol ) == serverImpl_->serverCommand_.end() )
+	{
+		serverImpl_->serverCommand_.insert( std::pair< PROTOCOL_TYPE, CommandFunction_t >( protocol, command ) );
+	}
+	else
+	{
+		serverImpl_->serverCommand_[protocol] = command;
+	}
 }
 
 CommandFunction_t ServerEngine::GetServerCommand( PROTOCOL_TYPE protocol )
 {
-	return serverImpl_->serverCommand_->GetServerCommand( protocol );
+	if( serverImpl_->serverCommand_.find( protocol ) == serverImpl_->serverCommand_.end() )
+	{
+		return nullptr;
+	}
+
+	return serverImpl_->serverCommand_[protocol];
 }

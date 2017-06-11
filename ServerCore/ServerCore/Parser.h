@@ -29,7 +29,13 @@ public:
 	}
 	virtual bool decodeMessage( const char* src, int srcSize, Packet* packet )
 	{
+		if( srcSize < sizeof( PROTOCOL_TYPE ) + sizeof( unsigned short ) )
+			return false;
+
 		memcpy( packet->GetPacketBuffer(), src, srcSize );
+
+		if( packet->GetPacketSize() < srcSize )
+			return false;
 
 		return true;
 	}

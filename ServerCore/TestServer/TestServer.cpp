@@ -40,6 +40,9 @@ int main()
 	{
 		ServerTest* serverApp = dynamic_cast<ServerTest*>(ServerEngine::GetInstance().GetServerApp());
 
+		if( serverApp == nullptr )
+			return __LINE__;
+
 		Packet echoPacket;
 		echoPacket.AddPacketData( packet->GetPacketData(), packet->GetPacketDataSize() );
 		for( auto session : serverApp->GetClientList() )

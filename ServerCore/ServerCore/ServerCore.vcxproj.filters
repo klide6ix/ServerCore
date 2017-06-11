@@ -46,18 +46,23 @@
     <ClInclude Include="Parser.h">
       <Filter>Parser</Filter>
     </ClInclude>
-    <ClInclude Include="ServerEngine.h" />
     <ClInclude Include="ObjectQueue.h">
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="WorkQueue.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="ServerApp.h" />
-    <ClInclude Include="ServerCommand.h" />
-    <ClInclude Include="ServerEngineDef.h" />
     <ClInclude Include="Packet.h">
       <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerApp.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerEngine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerEngineDef.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -94,11 +99,12 @@
     <ClCompile Include="SelectModel.cpp">
       <Filter>Network\Model</Filter>
     </ClCompile>
-    <ClCompile Include="ServerEngine.cpp" />
     <ClCompile Include="WorkQueue.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="ServerCommand.cpp" />
+    <ClCompile Include="ServerEngine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Network">
@@ -121,6 +127,9 @@
     </Filter>
     <Filter Include="Parser">
       <UniqueIdentifier>{c82be332-a539-4c4c-836e-67a6e46afa60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{13ebb06c-037c-4324-93e6-e6179cec40e7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

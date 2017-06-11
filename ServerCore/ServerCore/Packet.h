@@ -3,8 +3,6 @@
 
 #include "ServerEngineDef.h"
 
-#define MESSAGE_BUFFER_SIZE_MAX	20000
-
 class Packet
 {
 private:
@@ -29,12 +27,12 @@ public:
 	}
 
 	char* GetPacketBuffer() { return buffer_; }
-	unsigned short GetPacketSize()
+	SIZE_TYPE GetPacketSize()
 	{
-		return *(reinterpret_cast<unsigned short*>(buffer_ + sizeof(PROTOCOL_TYPE))) + sizeof( PROTOCOL_TYPE ) + sizeof( unsigned short );
+		return *(reinterpret_cast<SIZE_TYPE*>(buffer_ + sizeof(PROTOCOL_TYPE))) + HEADER_SIZE;
 	}
 
-	bool AddPacketData( const char* data, unsigned short size )
+	bool AddPacketData( const char* data, SIZE_TYPE size )
 	{
 		int currentPos = GetPacketSize();
 
@@ -43,14 +41,14 @@ public:
 
 		memcpy( &buffer_[currentPos], data, static_cast<size_t>(size) );
 
-		*(reinterpret_cast<unsigned short*>(buffer_ + sizeof(PROTOCOL_TYPE))) += size;
+		*(reinterpret_cast<SIZE_TYPE*>(buffer_ + sizeof(PROTOCOL_TYPE))) += size;
 
 		return true;
 	}
 
-	const char* GetPacketData() const { return buffer_ + (sizeof( PROTOCOL_TYPE ) + sizeof( unsigned short )); }
-	unsigned short GetPacketDataSize()
+	const char* GetPacketData() const { return buffer_ + HEADER_SIZE; }
+	SIZE_TYPE GetPacketDataSize()
 	{
-		return *(reinterpret_cast<unsigned short*>(buffer_ + sizeof(PROTOCOL_TYPE)));
+		return *(reinterpret_cast<SIZE_TYPE*>(buffer_ + sizeof(PROTOCOL_TYPE)));
 	}
 };
