@@ -197,14 +197,14 @@ void ServerEngine::SelectSession()
 	serverImpl_->networkModel_->SelectSession();
 }
 
-bool ServerEngine::EncodePacket( Packet* packet, char* dest, int& destSize )
+bool ServerEngine::EncodePacket( const char* src, int srcSize, char* dest, int& destSize )
 {
-	return serverImpl_->parser_->encodeMessage( packet, dest, destSize );
+	return serverImpl_->parser_->encodeMessage( src, srcSize, dest, destSize );
 }
 
-bool ServerEngine::DecodePacket( const char* src, int srcSize, Packet* packet )
+bool ServerEngine::DecodePacket( const char* src, int srcSize, char* dest, int& destSize )
 {
-	return serverImpl_->parser_->decodeMessage( src, srcSize, packet );
+	return serverImpl_->parser_->decodeMessage( src, srcSize, dest, destSize );
 }
 
 Packet* ServerEngine::AllocPacket()

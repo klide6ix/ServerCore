@@ -46,8 +46,8 @@ public:
 	void CloseSession( Session* session );
 	void SelectSession();
 	
-	bool EncodePacket( Packet* packet, char* dest, int& destSize );
-	bool DecodePacket( const char* src, int srcSize, Packet* packet );
+	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
+	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );
 
 	Packet*	AllocPacket();
 	void	FreePacket( Packet* obj );

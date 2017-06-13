@@ -64,6 +64,9 @@
     <ClInclude Include="ServerEngineDef.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="EpollModel.h">
+      <Filter>Network\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ServerSocket.cpp">
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="ServerEngine.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="EpollModel.cpp">
+      <Filter>Network\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

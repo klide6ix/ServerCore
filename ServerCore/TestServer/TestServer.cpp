@@ -27,10 +27,39 @@ public:
 	std::list<Session*>& GetClientList() { return clientList_; }
 };
 
+class ParserTest : public IParser
+{
+public:
+	ParserTest() {}
+	virtual ~ParserTest() {}
+
+	virtual bool encodeMessage( const char* src, int srcSize, char* dest, int& destSize )
+	{
+		destSize = srcSize;
+		memcpy( dest, src, destSize );
+
+		return true;
+	}
+	virtual bool decodeMessage( const char* src, int srcSize, char* dest, int& destSize )
+	{
+		if( srcSize < HEADER_SIZE )
+			return false;
+
+		const PacketHeader* header = reinterpret_cast<const PacketHeader*>(src);
+		if( header->packetSize_ + HEADER_SIZE < srcSize )
+			return false;
+
+		destSize = header->packetSize_ + HEADER_SIZE;
+		memcpy( dest, src, header->packetSize_ + HEADER_SIZE );
+
+		return true;
+	}
+};
+
 int main()
 {
 	ServerEngine::GetInstance().InitializeEngine( MODEL_IOCP );
-	ServerEngine::GetInstance().InitializeParser( new ParserDefault );
+	ServerEngine::GetInstance().InitializeParser( new ParserTest );
 	ServerEngine::GetInstance().InitializeApplication( new ServerTest );
 
 	ServerEngine::GetInstance().InitializeAccepter();

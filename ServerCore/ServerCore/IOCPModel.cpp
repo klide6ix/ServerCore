@@ -81,7 +81,8 @@ void IOCPModel::SelectSession()
 						if( packet == nullptr )
 							return;
 						
-						if( ServerEngine::GetInstance().DecodePacket( session->RecvBufferPos(), static_cast<int>(dwBytesTransfer), packet ) == false )
+						int packetSize = 0;
+						if( ServerEngine::GetInstance().DecodePacket( session->RecvBufferPos(), static_cast<int>(dwBytesTransfer), packet->GetPacketBuffer(), packetSize ) == false )
 						{
 							ServerEngine::GetInstance().FreePacket( packet );
 						}

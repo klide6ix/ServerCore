@@ -89,7 +89,8 @@ void SelectModel::SelectSession()
 			if( packet == nullptr )
 				continue;
 
-			if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, packet ) == false )
+			int packetSize = 0;
+			if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, packet->GetPacketBuffer(), packetSize ) == false )
 			{
 				ServerEngine::GetInstance().FreePacket( packet );
 			}

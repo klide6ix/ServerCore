@@ -10,6 +10,35 @@
 
 #define SERVER_PORT 1500
 
+class ParserTest : public IParser
+{
+public:
+	ParserTest() {}
+	virtual ~ParserTest() {}
+
+	virtual bool encodeMessage( const char* src, int srcSize, char* dest, int& destSize )
+	{
+		destSize = srcSize;
+		memcpy( dest, src, destSize );
+
+		return true;
+	}
+	virtual bool decodeMessage( const char* src, int srcSize, char* dest, int& destSize )
+	{
+		if( srcSize < HEADER_SIZE )
+			return false;
+
+		const PacketHeader* header = reinterpret_cast<const PacketHeader*>(src);
+		if( header->packetSize_ + HEADER_SIZE < srcSize )
+			return false;
+
+		destSize = header->packetSize_ + HEADER_SIZE;
+		memcpy( dest, src, header->packetSize_ + HEADER_SIZE );
+
+		return true;
+	}
+};
+
 int main()
 {
 	ServerEngine::GetInstance();

@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h" />
+    <ClInclude Include="EpollModel.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="NetworkBuffer.h" />
     <ClInclude Include="ObjectQueue.h" />
@@ -139,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Accepter.cpp" />
+    <ClCompile Include="EpollModel.cpp" />
     <ClCompile Include="ServerEngine.cpp" />
     <ClCompile Include="IOCPModel.cpp" />
     <ClCompile Include="IThread.cpp" />
