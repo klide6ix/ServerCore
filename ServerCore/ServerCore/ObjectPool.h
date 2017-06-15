@@ -20,7 +20,7 @@ class ObjectPool
 			t* obj = nullptr;
 			try
 			{
-				obj = new t ();
+				obj = new t {};
 			}
 			catch( std::bad_alloc& )
 			{
