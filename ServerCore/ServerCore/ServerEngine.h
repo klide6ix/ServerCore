@@ -1,7 +1,15 @@
 #pragma once
 #include <memory>
 #include <mutex>
-#include "ServerEngineDef.h"
+#include "Command.h"
+
+enum SERVER_MODEL
+{
+	MODEL_EPOLL,
+	MODEL_IOCP,
+	MODEL_SELECT,
+};
+
 
 class Socket;
 class IParser;
@@ -49,13 +57,13 @@ public:
 	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
 	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );
 
-	Packet*	AllocPacket();
-	void	FreePacket( Packet* obj );
+	Packet* AllocatePacket();
+	void FreePacket( Packet* obj );
 
-	void	PushPacket( Packet* obj );
-	Packet*	PopPacket();
+	void PushCommand( Command& cmd );
+	bool PopCommand( Command& cmd );
 
-	void				AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command );
-	CommandFunction_t	GetServerCommand( PROTOCOL_TYPE protocol );
+	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
+	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
 };
 

@@ -13,7 +13,7 @@ class ObjectPool
 
 	void _Reallocation()
 	{
-		defaultPoolSize_ = std::min( defaultPoolSize_ * 2, maxPoolSize_ );
+		defaultPoolSize_ = (std::min)( defaultPoolSize_ * 2, maxPoolSize_ );
 
 		for( int i = 0; i < defaultPoolSize_; ++i )
 		{

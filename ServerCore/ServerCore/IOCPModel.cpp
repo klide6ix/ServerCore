@@ -76,7 +76,7 @@ void IOCPModel::SelectSession()
 				{
 				case ASYNCFLAG_RECEIVE:
 					{
-						Packet* packet = ServerEngine::GetInstance().AllocPacket();
+						Packet* packet = ServerEngine::GetInstance().AllocatePacket();
 
 						if( packet == nullptr )
 							return;
@@ -88,7 +88,7 @@ void IOCPModel::SelectSession()
 						}
 						else
 						{
-							ServerEngine::GetInstance().PushPacket( packet );
+							ServerEngine::GetInstance().PushCommand( Command( COMMAND_NETWORK, static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
 							session->RecvBufferConsume( packet->GetPacketSize() );
 						}
 					}
