@@ -91,8 +91,8 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 	if( serverImpl_->networkModel_->InitNetworkModel() == false )
 		return false;
 
-	serverImpl_->workThread_->SetThreadCount(4);
-	serverImpl_->networkThread_->SetThreadCount(4);
+	serverImpl_->workThread_->SetThreadCount(std::thread::hardware_concurrency());
+	serverImpl_->networkThread_->SetThreadCount(std::thread::hardware_concurrency());
 
 	serverImpl_->networkThread_->StartThread();
 	serverImpl_->workThread_->StartThread();
