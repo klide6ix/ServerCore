@@ -15,16 +15,23 @@ void WorkThread::Process()
 {
 	while( IsRunning() == true )
 	{
-		Packet* packet = ServerEngine::GetInstance().PopPacket();
-
-		if( packet == nullptr )
+		Command command;
+		if( ServerEngine::GetInstance().PopCommand( command ) == false )
 			continue;
 
-		CommandFunction_t workFunc = ServerEngine::GetInstance().GetServerCommand( packet->GetProtocol() );
+		if( command.cmdMessage_ == nullptr )
+			continue;
+
+		CommandFunction_t workFunc = ServerEngine::GetInstance().GetServerCommand( command.cmdID_ );
 
 		if( workFunc != nullptr )
 		{
-			workFunc( packet->GetProtocol(), packet );
+			workFunc( command );
+		}
+
+		if( command.cmdType_ == COMMAND_NETWORK )
+		{
+			ServerEngine::GetInstance().FreePacket( static_cast<Packet*>(command.cmdMessage_) );
 		}
 
 	}

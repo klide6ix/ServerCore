@@ -47,8 +47,9 @@ int main()
 	ServerEngine::GetInstance().InitializeParser( new ParserDefault );
 	ServerEngine::GetInstance().InitializeApplication( new ServerApp );
 
-	ServerEngine::GetInstance().AddServerCommand( 0, [] ( PROTOCOL_TYPE protocol, Packet* packet ) -> unsigned int
+	ServerEngine::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
+		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
 		printf("Recv : %s\n", packet->GetPacketData() );
 		return 0;
 	} );

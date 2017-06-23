@@ -46,12 +46,6 @@
     <ClInclude Include="Parser.h">
       <Filter>Parser</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectQueue.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="WorkQueue.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="Packet.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -61,11 +55,17 @@
     <ClInclude Include="ServerEngine.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="ServerEngineDef.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="EpollModel.h">
       <Filter>Network\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandQueue.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="Command.h">
+      <Filter>Command</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseThread.h">
+      <Filter>Thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -102,14 +102,17 @@
     <ClCompile Include="SelectModel.cpp">
       <Filter>Network\Model</Filter>
     </ClCompile>
-    <ClCompile Include="WorkQueue.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="ServerEngine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="EpollModel.cpp">
       <Filter>Network\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandQueue.cpp">
+      <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseThread.cpp">
+      <Filter>Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +139,9 @@
     </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{13ebb06c-037c-4324-93e6-e6179cec40e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Command">
+      <UniqueIdentifier>{e3fc1b92-0c29-4ff6-86ab-4d5a5d2794ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

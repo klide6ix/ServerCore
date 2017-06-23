@@ -65,8 +65,10 @@ int main()
 	ServerEngine::GetInstance().InitializeAccepter();
 	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );
 
-	ServerEngine::GetInstance().AddServerCommand( 0, [] ( PROTOCOL_TYPE protocol, Packet* packet ) -> unsigned int
+	ServerEngine::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
+		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
+
 		ServerTest* serverApp = dynamic_cast<ServerTest*>(ServerEngine::GetInstance().GetServerApp());
 
 		if( serverApp == nullptr )

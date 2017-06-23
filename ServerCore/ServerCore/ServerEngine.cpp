@@ -9,11 +9,13 @@
 #include "NetworkModel.h"
 #include "SessionManager.h"
 #include "Parser.h"
-#include "WorkQueue.h"
+#include "CommandQueue.h"
+#include "Packet.h"
 
 #include "Accepter.h"
 #include "WorkThread.h"
 #include "NetworkThread.h"
+#include "DatabaseThread.h"
 
 #include "IOCPModel.h"
 #include "SelectModel.h"
@@ -21,7 +23,7 @@
 class ServerImplement
 {
 public:
-	std::map< PROTOCOL_TYPE, CommandFunction_t > serverCommand_;
+	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
 
 	std::shared_ptr<SessionManager>			sessionManager_;
 	std::shared_ptr<NetworkModel>			networkModel_;
@@ -31,8 +33,10 @@ public:
 	std::shared_ptr<Accepter>				accepter_;
 	std::shared_ptr<WorkThread>				workThread_;
 	std::shared_ptr<NetworkThread>			networkThread_;
+	std::shared_ptr<DatabaseThread>			databaseThread_;
 
-	std::shared_ptr<WorkQueue>				workQueue_;
+	std::shared_ptr<CommandQueue>			workQueue_;
+	ObjectPool<Packet>						packetPool_;
 };
 
 std::unique_ptr<ServerEngine> ServerEngine::instance_;
@@ -62,6 +66,13 @@ ServerEngine::~ServerEngine()
 	WSACleanup();
 }
 
+void ServerEngine::StartServer()
+{
+	serverImpl_->accepter_->JoinThread();
+	serverImpl_->networkThread_->JoinThread();
+	serverImpl_->workThread_->JoinThread();
+}
+
 bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 {
 	try
@@ -70,7 +81,7 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 		serverImpl_->workThread_ = std::make_shared<WorkThread>();
 		serverImpl_->networkThread_ = std::make_shared<NetworkThread>();
 		serverImpl_->sessionManager_ = std::make_shared<SessionManager>();
-		serverImpl_->workQueue_ = std::make_shared<WorkQueue>();
+		serverImpl_->workQueue_ = std::make_shared<CommandQueue>();
 		
 		if( serverModel == MODEL_IOCP )
 			serverImpl_->networkModel_ = std::make_shared<IOCPModel>();
@@ -82,34 +93,18 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 		return false;
 	}
 
-	if( serverImpl_->workQueue_->Init() == false )
+	serverImpl_->packetPool_.SetMaxPoolSize( 32 * 10 );
+	if( serverImpl_->packetPool_.Init() == false )
 		return false;
 
 	if( serverImpl_->networkModel_->InitNetworkModel() == false )
 		return false;
 
-	serverImpl_->workThread_->SetThreadCount(4);
-	serverImpl_->networkThread_->SetThreadCount(4);
+	serverImpl_->workThread_->SetThreadCount(std::thread::hardware_concurrency());
+	serverImpl_->networkThread_->SetThreadCount(std::thread::hardware_concurrency());
 
 	serverImpl_->networkThread_->StartThread();
 	serverImpl_->workThread_->StartThread();
-
-	return true;
-}
-
-bool ServerEngine::InitializeAccepter()
-{
-	try
-	{
-		serverImpl_->accepter_ = std::make_shared<Accepter>();
-	}
-	catch( std::bad_alloc& )
-	{
-		return false;
-	}
-
-	if( serverImpl_->accepter_->InitAccepter() == false )
-		return false;
 
 	return true;
 }
@@ -153,21 +148,55 @@ ServerApp* ServerEngine::GetServerApp()
 	return serverImpl_->serverApp_.get();
 }
 
+bool ServerEngine::InitializeAccepter()
+{
+	try
+	{
+		serverImpl_->accepter_ = std::make_shared<Accepter>();
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
+	if( serverImpl_->accepter_->InitAccepter() == false )
+		return false;
+
+	return true;
+}
+
 bool ServerEngine::AddAcceptPort( int port )
 {
 	return serverImpl_->accepter_->AddAcceptPort( port );
 }
 
-void ServerEngine::StartServer()
-{
-	serverImpl_->accepter_->JoinThread();
-	serverImpl_->networkThread_->JoinThread();
-	serverImpl_->workThread_->JoinThread();
-}
-
 void ServerEngine::StartAccepter()
 {
 	serverImpl_->accepter_->StartThread();
+}
+
+bool ServerEngine::InitializeDatabase()
+{
+	try
+	{
+		serverImpl_->databaseThread_ = std::make_shared<DatabaseThread>();
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ServerEngine::AddDatabaseConnection()
+{
+	return true;
+}
+
+void ServerEngine::StartDatabase()
+{
+	serverImpl_->databaseThread_->StartThread();
 }
 
 Session* ServerEngine::CreateSession( Socket& socket )
@@ -207,27 +236,27 @@ bool ServerEngine::DecodePacket( const char* src, int srcSize, char* dest, int& 
 	return serverImpl_->parser_->decodeMessage( src, srcSize, dest, destSize );
 }
 
-Packet* ServerEngine::AllocPacket()
+Packet* ServerEngine::AllocatePacket()
 {
-	return serverImpl_->workQueue_->AllocObject();
+	return serverImpl_->packetPool_.Alloc();
 }
 
 void ServerEngine::FreePacket( Packet* obj )
 {
-	serverImpl_->workQueue_->RestoreObject( obj );
+	serverImpl_->packetPool_.Free( obj );
 }
 
-void ServerEngine::PushPacket( Packet* obj )
+void ServerEngine::PushCommand( Command& cmd )
 {
-	serverImpl_->workQueue_->Push( obj );
+	serverImpl_->workQueue_->Push( cmd );
 }
 
-Packet* ServerEngine::PopPacket()
+bool ServerEngine::PopCommand( Command& cmd )
 {
-	return serverImpl_->workQueue_->Pop();
+	return serverImpl_->workQueue_->Pop( cmd );
 }
 
-void ServerEngine::AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t command )
+void ServerEngine::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )
 {
 	if( serverImpl_->serverCommand_.find( protocol ) == serverImpl_->serverCommand_.end() )
 	{
@@ -239,7 +268,7 @@ void ServerEngine::AddServerCommand( PROTOCOL_TYPE protocol, CommandFunction_t c
 	}
 }
 
-CommandFunction_t ServerEngine::GetServerCommand( PROTOCOL_TYPE protocol )
+CommandFunction_t ServerEngine::GetServerCommand( COMMAND_ID protocol )
 {
 	if( serverImpl_->serverCommand_.find( protocol ) == serverImpl_->serverCommand_.end() )
 	{

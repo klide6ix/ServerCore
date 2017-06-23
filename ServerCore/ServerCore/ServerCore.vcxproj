@@ -116,10 +116,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h" />
+    <ClInclude Include="DatabaseThread.h" />
     <ClInclude Include="EpollModel.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="NetworkBuffer.h" />
-    <ClInclude Include="ObjectQueue.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ServerApp.h" />
     <ClInclude Include="ServerEngine.h" />
@@ -130,16 +130,17 @@
     <ClInclude Include="NetworkThread.h" />
     <ClInclude Include="ObjectPool.h" />
     <ClInclude Include="SelectModel.h" />
-    <ClInclude Include="ServerEngineDef.h" />
+    <ClInclude Include="Command.h" />
     <ClInclude Include="ServerSocket.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
     <ClInclude Include="Socket.h" />
-    <ClInclude Include="WorkQueue.h" />
+    <ClInclude Include="CommandQueue.h" />
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Accepter.cpp" />
+    <ClCompile Include="DatabaseThread.cpp" />
     <ClCompile Include="EpollModel.cpp" />
     <ClCompile Include="ServerEngine.cpp" />
     <ClCompile Include="IOCPModel.cpp" />
@@ -151,7 +152,7 @@
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SessionManager.cpp" />
     <ClCompile Include="Socket.cpp" />
-    <ClCompile Include="WorkQueue.cpp" />
+    <ClCompile Include="CommandQueue.cpp" />
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

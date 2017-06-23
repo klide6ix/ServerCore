@@ -93,7 +93,7 @@ void EpollModel::SelectSession()
 				continue;
 			}
 
-			Packet* packet = ServerEngine::GetInstance().AllocPacket();
+			Packet* packet = ServerEngine::GetInstance().AllocatePacket();
 
 			if( packet == nullptr )
 				continue;
@@ -104,7 +104,7 @@ void EpollModel::SelectSession()
 			}
 			else
 			{
-				ServerEngine::GetInstance().PushPacket( packet );
+				ServerEngine::GetInstance().PushCommand( Command( COMMAND_NETWORK, static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
 				itr->RecvBufferConsume( packet->GetPacketSize() );
 }
 
