@@ -64,6 +64,9 @@
     <ClInclude Include="Command.h">
       <Filter>Command</Filter>
     </ClInclude>
+    <ClInclude Include="DatabaseThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ServerSocket.cpp">
@@ -107,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="CommandQueue.cpp">
       <Filter>Command</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseThread.cpp">
+      <Filter>Thread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

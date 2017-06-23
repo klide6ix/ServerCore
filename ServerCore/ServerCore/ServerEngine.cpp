@@ -15,6 +15,7 @@
 #include "Accepter.h"
 #include "WorkThread.h"
 #include "NetworkThread.h"
+#include "DatabaseThread.h"
 
 #include "IOCPModel.h"
 #include "SelectModel.h"
@@ -32,8 +33,9 @@ public:
 	std::shared_ptr<Accepter>				accepter_;
 	std::shared_ptr<WorkThread>				workThread_;
 	std::shared_ptr<NetworkThread>			networkThread_;
+	std::shared_ptr<DatabaseThread>			databaseThread_;
 
-	std::shared_ptr<CommandQueue>				workQueue_;
+	std::shared_ptr<CommandQueue>			workQueue_;
 	ObjectPool<Packet>						packetPool_;
 };
 
@@ -62,6 +64,13 @@ ServerEngine::~ServerEngine()
 		delete serverImpl_;
 
 	WSACleanup();
+}
+
+void ServerEngine::StartServer()
+{
+	serverImpl_->accepter_->JoinThread();
+	serverImpl_->networkThread_->JoinThread();
+	serverImpl_->workThread_->JoinThread();
 }
 
 bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
@@ -96,23 +105,6 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 
 	serverImpl_->networkThread_->StartThread();
 	serverImpl_->workThread_->StartThread();
-
-	return true;
-}
-
-bool ServerEngine::InitializeAccepter()
-{
-	try
-	{
-		serverImpl_->accepter_ = std::make_shared<Accepter>();
-	}
-	catch( std::bad_alloc& )
-	{
-		return false;
-	}
-
-	if( serverImpl_->accepter_->InitAccepter() == false )
-		return false;
 
 	return true;
 }
@@ -156,21 +148,55 @@ ServerApp* ServerEngine::GetServerApp()
 	return serverImpl_->serverApp_.get();
 }
 
+bool ServerEngine::InitializeAccepter()
+{
+	try
+	{
+		serverImpl_->accepter_ = std::make_shared<Accepter>();
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
+	if( serverImpl_->accepter_->InitAccepter() == false )
+		return false;
+
+	return true;
+}
+
 bool ServerEngine::AddAcceptPort( int port )
 {
 	return serverImpl_->accepter_->AddAcceptPort( port );
 }
 
-void ServerEngine::StartServer()
-{
-	serverImpl_->accepter_->JoinThread();
-	serverImpl_->networkThread_->JoinThread();
-	serverImpl_->workThread_->JoinThread();
-}
-
 void ServerEngine::StartAccepter()
 {
 	serverImpl_->accepter_->StartThread();
+}
+
+bool ServerEngine::InitializeDatabase()
+{
+	try
+	{
+		serverImpl_->databaseThread_ = std::make_shared<DatabaseThread>();
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ServerEngine::AddDatabaseConnection()
+{
+	return true;
+}
+
+void ServerEngine::StartDatabase()
+{
+	serverImpl_->databaseThread_->StartThread();
 }
 
 Session* ServerEngine::CreateSession( Socket& socket )

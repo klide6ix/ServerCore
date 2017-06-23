@@ -35,18 +35,22 @@ private:
 public:
 	virtual ~ServerEngine();
 	static ServerEngine& GetInstance();
+	
+	ServerApp* GetServerApp();
 
+	void StartServer();
+	
 	bool InitializeEngine( SERVER_MODEL serverModel );
 	bool InitializeParser( IParser* parser );
 	bool InitializeApplication( ServerApp* application );
+
 	bool InitializeAccepter();
-
-	ServerApp* GetServerApp();
-	
-	void StartServer();
-
 	bool AddAcceptPort( int port );
 	void StartAccepter();
+
+	bool InitializeDatabase();
+	bool AddDatabaseConnection();
+	void StartDatabase();
 
 	Session* CreateSession( Socket& socket );
 
