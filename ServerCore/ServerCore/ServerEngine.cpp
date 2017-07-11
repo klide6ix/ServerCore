@@ -10,7 +10,10 @@
 #include "SessionManager.h"
 #include "Parser.h"
 #include "CommandQueue.h"
+
 #include "Packet.h"
+#include "QueryObject.h"
+#include "BufferObject.h"
 
 #include "Accepter.h"
 #include "WorkThread.h"
@@ -23,6 +26,11 @@
 class ServerImplement
 {
 public:
+	enum
+	{
+		DB_THREAD_COUNT = 4,
+	};
+
 	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
 
 	std::shared_ptr<SessionManager>			sessionManager_;
@@ -33,10 +41,14 @@ public:
 	std::shared_ptr<Accepter>				accepter_;
 	std::shared_ptr<WorkThread>				workThread_;
 	std::shared_ptr<NetworkThread>			networkThread_;
-	std::shared_ptr<DatabaseThread>			databaseThread_;
+	std::shared_ptr<DatabaseThread>			databaseThread_[DB_THREAD_COUNT];
 
 	std::shared_ptr<CommandQueue>			workQueue_;
+	std::shared_ptr<CommandQueue>			dbQueue_;
+
 	ObjectPool<Packet>						packetPool_;
+	ObjectPool<QueryObject>					queryPool_;
+	ObjectPool<BufferObject>				bufferPool_;
 };
 
 std::unique_ptr<ServerEngine> ServerEngine::instance_;
@@ -71,6 +83,11 @@ void ServerEngine::StartServer()
 	serverImpl_->accepter_->JoinThread();
 	serverImpl_->networkThread_->JoinThread();
 	serverImpl_->workThread_->JoinThread();
+
+	for( auto& dbThread : serverImpl_->databaseThread_ )
+	{
+		dbThread->JoinThread();
+	}
 }
 
 bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
@@ -82,6 +99,7 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 		serverImpl_->networkThread_ = std::make_shared<NetworkThread>();
 		serverImpl_->sessionManager_ = std::make_shared<SessionManager>();
 		serverImpl_->workQueue_ = std::make_shared<CommandQueue>();
+		serverImpl_->dbQueue_ = std::make_shared<CommandQueue>();
 		
 		if( serverModel == MODEL_IOCP )
 			serverImpl_->networkModel_ = std::make_shared<IOCPModel>();
@@ -175,11 +193,17 @@ void ServerEngine::StartAccepter()
 	serverImpl_->accepter_->StartThread();
 }
 
-bool ServerEngine::InitializeDatabase()
+bool ServerEngine::InitializeDatabase( const char* connectStr )
 {
 	try
 	{
-		serverImpl_->databaseThread_ = std::make_shared<DatabaseThread>();
+		for( auto& dbThread : serverImpl_->databaseThread_ )
+		{
+			dbThread = std::make_shared<DatabaseThread>();
+
+			if( dbThread->Initialize( connectStr ) == false )
+				return false;
+		}
 	}
 	catch( std::bad_alloc& )
 	{
@@ -196,7 +220,10 @@ bool ServerEngine::AddDatabaseConnection()
 
 void ServerEngine::StartDatabase()
 {
-	serverImpl_->databaseThread_->StartThread();
+	for( auto& dbThread : serverImpl_->databaseThread_ )
+	{
+		dbThread->StartThread();
+	}
 }
 
 Session* ServerEngine::CreateSession( Socket& socket )
@@ -246,6 +273,16 @@ void ServerEngine::FreePacket( Packet* obj )
 	serverImpl_->packetPool_.Free( obj );
 }
 
+char* ServerEngine::AllocateBuffer()
+{
+	return reinterpret_cast<char*>( serverImpl_->bufferPool_.Alloc() );
+}
+
+void ServerEngine::FreeBuffer( char* buffer )
+{
+	serverImpl_->bufferPool_.Free( reinterpret_cast<BufferObject*>(buffer) );
+}
+
 void ServerEngine::PushCommand( Command& cmd )
 {
 	serverImpl_->workQueue_->Push( cmd );
@@ -254,6 +291,32 @@ void ServerEngine::PushCommand( Command& cmd )
 bool ServerEngine::PopCommand( Command& cmd )
 {
 	return serverImpl_->workQueue_->Pop( cmd );
+}
+
+void ServerEngine::PushQuery( char* query )
+{
+	Command cmd;
+	cmd.cmdMessage_ = serverImpl_->queryPool_.Alloc();
+	
+	if( cmd.cmdMessage_ == nullptr )
+		return;
+
+	memcpy( cmd.cmdMessage_, query, MAX_QUERY_LEN );
+
+	serverImpl_->dbQueue_->Push( cmd );
+}
+
+bool ServerEngine::PopQuery( Command& cmd )
+{
+	return serverImpl_->dbQueue_->Pop( cmd );
+}
+
+void ServerEngine::FreeQuery( Command& cmd )
+{
+	if( cmd.cmdMessage_ == nullptr )
+		return;
+
+	serverImpl_->queryPool_.Free( static_cast<QueryObject*>(cmd.cmdMessage_) );
 }
 
 void ServerEngine::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

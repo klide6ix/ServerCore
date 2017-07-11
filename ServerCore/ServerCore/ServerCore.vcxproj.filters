@@ -65,7 +65,52 @@
       <Filter>Command</Filter>
     </ClInclude>
     <ClInclude Include="DatabaseThread.h">
-      <Filter>Thread</Filter>
+      <Filter>DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCHandler.h">
+      <Filter>DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="json\allocator.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\assertions.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\autolink.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\config.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\features.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\forwards.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\json.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\json_tool.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\reader.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\value.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\version.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="json\writer.h">
+      <Filter>JsonCpp</Filter>
+    </ClInclude>
+    <ClInclude Include="QueryObject.h">
+      <Filter>DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferObject.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -112,7 +157,19 @@
       <Filter>Command</Filter>
     </ClCompile>
     <ClCompile Include="DatabaseThread.cpp">
-      <Filter>Thread</Filter>
+      <Filter>DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="ODBCHandler.cpp">
+      <Filter>DataBase</Filter>
+    </ClCompile>
+    <ClCompile Include="json\json_reader.cpp">
+      <Filter>JsonCpp</Filter>
+    </ClCompile>
+    <ClCompile Include="json\json_value.cpp">
+      <Filter>JsonCpp</Filter>
+    </ClCompile>
+    <ClCompile Include="json\json_writer.cpp">
+      <Filter>JsonCpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -143,5 +200,22 @@
     <Filter Include="Command">
       <UniqueIdentifier>{e3fc1b92-0c29-4ff6-86ab-4d5a5d2794ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataBase">
+      <UniqueIdentifier>{8bc0c9a4-806c-466d-bd29-f57d2edf128a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JsonCpp">
+      <UniqueIdentifier>{9a206d67-a798-40a0-8ea4-195fddfc1d48}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="json\json_valueiterator.inl">
+      <Filter>JsonCpp</Filter>
+    </None>
+    <None Include="json\sconscript">
+      <Filter>JsonCpp</Filter>
+    </None>
+    <None Include="json\version.h.in">
+      <Filter>JsonCpp</Filter>
+    </None>
   </ItemGroup>
 </Project>

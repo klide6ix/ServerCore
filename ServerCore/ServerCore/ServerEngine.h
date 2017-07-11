@@ -48,7 +48,7 @@ public:
 	bool AddAcceptPort( int port );
 	void StartAccepter();
 
-	bool InitializeDatabase();
+	bool InitializeDatabase( const char* connectStr );
 	bool AddDatabaseConnection();
 	void StartDatabase();
 
@@ -64,8 +64,15 @@ public:
 	Packet* AllocatePacket();
 	void FreePacket( Packet* obj );
 
+	char* AllocateBuffer();
+	void FreeBuffer( char* buffer );
+
 	void PushCommand( Command& cmd );
 	bool PopCommand( Command& cmd );
+
+	void PushQuery( char* query );
+	bool PopQuery( Command& cmd );
+	void FreeQuery( Command& cmd );
 
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
