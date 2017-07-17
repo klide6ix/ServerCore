@@ -6,7 +6,7 @@ class IThread
 {
 private:
 
-	std::vector<std::thread*>	thread_;
+	std::vector<std::shared_ptr<std::thread>>	thread_;
 	unsigned int				threadCount_ = 1;
 	
 	volatile bool				isRunning_ = false;

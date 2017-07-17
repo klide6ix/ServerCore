@@ -83,7 +83,7 @@ int main()
 
 	char brdMsg[1024] = {0};
 	sprintf( brdMsg, "abcdedfghijklmnopqrstuvwxyz1234567890" );
-	while( true )
+	//while( true )
 	{
 		Packet packet;
 		
