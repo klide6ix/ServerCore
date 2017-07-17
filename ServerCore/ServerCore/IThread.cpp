@@ -18,7 +18,7 @@ void IThread::StartThread()
 
 	for( unsigned int i = 0; i < threadCount_; ++i )
 	{
-		thread_.push_back( new std::thread( [&] () { Process(); } ) );
+		thread_.push_back( std::make_shared<std::thread>( [&] () { Process(); } ) );
 	}
 }
 
@@ -38,21 +38,12 @@ void IThread::StopThread()
 {
 	isRunning_ = false;
 
-	for( std::thread* thread : thread_ )
+	for( auto thread : thread_ )
 	{
-		if( thread != nullptr )
+		if( thread != nullptr &&
+			thread->joinable() == true )
 		{
-			try
-			{
-				if( thread->joinable() == false )
-					delete thread;
-			}
-			catch( std::exception& e )
-			{
-				printf("%s\n", e.what() );
-			}
+			thread->join();
 		}
-
-		thread = nullptr;
 	}
 }
