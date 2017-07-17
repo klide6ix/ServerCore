@@ -14,6 +14,11 @@ IOCPModel::IOCPModel()
 
 IOCPModel::~IOCPModel()
 {
+	DWORD dwBytesTransfer = 0;
+	LPOVERLAPPED lpOverlapped = NULL;
+	ULONG_PTR CompletionKey = NULL;
+
+	PostQueuedCompletionStatus( iocpHandle_, dwBytesTransfer, CompletionKey, lpOverlapped );
 }
 
 bool IOCPModel::InitNetworkModel()
