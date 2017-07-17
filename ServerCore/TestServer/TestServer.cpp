@@ -84,16 +84,17 @@ int main()
 		return 0;
 	} );
 
+	ServerEngine::GetInstance().AddServerCommand( 1, [] ( Command& cmd ) -> unsigned int
+	{
+		ServerEngine::GetInstance().PushQuery( "select * from city where Name like '%SE%';" );
+		return 0;
+	} );
+
 	const char* connectStr = "DRIVER={MySQL ODBC 5.3 ANSI Driver};SERVER=127.0.0.1;USER=admin;PASSWORD=admin;Trusted_Connection=yes;Database=world";
 	ServerEngine::GetInstance().InitializeDatabase( connectStr );
 	
 	ServerEngine::GetInstance().StartAccepter();
 	ServerEngine::GetInstance().StartDatabase();
-
-	//ServerEngine::GetInstance().PushQuery( "select * from city where Name like '%SE%';" );
-	//ServerEngine::GetInstance().PushQuery( "select * from city where Name like '%SEO%';" );
-	//ServerEngine::GetInstance().PushQuery( "select * from city where Name like '%S%';" );
-	//ServerEngine::GetInstance().PushQuery( "select * from city where Name like '%K%';" );
 
 	ServerEngine::GetInstance().StartServer();
 

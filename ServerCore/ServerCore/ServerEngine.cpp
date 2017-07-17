@@ -13,7 +13,6 @@
 
 #include "Packet.h"
 #include "QueryObject.h"
-#include "BufferObject.h"
 
 #include "Accepter.h"
 #include "WorkThread.h"
@@ -22,6 +21,18 @@
 
 #include "IOCPModel.h"
 #include "SelectModel.h"
+
+struct BufferObject
+{
+	enum
+	{
+		DEFAULT_BUFFER_SIZE = 2048,
+	};
+
+	char buffer_[DEFAULT_BUFFER_SIZE] = {0};
+
+	BufferObject() { memset( buffer_, 0, sizeof(char) * DEFAULT_BUFFER_SIZE ); }
+};
 
 class ServerImplement
 {
@@ -33,22 +44,23 @@ public:
 
 	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
 
-	std::shared_ptr<SessionManager>			sessionManager_;
-	std::shared_ptr<NetworkModel>			networkModel_;
-	std::shared_ptr<IParser>				parser_;
-	std::shared_ptr<ServerApp>				serverApp_;
+	std::shared_ptr<SessionManager>			sessionManager_ = nullptr;
+	std::shared_ptr<NetworkModel>			networkModel_ = nullptr;
+	std::shared_ptr<IParser>				parser_ = nullptr;
+	std::shared_ptr<ServerApp>				serverApp_ = nullptr;
 
-	std::shared_ptr<Accepter>				accepter_;
-	std::shared_ptr<WorkThread>				workThread_;
-	std::shared_ptr<NetworkThread>			networkThread_;
+	std::shared_ptr<Accepter>				accepter_ = nullptr;
+	std::shared_ptr<WorkThread>				workThread_ = nullptr;
+	std::shared_ptr<NetworkThread>			networkThread_ = nullptr;
 	std::shared_ptr<DatabaseThread>			databaseThread_[DB_THREAD_COUNT];
 
-	std::shared_ptr<CommandQueue>			workQueue_;
-	std::shared_ptr<CommandQueue>			dbQueue_;
+	std::shared_ptr<CommandQueue>			workQueue_ = nullptr;
+	std::shared_ptr<CommandQueue>			dbQueue_ = nullptr;
 
 	ObjectPool<Packet>						packetPool_;
 	ObjectPool<QueryObject>					queryPool_;
 	ObjectPool<BufferObject>				bufferPool_;
+	ObjectPool<Json::Value>					jsonPool_;
 };
 
 std::unique_ptr<ServerEngine> ServerEngine::instance_;
@@ -80,13 +92,19 @@ ServerEngine::~ServerEngine()
 
 void ServerEngine::StartServer()
 {
-	serverImpl_->accepter_->JoinThread();
-	serverImpl_->networkThread_->JoinThread();
-	serverImpl_->workThread_->JoinThread();
+	if( serverImpl_->accepter_ != nullptr )
+		serverImpl_->accepter_->JoinThread();
+
+	if( serverImpl_->networkThread_ != nullptr )
+		serverImpl_->networkThread_->JoinThread();
+
+	if( serverImpl_->workThread_ != nullptr )
+		serverImpl_->workThread_->JoinThread();
 
 	for( auto& dbThread : serverImpl_->databaseThread_ )
 	{
-		dbThread->JoinThread();
+		if( dbThread != nullptr )
+			dbThread->JoinThread();
 	}
 }
 
@@ -317,6 +335,19 @@ void ServerEngine::FreeQuery( Command& cmd )
 		return;
 
 	serverImpl_->queryPool_.Free( static_cast<QueryObject*>(cmd.cmdMessage_) );
+}
+
+Json::Value* ServerEngine::AllocJson()
+{
+	return serverImpl_->jsonPool_.Alloc();
+}
+
+void ServerEngine::FreeJson( Json::Value* value )
+{
+	if( value == nullptr )
+		return;
+
+	serverImpl_->jsonPool_.Free( value );
 }
 
 void ServerEngine::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

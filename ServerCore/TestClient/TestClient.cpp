@@ -81,15 +81,16 @@ int main()
 	}
 	*/
 
-	char brdMsg[1024] = {0};
-	sprintf( brdMsg, "abcdedfghijklmnopqrstuvwxyz1234567890" );
-	while( true )
+	//while( true )
 	{
 		Packet packet;
-		
-		packet.AddPacketData( brdMsg, strlen(brdMsg) );
+		packet.SetProtocol( (PROTOCOL_TYPE)1 );
 		newSession->SendPacket( packet );
+
+		Sleep(1);
 	}
+
+	//ServerEngine::GetInstance().StartServer();
     
 	return 0;
 }

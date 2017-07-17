@@ -176,10 +176,16 @@ bool ODBCHandler::Reconnect()
 	return true;
 }
 
-int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value& outValue )
+int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value* outValue )
 {
 	if( hStmt_ == nullptr )
-		return 0;
+		return -1;
+
+	if( query == nullptr )
+		return -1;
+
+	if( outValue == nullptr )
+		return -1;
 
 	char errorMsg[SQL_MAX_MESSAGE_LENGTH + 128] = { 0 };
 	char stateMsg[SQL_MAX_MESSAGE_LENGTH] = { 0 };
@@ -207,7 +213,7 @@ int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value& outValue )
 
 				SQLColAttribute( hStmt_, (col + 1), SQL_DESC_NAME, title[col], sizeof( title[col] ), NULL, NULL  );
 				Json::Value param;
-				outValue[title[col]] = param;
+				(*outValue)[title[col]] = param;
 			}
 
 			bool bNoData = false;
@@ -233,7 +239,7 @@ int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value& outValue )
 				{
 					if( bNoData == false )
 					{
-						outValue[title[i]].append( buffer[i] );
+						(*outValue)[title[i]].append( buffer[i] );
 					}
 				}
 			

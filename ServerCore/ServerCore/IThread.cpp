@@ -38,11 +38,19 @@ void IThread::StopThread()
 {
 	isRunning_ = false;
 
-	for( auto thread : thread_ )
+	for( std::thread* thread : thread_ )
 	{
 		if( thread != nullptr )
 		{
-			delete thread;
+			try
+			{
+				if( thread->joinable() == false )
+					delete thread;
+			}
+			catch( std::exception& e )
+			{
+				printf("%s\n", e.what() );
+			}
 		}
 
 		thread = nullptr;

@@ -3,6 +3,8 @@
 #include <mutex>
 #include "Command.h"
 
+#include "json/json.h"
+
 enum SERVER_MODEL
 {
 	MODEL_EPOLL,
@@ -73,6 +75,9 @@ public:
 	void PushQuery( char* query );
 	bool PopQuery( Command& cmd );
 	void FreeQuery( Command& cmd );
+
+	Json::Value* AllocJson();
+	void		 FreeJson( Json::Value* value );
 
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );

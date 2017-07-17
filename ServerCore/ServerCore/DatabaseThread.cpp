@@ -32,16 +32,13 @@ void DatabaseThread::Process()
 		if( ServerEngine::GetInstance().PopQuery( command ) == false )
 			continue;
 
-		if( command.cmdMessage_ == nullptr )
-			continue;
-
-		Json::Value outValue;
+		Json::Value* outValue = ServerEngine::GetInstance().AllocJson();
 		odbcHandler_->ExecuteQuery( (const char*)command.cmdMessage_, outValue );
+		ServerEngine::GetInstance().FreeQuery( command );
 
 		Json::StyledWriter writer;
-		std::string outputConfig = writer.write( outValue );
+		std::string outputConfig = writer.write( *outValue );
 		printf("%s\n", outputConfig.c_str() );
 
-		ServerEngine::GetInstance().FreeQuery( command );
 	}
 }
