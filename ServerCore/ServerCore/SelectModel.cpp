@@ -55,7 +55,7 @@ bool SelectModel::RemoveSession( Session* newSession )
 	return true;
 }
 
-void SelectModel::SelectSession()
+void SelectModel::SelectSession( std::vector<SessionEvent>& sessionList )
 {
 	fd_set temps = fdReads_;
 
@@ -80,30 +80,15 @@ void SelectModel::SelectSession()
 
 			if( recvSize < 0 )
 			{
-				ServerEngine::GetInstance().CloseSession( itr );
+				sessionList.push_back( { SESSION_CLOSE, itr, 0 } );
 				continue;
 			}
 
-			do
-			{
-				Packet* packet = ServerEngine::GetInstance().AllocatePacket();
-
-				if( packet == nullptr )
-					continue;
-
-				int packetSize = 0;
-				if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, packet->GetPacketBuffer(), packetSize ) == false )
-				{
-					ServerEngine::GetInstance().FreePacket( packet );
-				}
-				else
-				{
-					ServerEngine::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
-					itr->RecvBufferConsume( packet->GetPacketSize() );
-					recvSize -= packet->GetPacketSize();
-				}
-			
-			} while( true );
+			sessionList.push_back( { SESSION_RECV, itr, recvSize } );
 		}
 	}
+}
+
+void SelectModel::StopNetworkModel()
+{
 }

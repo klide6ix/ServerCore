@@ -61,7 +61,7 @@ bool EpollModel::RemoveSession( Session* newSession )
 	return true;
 }
 
-void EpollModel::SelectSession()
+void EpollModel::SelectSession( std::vector<SessionEvent>& sessionList )
 {
 #ifndef _WIN32
 	memset( epollEvents_, 0x0, sizeof( epoll_event ) * EPOLL_MAX_EVENTS );
@@ -89,38 +89,24 @@ void EpollModel::SelectSession()
 
 			if( recvSize < 0 )
 			{
-				ServerEngine::GetInstance().CloseSession( itr );
+				sessionList.push_back( { SESSION_CLOSE, session, 0 } );
 				continue;
 			}
 
-			do
-			{
-				Packet* packet = ServerEngine::GetInstance().AllocatePacket();
-
-				if( packet == nullptr )
-					continue;
-
-				if( ServerEngine::GetInstance().DecodePacket( itr->RecvBufferPos(), recvSize, packet ) == false )
-				{
-					ServerEngine::GetInstance().FreePacket( packet );
-				}
-				else
-				{
-					ServerEngine::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
-					itr->RecvBufferConsume( packet->GetPacketSize() );
-					recvSize -= packet->GetPacketSize();
-				}
-
-			}while( true );
+			sessionList.push_back( { SESSION_RECV, session, recvSize } );
 			
 		} 
 
 		if( event & EPOLLERR || event & EPOLLHUP || session->IsClose() )
 		{
-			ServerEngine::GetInstance().CloseSession( session );
+			sessionList.push_back( { SESSION_CLOSE, session, 0 } );
 		}
 
 	}
 #endif
 
+}
+
+void EpollModel::StopNetworkModel()
+{
 }

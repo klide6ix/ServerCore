@@ -21,6 +21,20 @@ class Packet;
 class ServerApp;
 class ServerImplement;
 
+enum ENUM_SESSION_EVENT
+{
+	SESSION_CLOSE,
+	SESSION_RECV,
+	SESSION_SEND,
+};
+
+struct SessionEvent
+{
+	ENUM_SESSION_EVENT event_ = SESSION_CLOSE;
+	Session* session_ = nullptr;
+	int recvSize_ = 0;
+};
+
 class ServerEngine
 {
 private:
@@ -58,7 +72,8 @@ public:
 
 	void AddSession( Session* newSession, int acceptPort );
 	void CloseSession( Session* session );
-	void SelectSession();
+	void SelectSession( std::vector<SessionEvent>& sessionList );
+	void StopNetworkModel();
 	
 	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
 	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );

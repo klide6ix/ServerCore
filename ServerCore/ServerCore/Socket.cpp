@@ -43,6 +43,7 @@ void Socket::CloseSocket()
 #endif
 
 	socket_ = INVALID_SOCKET;
+	isConnected_ = false;
 }
 
 bool Socket::SetBlocking( bool block )
@@ -100,6 +101,8 @@ bool Socket::Connect( const char* serveraddress, int port )
 	}
 
 	SetBlocking( false );
+
+	isConnected_ = true;
 
 	return true;
 }

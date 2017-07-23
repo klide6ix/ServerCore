@@ -71,43 +71,94 @@
       <Filter>DataBase</Filter>
     </ClInclude>
     <ClInclude Include="json\allocator.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\assertions.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\autolink.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\config.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\features.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\forwards.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\json.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\json_tool.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\reader.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\value.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\version.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="json\writer.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="QueryObject.h">
       <Filter>DataBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\future_client.hpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\logger.hpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\redis_client.hpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\redis_error.hpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\redis_subscriber.hpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\reply.hpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\array_builder.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\builder_iface.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\builders_factory.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\bulk_string_builder.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\error_builder.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\integer_builder.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\reply_builder.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\builders\simple_string_builder.hpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\network\redis_connection.hpp">
+      <Filter>Utility\CppRedis\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\network\tcp_client.hpp">
+      <Filter>Utility\CppRedis\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_redis\network\tcp_client_iface.hpp">
+      <Filter>Utility\CppRedis\Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -160,13 +211,52 @@
       <Filter>DataBase</Filter>
     </ClCompile>
     <ClCompile Include="json\json_reader.cpp">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClCompile>
     <ClCompile Include="json\json_value.cpp">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </ClCompile>
     <ClCompile Include="json\json_writer.cpp">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\future_client.cpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\logger.cpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\redis_client.cpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\redis_subscriber.cpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\reply.cpp">
+      <Filter>Utility\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\array_builder.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\builders_factory.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\bulk_string_builder.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\error_builder.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\integer_builder.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\reply_builder.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\builders\simple_string_builder.cpp">
+      <Filter>Utility\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp_redis\network\redis_connection.cpp">
+      <Filter>Utility\CppRedis\Network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,19 +290,31 @@
     <Filter Include="DataBase">
       <UniqueIdentifier>{8bc0c9a4-806c-466d-bd29-f57d2edf128a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="JsonCpp">
+    <Filter Include="Utility\JsonCpp">
       <UniqueIdentifier>{9a206d67-a798-40a0-8ea4-195fddfc1d48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\CppRedis">
+      <UniqueIdentifier>{6e94e326-daa6-4ba7-8993-fc05c5b27445}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\CppRedis\Builder">
+      <UniqueIdentifier>{cf4ba202-b056-4310-88a2-bd13bb63850a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\CppRedis\Network">
+      <UniqueIdentifier>{b0428011-da0b-4e4f-9409-c87eb25ae04e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="json\json_valueiterator.inl">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </None>
     <None Include="json\sconscript">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
     </None>
     <None Include="json\version.h.in">
-      <Filter>JsonCpp</Filter>
+      <Filter>Utility\JsonCpp</Filter>
+    </None>
+    <None Include="cpp_redis\cpp_redis">
+      <Filter>Utility\CppRedis</Filter>
     </None>
   </ItemGroup>
 </Project>

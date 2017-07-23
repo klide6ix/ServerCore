@@ -38,12 +38,6 @@ void IThread::StopThread()
 {
 	isRunning_ = false;
 
-	for( auto thread : thread_ )
-	{
-		if( thread != nullptr &&
-			thread->joinable() == true )
-		{
-			thread->join();
-		}
-	}
+	JoinThread();
+
 }

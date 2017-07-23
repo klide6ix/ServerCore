@@ -43,15 +43,19 @@ bool IOCPModel::AddSession( Session* newSession )
 		return false;
 	}
 
+	sessionList_.push_back( newSession );
+
 	return true;
 }
 
 bool IOCPModel::RemoveSession( Session* session )
 {
+	sessionList_.remove( session );
+
 	return true;
 }
 
-void IOCPModel::SelectSession()
+void IOCPModel::SelectSession( std::vector<SessionEvent>& sessionList )
 {
 	DWORD dwBytesTransfer = 0;
 	LPOVERLAPPED lpOverlapped = NULL;
@@ -71,7 +75,7 @@ void IOCPModel::SelectSession()
 			if( ( ret == FALSE && GetLastError() == ERROR_NETNAME_DELETED )	||	// 강제 종료
 				( ret == TRUE && dwBytesTransfer == 0 ) )						// Graceful 종료
 			{
-				ServerEngine::GetInstance().CloseSession( session );
+				sessionList.push_back( { SESSION_CLOSE, session, 0 } );
 			}
 			else
 			{
@@ -81,36 +85,24 @@ void IOCPModel::SelectSession()
 				{
 				case ASYNCFLAG_RECEIVE:
 					{
-						do
-						{
-							Packet* packet = ServerEngine::GetInstance().AllocatePacket();
-
-							if( packet == nullptr )
-								return;
-						
-							int packetSize = 0;
-							if( ServerEngine::GetInstance().DecodePacket( session->RecvBufferPos(), static_cast<int>(dwBytesTransfer), packet->GetPacketBuffer(), packetSize ) == false )
-							{
-								ServerEngine::GetInstance().FreePacket( packet );
-								break;
-							}
-							else
-							{
-								ServerEngine::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
-								session->RecvBufferConsume( packet->GetPacketSize() );
-								dwBytesTransfer -= packet->GetPacketSize();
-							}
-
-						} while( true );
+						sessionList.push_back( { SESSION_RECV, session, static_cast<int>( dwBytesTransfer ) } );
 					}
 				break;
 				}
 
 				if( session->RecvPost() == false )
 				{
-					ServerEngine::GetInstance().CloseSession( session );
+					sessionList.push_back( { SESSION_CLOSE, session, 0 } );
 				}
 			}
 		}
+	}
+}
+
+void IOCPModel::StopNetworkModel()
+{
+	for( auto session : sessionList_ )
+	{
+		ServerEngine::GetInstance().CloseSession( session );
 	}
 }

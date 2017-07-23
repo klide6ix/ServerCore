@@ -1,5 +1,6 @@
 #include <map>
 #include <stdio.h>
+#include <signal.h>
 
 #include "Session.h"
 #include "ServerApp.h"
@@ -142,6 +143,16 @@ bool ServerEngine::InitializeEngine( SERVER_MODEL serverModel )
 	serverImpl_->networkThread_->StartThread();
 	serverImpl_->workThread_->StartThread();
 
+	signal( SIGABRT, [] (int param) 
+	{
+		printf("abort\n"); 
+	} );
+
+	signal( SIGINT, [] (int param) 
+	{
+		printf("abort\n"); 
+	} );
+
 	return true;
 }
 
@@ -258,6 +269,9 @@ void ServerEngine::AddSession( Session* newSession, int acceptPort )
 
 void ServerEngine::CloseSession( Session* session )
 {
+	if( session == nullptr )
+		return;
+
 	serverImpl_->networkModel_->RemoveSession( session );
 	serverImpl_->sessionManager_->RestoreSession( session );
 
@@ -266,9 +280,14 @@ void ServerEngine::CloseSession( Session* session )
 	serverImpl_->serverApp_->OnClose( session );
 }
 
-void ServerEngine::SelectSession()
+void ServerEngine::SelectSession( std::vector<SessionEvent>& sessionList )
 {
-	serverImpl_->networkModel_->SelectSession();
+	serverImpl_->networkModel_->SelectSession( sessionList );
+}
+
+void ServerEngine::StopNetworkModel()
+{
+	serverImpl_->networkModel_->StopNetworkModel();
 }
 
 bool ServerEngine::EncodePacket( const char* src, int srcSize, char* dest, int& destSize )

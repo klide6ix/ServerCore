@@ -9,6 +9,7 @@ protected:
 
 	SOCKET	socket_ = INVALID_SOCKET;
 	int		lastError_ = 0;
+	bool	isConnected_ = false;
 
 public:
 
@@ -23,6 +24,7 @@ public:
 	SOCKET GetSocket() { return socket_; }
 
 	bool SetBlocking( bool block );
+	bool IsConnected() const { return isConnected_; }
 
 	virtual bool Connect( const char* serveraddress, int port );
 };

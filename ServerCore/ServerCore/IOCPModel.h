@@ -6,6 +6,7 @@
 class IOCPModel : public NetworkModel
 {
 	HANDLE iocpHandle_;
+	std::list<Session*>	sessionList_;
 
 public:
 	IOCPModel();
@@ -16,6 +17,7 @@ public:
 	virtual bool AddSession( Session* newSession );
 	virtual bool RemoveSession( Session* newSession );
 
-	virtual void SelectSession();
+	virtual void SelectSession( std::vector<SessionEvent>& sessionList );
+	virtual void StopNetworkModel();
 };
 

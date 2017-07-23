@@ -50,7 +50,7 @@ int main()
 	ServerEngine::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
 		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
-		//printf("Recv : %s\n", packet->GetPacketData() );
+		printf("Recv : %s\n", packet->GetPacketData() );
 		return 0;
 	} );
 
@@ -67,7 +67,7 @@ int main()
 
 	ServerEngine::GetInstance().AddSession( newSession, 0 );
 
-	/*
+	
 	while( true )
 	{
 		std::string msg;
@@ -79,16 +79,16 @@ int main()
 		packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
 		newSession->SendPacket( packet );
 	}
-	*/
+	
 
 	//while( true )
-	{
-		Packet packet;
-		packet.SetProtocol( (PROTOCOL_TYPE)1 );
-		newSession->SendPacket( packet );
+	//{
+	//	Packet packet;
+	//	packet.SetProtocol( (PROTOCOL_TYPE)1 );
+	//	newSession->SendPacket( packet );
 
-		Sleep(1);
-	}
+	//	Sleep(1);
+	//}
 
 	//ServerEngine::GetInstance().StartServer();
     

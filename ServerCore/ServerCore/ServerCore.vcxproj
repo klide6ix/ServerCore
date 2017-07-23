@@ -83,6 +83,9 @@
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
       <PreprocessorDefinitions>_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\ServerCore</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>ws2_32.lib</AdditionalDependencies>
@@ -116,6 +119,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h" />
+    <ClInclude Include="cpp_redis\builders\array_builder.hpp" />
+    <ClInclude Include="cpp_redis\builders\builders_factory.hpp" />
+    <ClInclude Include="cpp_redis\builders\builder_iface.hpp" />
+    <ClInclude Include="cpp_redis\builders\bulk_string_builder.hpp" />
+    <ClInclude Include="cpp_redis\builders\error_builder.hpp" />
+    <ClInclude Include="cpp_redis\builders\integer_builder.hpp" />
+    <ClInclude Include="cpp_redis\builders\reply_builder.hpp" />
+    <ClInclude Include="cpp_redis\builders\simple_string_builder.hpp" />
+    <ClInclude Include="cpp_redis\future_client.hpp" />
+    <ClInclude Include="cpp_redis\logger.hpp" />
+    <ClInclude Include="cpp_redis\network\redis_connection.hpp" />
+    <ClInclude Include="cpp_redis\network\tcp_client.hpp" />
+    <ClInclude Include="cpp_redis\network\tcp_client_iface.hpp" />
+    <ClInclude Include="cpp_redis\redis_client.hpp" />
+    <ClInclude Include="cpp_redis\redis_error.hpp" />
+    <ClInclude Include="cpp_redis\redis_subscriber.hpp" />
+    <ClInclude Include="cpp_redis\reply.hpp" />
     <ClInclude Include="DatabaseThread.h" />
     <ClInclude Include="EpollModel.h" />
     <ClInclude Include="json\allocator.h" />
@@ -154,6 +174,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Accepter.cpp" />
+    <ClCompile Include="cpp_redis\builders\array_builder.cpp" />
+    <ClCompile Include="cpp_redis\builders\builders_factory.cpp" />
+    <ClCompile Include="cpp_redis\builders\bulk_string_builder.cpp" />
+    <ClCompile Include="cpp_redis\builders\error_builder.cpp" />
+    <ClCompile Include="cpp_redis\builders\integer_builder.cpp" />
+    <ClCompile Include="cpp_redis\builders\reply_builder.cpp" />
+    <ClCompile Include="cpp_redis\builders\simple_string_builder.cpp" />
+    <ClCompile Include="cpp_redis\future_client.cpp" />
+    <ClCompile Include="cpp_redis\logger.cpp" />
+    <ClCompile Include="cpp_redis\network\redis_connection.cpp" />
+    <ClCompile Include="cpp_redis\redis_client.cpp" />
+    <ClCompile Include="cpp_redis\redis_subscriber.cpp" />
+    <ClCompile Include="cpp_redis\reply.cpp" />
     <ClCompile Include="DatabaseThread.cpp" />
     <ClCompile Include="EpollModel.cpp" />
     <ClCompile Include="json\json_reader.cpp" />
@@ -174,6 +207,7 @@
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp_redis\cpp_redis" />
     <None Include="json\json_valueiterator.inl" />
     <None Include="json\sconscript" />
     <None Include="json\version.h.in" />

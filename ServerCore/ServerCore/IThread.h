@@ -4,7 +4,7 @@
 
 class IThread
 {
-private:
+protected:
 
 	std::vector<std::shared_ptr<std::thread>>	thread_;
 	unsigned int				threadCount_ = 1;
@@ -15,11 +15,11 @@ public:
 	IThread();
 	virtual ~IThread();
 
-	bool IsRunning() { return isRunning_; }
+	virtual bool IsRunning() { return isRunning_; }
 
-	void StartThread();
-	void StopThread();
-	void JoinThread();
+	virtual void StartThread();
+	virtual void StopThread();
+	virtual void JoinThread();
 
 	virtual void SetThreadCount( unsigned int count ) { threadCount_ = count; }
 	virtual void Process() = 0;

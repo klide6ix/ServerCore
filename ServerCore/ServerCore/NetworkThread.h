@@ -6,6 +6,8 @@ public:
 	NetworkThread();
 	virtual ~NetworkThread();
 
+	virtual void StopThread();
+
 	virtual void Process();
 };
 
