@@ -1,2 +1,66 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" />
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Accepter.cpp">
+      <Filter>Accepter</Filter>
+    </ClCompile>
+    <ClCompile Include="AsioModel.cpp">
+      <Filter>NetworkModel</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkModel.cpp">
+      <Filter>NetworkModel</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkCore.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SessionManager.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Accepter.h">
+      <Filter>Accepter</Filter>
+    </ClInclude>
+    <ClInclude Include="AsioModel.h">
+      <Filter>NetworkModel</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkModel.h">
+      <Filter>NetworkModel</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkCore.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SessionManager.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="CircularBuffer.h">
+      <Filter>NetworkBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkBuffer.h">
+      <Filter>NetworkBuffer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Accepter">
+      <UniqueIdentifier>{479c2051-ff9f-4e2a-bffd-7d08c8f3f93a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkModel">
+      <UniqueIdentifier>{b78bafe5-1874-4fef-ba35-ff4e23f68256}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{5eaefe86-741f-4775-b1cb-afe8211bddde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Session">
+      <UniqueIdentifier>{cdf8d186-53de-423c-9252-aca5d4f64750}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkBuffer">
+      <UniqueIdentifier>{5b3b62aa-f50a-48a0-9069-732994fef8db}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
