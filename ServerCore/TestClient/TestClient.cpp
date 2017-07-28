@@ -16,6 +16,7 @@
 #ifdef _WIN32
 #pragma comment(lib, "NetworkBase.lib")
 #pragma comment(lib, "ServerCore.lib")
+#pragma comment(lib, "DatabaseConnector.lib")
 #endif
 
 #define SERVER_PORT 1500
@@ -76,30 +77,29 @@ int main()
 
 	ServerEngine::GetInstance().AddSession( newSession, 0 );
 
-	
-	while( true )
-	{
-		std::string msg;
-		std::cout << "Message : ";
-		std::cin >> msg;
+	//while( true )
+	//{
+	//	std::string msg;
+	//	std::cout << "Message : ";
+	//	std::cin >> msg;
 
-		Packet packet;
+	//	Packet packet;
 
-		packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
-		newSession->SendPacket( packet );
-	}
+	//	packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
+	//	newSession->SendPacket( packet );
+	//}
 	
 
 	//while( true )
-	//{
-	//	Packet packet;
-	//	packet.SetProtocol( (PROTOCOL_TYPE)1 );
-	//	newSession->SendPacket( packet );
+	{
+		Packet packet;
+		packet.SetProtocol( (PROTOCOL_TYPE)1 );
+		newSession->SendPacket( packet );
 
-	//	Sleep(1);
-	//}
+		Sleep(1);
+	}
 
-	//ServerEngine::GetInstance().StartServer();
+	ServerEngine::GetInstance().StopServer();
     
 	return 0;
 }

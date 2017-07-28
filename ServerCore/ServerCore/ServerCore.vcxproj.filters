@@ -31,6 +31,9 @@
     <ClInclude Include="IThread.h">
       <Filter>Thread</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectQueue.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WorkThread.cpp">

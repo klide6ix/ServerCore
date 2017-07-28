@@ -19,6 +19,17 @@ public:
 	virtual ~DatabaseCore();
 	static DatabaseCore* GetInstance();
 
-	bool InitDatabaseCore();
+	bool InitDatabaseCore( const char* connectString );
+	void StartDatabase();
+
+	void* AllocJson();
+	void FreeJson( void* value );
+
+	char* AllocateBuffer();
+	void FreeBuffer( char* buffer );
+
+	void PushQuery( const char* query, size_t len );
+	bool PopQuery( char*& query );
+	void FreeQuery( char*& query );
 };
 

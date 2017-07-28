@@ -22,6 +22,7 @@
     <ClCompile Include="..\3rdParty\json\json_reader.cpp" />
     <ClCompile Include="..\3rdParty\json\json_value.cpp" />
     <ClCompile Include="..\3rdParty\json\json_writer.cpp" />
+    <ClCompile Include="DatabaseCore.cpp" />
     <ClCompile Include="DatabaseThread.cpp" />
     <ClCompile Include="ODBCHandler.cpp" />
   </ItemGroup>
@@ -38,9 +39,9 @@
     <ClInclude Include="..\3rdParty\json\value.h" />
     <ClInclude Include="..\3rdParty\json\version.h" />
     <ClInclude Include="..\3rdParty\json\writer.h" />
+    <ClInclude Include="DatabaseCore.h" />
     <ClInclude Include="DatabaseThread.h" />
     <ClInclude Include="ODBCHandler.h" />
-    <ClInclude Include="QueryObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\3rdParty\json\json_valueiterator.inl" />

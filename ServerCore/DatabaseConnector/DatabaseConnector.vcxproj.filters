@@ -12,6 +12,7 @@
     <ClCompile Include="..\3rdParty\json\json_writer.cpp">
       <Filter>JsonCpp</Filter>
     </ClCompile>
+    <ClCompile Include="DatabaseCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DatabaseThread.h" />
@@ -52,7 +53,7 @@
     <ClInclude Include="..\3rdParty\json\writer.h">
       <Filter>JsonCpp</Filter>
     </ClInclude>
-    <ClInclude Include="QueryObject.h" />
+    <ClInclude Include="DatabaseCore.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="JsonCpp">

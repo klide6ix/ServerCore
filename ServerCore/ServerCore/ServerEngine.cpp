@@ -20,6 +20,8 @@
 #include "../NetworkBase/NetworkCore.h"
 #endif
 
+#include "../DatabaseConnector/DatabaseCore.h"
+
 struct BufferObject
 {
 	enum
@@ -38,6 +40,7 @@ public:
 	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
 
 	NetworkCore*					networkCore_ = nullptr;
+	DatabaseCore*					databaseCore_ = nullptr;
 	
 	std::shared_ptr<IParser>		parser_ = nullptr;
 	std::shared_ptr<ServerApp>		serverApp_ = nullptr;
@@ -222,6 +225,26 @@ void ServerEngine::PushCommand( Command& cmd )
 bool ServerEngine::PopCommand( Command& cmd )
 {
 	return serverImpl_->workQueue_->Pop( cmd );
+}
+
+bool ServerEngine::InitializeDatabase( const char* connectString )
+{
+	serverImpl_->databaseCore_ = DatabaseCore::GetInstance();
+
+	return serverImpl_->databaseCore_->InitDatabaseCore( connectString );
+}
+
+void ServerEngine::PushQuery( const char* query, size_t len )
+{
+	if( serverImpl_->databaseCore_ == nullptr )
+		return;
+
+	serverImpl_->databaseCore_->PushQuery( query, len );
+}
+
+void ServerEngine::StartDatabase()
+{
+	serverImpl_->databaseCore_->StartDatabase();
 }
 
 void ServerEngine::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

@@ -75,6 +75,7 @@
   <ItemGroup>
     <ClInclude Include="IThread.h" />
     <ClInclude Include="NetworkThread.h" />
+    <ClInclude Include="ObjectQueue.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="ServerApp.h" />

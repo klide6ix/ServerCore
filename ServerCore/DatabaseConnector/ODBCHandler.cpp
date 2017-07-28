@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 #include <vector>
+#include <json/json.h>
 
-#include "json/json.h"
-
+#include "DatabaseCore.h"
 #include "ODBCHandler.h"
 
 enum CONNECT_ATTRIBUTE
@@ -178,17 +178,6 @@ bool ODBCHandler::Reconnect()
 	return true;
 }
 
-char* ServerEngine::AllocateBuffer()
-{
-	return reinterpret_cast<char*>( serverImpl_->bufferPool_.Alloc() );
-}
-
-void ServerEngine::FreeBuffer( char* buffer )
-{
-	serverImpl_->bufferPool_.Free( reinterpret_cast<BufferObject*>(buffer) );
-}
-
-
 int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value* outValue )
 {
 	if( hStmt_ == nullptr )
@@ -221,8 +210,8 @@ int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value* outValue )
 
 			for( int col = 0; col < sNumResults; col++ )
 			{
-				buffer.push_back( ServerEngine::GetInstance().AllocateBuffer() );
-				title.push_back( ServerEngine::GetInstance().AllocateBuffer() );
+				buffer.push_back( DatabaseCore::GetInstance()->AllocateBuffer() );
+				title.push_back( DatabaseCore::GetInstance()->AllocateBuffer() );
 
 				SQLColAttribute( hStmt_, (col + 1), SQL_DESC_NAME, title[col], sizeof( title[col] ), NULL, NULL  );
 				Json::Value param;
@@ -260,8 +249,8 @@ int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value* outValue )
 
 			for( int i = 0; i < sNumResults; ++i )
 			{
-				ServerEngine::GetInstance().FreeBuffer( title[i] );
-				ServerEngine::GetInstance().FreeBuffer( buffer[i] );
+				DatabaseCore::GetInstance()->FreeBuffer( title[i] );
+				DatabaseCore::GetInstance()->FreeBuffer( buffer[i] );
 			}
 		}
 		break;

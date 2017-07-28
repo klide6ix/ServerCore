@@ -34,6 +34,11 @@ void IThread::StopThread()
 
 	if( thread_ != nullptr )
 	{
+		if( thread_->joinable() == true )
+		{
+			thread_->detach();
+		}
+
 		delete thread_;
 	}
 

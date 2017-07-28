@@ -14,7 +14,7 @@
 #ifdef _WIN32
 #pragma comment(lib, "NetworkBase.lib")
 #pragma comment(lib, "ServerCore.lib")
-//#pragma comment(lib, "DatabaseConnector.lib")
+#pragma comment(lib, "DatabaseConnector.lib")
 #endif
 
 #define SERVER_PORT 1500
@@ -99,10 +99,10 @@ int main()
 		return 0;
 	} );
 
-	/*
 	ServerEngine::GetInstance().AddServerCommand( 1, [] ( Command& cmd ) -> unsigned int
 	{
-		ServerEngine::GetInstance().PushQuery( "select * from city where Name like '%SE%';" );
+		char* query = "select * from city where Name like '%SE%';";
+		ServerEngine::GetInstance().PushQuery( query, strlen(query)  );
 		return 0;
 	} );
 
@@ -110,8 +110,6 @@ int main()
 	ServerEngine::GetInstance().InitializeDatabase( connectStr );
 	
 	ServerEngine::GetInstance().StartDatabase();
-	*/
-
 	ServerEngine::GetInstance().StartServer();
 
     return 0;
