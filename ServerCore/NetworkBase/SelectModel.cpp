@@ -1,8 +1,8 @@
-#include "ServerEngine.h"
+#include "../ServerCore/Packet.h"
 
 #include "SelectModel.h"
 #include "Session.h"
-#include "Packet.h"
+
 
 SelectModel::SelectModel()
 {

@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
 
-#include "ServerEngine.h"
+#include "NetworkCore.h"
 
+class Session;
 class NetworkModel
 {
 public:

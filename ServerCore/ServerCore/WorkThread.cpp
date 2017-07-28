@@ -2,15 +2,6 @@
 #include "ServerEngine.h"
 #include "Packet.h"
 
-WorkThread::WorkThread()
-{
-}
-
-
-WorkThread::~WorkThread()
-{
-}
-
 void WorkThread::Process()
 {
 	while( IsRunning() == true )

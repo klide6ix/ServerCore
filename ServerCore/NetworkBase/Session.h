@@ -4,7 +4,8 @@
 #include <functional>
 #include <vector>
 
-#include "Packet.h"
+#include "../ServerCore/Packet.h"
+
 #include "Socket.h"
 #include "NetworkBuffer.h"
 

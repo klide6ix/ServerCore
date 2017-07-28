@@ -4,9 +4,19 @@
 #include "stdafx.h"
 
 #include "Parser.h"
-#include "Session.h"
 #include "ServerEngine.h"
 #include "ServerApp.h"
+
+#ifdef USE_BOOST_ASIO
+#include "../NetworkAsio/Session.h"
+#else
+#include "../NetworkBase/Session.h"
+#endif
+
+#ifdef _WIN32
+#pragma comment(lib, "NetworkBase.lib")
+#pragma comment(lib, "ServerCore.lib")
+#endif
 
 #define SERVER_PORT 1500
 
@@ -29,7 +39,7 @@ public:
 			return false;
 
 		const PacketHeader* header = reinterpret_cast<const PacketHeader*>(src);
-		if( header->packetSize_ + HEADER_SIZE > srcSize )
+		if( static_cast<int>(header->packetSize_ + HEADER_SIZE) > srcSize )
 			return false;
 
 		destSize = header->packetSize_ + HEADER_SIZE;
@@ -43,9 +53,8 @@ int main()
 {
 	ServerEngine::GetInstance();
 
-	ServerEngine::GetInstance().InitializeEngine( MODEL_IOCP );
+	ServerEngine::GetInstance().InitializeEngine( new ServerApp );
 	ServerEngine::GetInstance().InitializeParser( new ParserTest );
-	ServerEngine::GetInstance().InitializeApplication( new ServerApp );
 
 	ServerEngine::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{

@@ -1,16 +1,15 @@
 #pragma once
 #include "NetworkModel.h"
 
-#include <WinSock2.h>
+#include <boost/asio.hpp>
 
-class IOCPModel : public NetworkModel
+class AsioModel : public NetworkModel
 {
-	HANDLE iocpHandle_;
-	std::list<Session*>	sessionList_;
+	boost::asio::io_service		ioService_;
 
 public:
-	IOCPModel();
-	virtual ~IOCPModel();
+	AsioModel();
+	virtual ~AsioModel();
 
 	virtual bool InitNetworkModel();
 

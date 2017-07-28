@@ -1,6 +1,6 @@
 #include "Accepter.h"
 #include "SessionManager.h"
-#include "ServerEngine.h"
+#include "NetworkCore.h"
 
 Accepter::Accepter()
 {
@@ -11,6 +11,19 @@ Accepter::Accepter()
 
 Accepter::~Accepter()
 {
+	StopThread();
+}
+
+void Accepter::StartThread()
+{
+	isRunning_ = true;
+
+	accpetThread_ = std::make_shared<std::thread>( [&] () { Process(); } );
+}
+
+void Accepter::StopThread()
+{
+	isRunning_ = false;
 }
 
 bool Accepter::_RegistServerSocket( std::shared_ptr<ServerSocket> socket )
@@ -135,7 +148,7 @@ void Accepter::Process()
 	while( IsRunning() == true )
 	{
 		if( isAccepter_ == false )
-			return;
+			continue;
 
 		if( _SelectServerSocket() == false )
 			return;
@@ -147,12 +160,12 @@ void Accepter::Process()
 			if( newSocket.GetSocket() == INVALID_SOCKET )
 				continue;
 
-			Session* newSession = ServerEngine::GetInstance().CreateSession( newSocket );
+			Session* newSession = NetworkCore::GetInstance()->CreateSession( newSocket );
 
 			if( newSession == nullptr )
 				continue;
 
-			ServerEngine::GetInstance().AddSession( newSession, listenSock->GetPort() );
+			NetworkCore::GetInstance()->AddSession( newSession, listenSock->GetPort() );
 		}
 	}
 }

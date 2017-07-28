@@ -1,9 +1,7 @@
-#include "ServerEngine.h"
+#include "../ServerCore/Packet.h"
 
 #include "EpollModel.h"
 #include "Session.h"
-#include "Packet.h"
-
 
 EpollModel::EpollModel()
 {

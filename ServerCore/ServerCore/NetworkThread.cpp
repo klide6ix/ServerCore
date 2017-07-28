@@ -1,23 +1,15 @@
+#include <vector>
+
 #include "NetworkThread.h"
 #include "ServerEngine.h"
-#include "Session.h"
 
-NetworkThread::NetworkThread()
-{
-}
-
-
-NetworkThread::~NetworkThread()
-{
-	isRunning_ = false;
-
-	StopThread();
-}
-
-void NetworkThread::StopThread()
-{
-	ServerEngine::GetInstance().StopNetworkModel();
-}
+#ifdef USE_BOOST_ASIO
+#include "../NetworkAsio/NetworkCore.h"
+#include "../NetworkAsio/Session.h"
+#else
+#include "../NetworkBase/NetworkCore.h"
+#include "../NetworkBase/Session.h"
+#endif
 
 void NetworkThread::Process()
 {
@@ -25,7 +17,7 @@ void NetworkThread::Process()
 
 	while( IsRunning() == true )
 	{
-		ServerEngine::GetInstance().SelectSession( _sessionEvents );
+		NetworkCore::GetInstance()->SelectSession( _sessionEvents );
 
 		for( auto sessionEvent : _sessionEvents )
 		{
@@ -36,7 +28,7 @@ void NetworkThread::Process()
 			{
 			case SESSION_CLOSE:
 				{
-					ServerEngine::GetInstance().CloseSession( sessionEvent.session_ );
+					NetworkCore::GetInstance()->CloseSession( sessionEvent.session_ );
 				}
 				break;
 

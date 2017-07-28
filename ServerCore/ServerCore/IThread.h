@@ -1,27 +1,23 @@
 #pragma once
 #include <thread>
-#include <vector>
 
 class IThread
 {
-protected:
+private:
 
-	std::vector<std::shared_ptr<std::thread>>	thread_;
-	unsigned int				threadCount_ = 1;
-	
+	std::thread*				thread_ = nullptr;
 	volatile bool				isRunning_ = false;
 
 public:
 	IThread();
 	virtual ~IThread();
 
-	virtual bool IsRunning() { return isRunning_; }
+	bool IsRunning() { return isRunning_; }
 
-	virtual void StartThread();
-	virtual void StopThread();
-	virtual void JoinThread();
+	void StartThread();
+	void StopThread();
+	void JoinThread();
 
-	virtual void SetThreadCount( unsigned int count ) { threadCount_ = count; }
 	virtual void Process() = 0;
 };
 

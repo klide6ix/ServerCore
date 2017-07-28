@@ -2,7 +2,6 @@
 
 #include "DatabaseThread.h"
 #include "ODBCHandler.h"
-#include "ServerEngine.h"
 
 DatabaseThread::DatabaseThread()
 {
@@ -22,6 +21,41 @@ bool DatabaseThread::Initialize( const char* connectString )
 		return false;
 
 	return true;
+}
+
+void DatabaseThread::StartThread()
+{
+	isRunning_ = true;
+
+	dbThread_ = std::make_shared<std::thread>( [&] () { Process(); } );
+}
+
+void DatabaseThread::StopThread()
+{
+	isRunning_ = false;
+}
+
+
+Json::Value* ServerEngine::AllocJson()
+{
+	return serverImpl_->jsonPool_.Alloc();
+}
+
+void ServerEngine::FreeJson( Json::Value* value )
+{
+	if( value == nullptr )
+		return;
+
+	serverImpl_->jsonPool_.Free( value );
+}
+
+
+void DatabaseThread::JoinThread()
+{
+	if( dbThread_ != nullptr && dbThread_->joinable() == true )
+	{
+		dbThread_->join();
+	}
 }
 
 void DatabaseThread::Process()

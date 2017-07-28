@@ -5,7 +5,6 @@
 
 #include "json/json.h"
 
-#include "ServerEngine.h"
 #include "ODBCHandler.h"
 
 enum CONNECT_ATTRIBUTE
@@ -151,6 +150,9 @@ bool ODBCHandler::SetConnect( const char* connectString )
 	}
 	else
 	{
+		char errorMsg[SQL_MAX_MESSAGE_LENGTH + 128] = { 0 };
+		char stateMsg[SQL_MAX_MESSAGE_LENGTH] = { 0 };
+		_CheckSQLError( retValue, SQL_HANDLE_DBC, hDBC_, errorMsg, stateMsg );
 		return false;
 	}
 }
@@ -175,6 +177,17 @@ bool ODBCHandler::Reconnect()
 
 	return true;
 }
+
+char* ServerEngine::AllocateBuffer()
+{
+	return reinterpret_cast<char*>( serverImpl_->bufferPool_.Alloc() );
+}
+
+void ServerEngine::FreeBuffer( char* buffer )
+{
+	serverImpl_->bufferPool_.Free( reinterpret_cast<BufferObject*>(buffer) );
+}
+
 
 int ODBCHandler::ExecuteQuery( IN const char* query, OUT Json::Value* outValue )
 {

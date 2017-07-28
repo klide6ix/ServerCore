@@ -1,11 +1,7 @@
-#include "ServerEngine.h"
-
-#include "Packet.h"
-#include "Session.h"
-#include "SessionManager.h"
+#include "../ServerCore/Packet.h"
 
 #include "IOCPModel.h"
-
+#include "Session.h"
 
 IOCPModel::IOCPModel()
 {
@@ -39,7 +35,6 @@ bool IOCPModel::AddSession( Session* newSession )
 
 	if( newSession->RecvPost() == false )
 	{
-		ServerEngine::GetInstance().CloseSession( newSession );
 		return false;
 	}
 
@@ -101,8 +96,4 @@ void IOCPModel::SelectSession( std::vector<SessionEvent>& sessionList )
 
 void IOCPModel::StopNetworkModel()
 {
-	for( auto session : sessionList_ )
-	{
-		ServerEngine::GetInstance().CloseSession( session );
-	}
 }

@@ -25,6 +25,7 @@
 #include <cpp_redis/network/tcp_client_iface.hpp>
 #include <cpp_redis/redis_error.hpp>
 
+
 #include "../../Session.h"
 
 namespace cpp_redis

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #define MAX_QUERY_LEN	1024
 
