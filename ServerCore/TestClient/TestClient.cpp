@@ -3,19 +3,33 @@
 
 #include "stdafx.h"
 
-#include "Parser.h"
-#include "ServerEngine.h"
-#include "ServerApp.h"
+#include "../Utility/Parser.h"
+
+#define USE_BOOST_ASIO
 
 #ifdef USE_BOOST_ASIO
+
+#include "../NetworkAsio/ServerApp.h"
 #include "../NetworkAsio/Session.h"
+#include "../NetworkAsio/NetworkCore.h"
+
+#ifdef _WIN32
+#pragma comment(lib, "NetworkAsio.lib")
+#endif
+
 #else
-#include "../NetworkBase/Session.h"
+
+#include "../NetworkCore/ServerApp.h"
+#include "../NetworkCore/Session.h"
+#include "../NetworkCore/NetworkCore.h"
+
+#ifdef _WIN32
+#pragma comment(lib, "NetworkCore.lib")
+#endif
+
 #endif
 
 #ifdef _WIN32
-#pragma comment(lib, "NetworkBase.lib")
-#pragma comment(lib, "ServerCore.lib")
 #pragma comment(lib, "DatabaseConnector.lib")
 #endif
 
@@ -40,7 +54,7 @@ public:
 			return false;
 
 		const PacketHeader* header = reinterpret_cast<const PacketHeader*>(src);
-		if( static_cast<int>(header->packetSize_ + HEADER_SIZE) > srcSize )
+		if( static_cast<int>( header->packetSize_ + HEADER_SIZE ) > srcSize )
 			return false;
 
 		destSize = header->packetSize_ + HEADER_SIZE;
@@ -52,43 +66,40 @@ public:
 
 int main()
 {
-	ServerEngine::GetInstance();
+	NetworkCore::GetInstance();
 
-	ServerEngine::GetInstance().InitializeEngine( new ServerApp );
-	ServerEngine::GetInstance().InitializeParser( new ParserTest );
+	NetworkCore::GetInstance().InitializeEngine( new ServerApp );
+	NetworkCore::GetInstance().InitializeParser( new ParserTest );
 
-	ServerEngine::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
 		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
 		printf("Recv : %s\n", packet->GetPacketData() );
 		return 0;
 	} );
 
-	Socket socket;
-	socket.CreateSocket();
-
-	if( socket.Connect( "127.0.0.1", SERVER_PORT ) == false )
-		return 0;
-
-	Session* newSession = ServerEngine::GetInstance().CreateSession( socket );
+	Session* newSession = NetworkCore::GetInstance().CreateSession();
 
 	if( newSession == nullptr )
 		return 0;
 
-	ServerEngine::GetInstance().AddSession( newSession, 0 );
+	if( newSession->ConnectTo( "127.0.0.1", SERVER_PORT ) == false )
+		return 0;
 
-	//while( true )
-	//{
-	//	std::string msg;
-	//	std::cout << "Message : ";
-	//	std::cin >> msg;
+	NetworkCore::GetInstance().AddSession( newSession, 0 );
 
-	//	Packet packet;
+	while( true )
+	{
+		std::string msg;
+		std::cout << "Message : ";
+		std::cin >> msg;
 
-	//	packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
-	//	newSession->SendPacket( packet );
-	//}
-	
+		Packet packet;
+
+		packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
+		newSession->SendPacket( packet );
+	}
+
 
 	//while( true )
 	{
@@ -99,8 +110,8 @@ int main()
 		Sleep(1);
 	}
 
-	ServerEngine::GetInstance().StopServer();
-    
+	NetworkCore::GetInstance().StopServer();
+
 	return 0;
 }
 

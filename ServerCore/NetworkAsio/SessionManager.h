@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-#include "../ServerCore/ObjectPool.h"
+#include "../Utility/ObjectPool.h"
 #include "Session.h"
 
 
@@ -15,7 +15,7 @@ public:
 	SessionManager();
 	~SessionManager();
 
-	Session* CreateSession( boost::asio::io_service& io_service );
+	Session* CreateSession();
 	void RestoreSession( Session* session );
 };
 

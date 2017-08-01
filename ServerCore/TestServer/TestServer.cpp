@@ -1,19 +1,33 @@
 #include <list>
 #include "stdafx.h"
 
-#include "ServerEngine.h"
-#include "ServerApp.h"
-#include "Parser.h"
+#include "../Utility/Parser.h"
+
+#define USE_BOOST_ASIO
 
 #ifdef USE_BOOST_ASIO
+
+#include "../NetworkAsio/ServerApp.h"
 #include "../NetworkAsio/Session.h"
+#include "../NetworkAsio/NetworkCore.h"
+
+#ifdef _WIN32
+#pragma comment(lib, "NetworkAsio.lib")
+#endif
+
 #else
-#include "../NetworkBase/Session.h"
+
+#include "../NetworkCore/ServerApp.h"
+#include "../NetworkCore/Session.h"
+#include "../NetworkCore/NetworkCore.h"
+
+#ifdef _WIN32
+#pragma comment(lib, "NetworkCore.lib")
+#endif
+
 #endif
 
 #ifdef _WIN32
-#pragma comment(lib, "NetworkBase.lib")
-#pragma comment(lib, "ServerCore.lib")
 #pragma comment(lib, "DatabaseConnector.lib")
 #endif
 
@@ -66,7 +80,7 @@ public:
 			return false;
 
 		destSize = header->packetSize_ + HEADER_SIZE;
-		memcpy( dest, src, header->packetSize_ + HEADER_SIZE );
+		memcpy( dest, src, destSize );
 
 		return true;
 	}
@@ -74,17 +88,17 @@ public:
 
 int main()
 {
-	ServerEngine::GetInstance().InitializeEngine( new ServerTest );
-	ServerEngine::GetInstance().InitializeParser( new ParserTest );
+	NetworkCore::GetInstance().InitializeEngine( new ServerTest );
+	NetworkCore::GetInstance().InitializeParser( new ParserTest );
 
-	ServerEngine::GetInstance().InitializeAccepter();
-	ServerEngine::GetInstance().AddAcceptPort( SERVER_PORT );
+	NetworkCore::GetInstance().InitializeAccepter();
+	NetworkCore::GetInstance().AddAcceptPort( SERVER_PORT );
 
-	ServerEngine::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
 		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
 
-		ServerTest* serverApp = dynamic_cast<ServerTest*>(ServerEngine::GetInstance().GetServerApp());
+		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
 
 		if( serverApp == nullptr )
 			return __LINE__;
@@ -99,19 +113,19 @@ int main()
 		return 0;
 	} );
 
-	ServerEngine::GetInstance().AddServerCommand( 1, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( 1, [] ( Command& cmd ) -> unsigned int
 	{
 		char* query = "select * from city where Name like '%SE%';";
-		ServerEngine::GetInstance().PushQuery( query, strlen(query)  );
+		NetworkCore::GetInstance().PushQuery( query, strlen(query)  );
 		return 0;
 	} );
 
 	const char* connectStr = "DRIVER={MySQL ODBC 3.51 Driver};SERVER=127.0.0.1;USER=admin;PASSWORD=admin;Trusted_Connection=yes;Database=world";
-	ServerEngine::GetInstance().InitializeDatabase( connectStr );
-	
-	ServerEngine::GetInstance().StartDatabase();
-	ServerEngine::GetInstance().StartServer();
+	NetworkCore::GetInstance().InitializeDatabase( connectStr );
 
-    return 0;
+	NetworkCore::GetInstance().StartDatabase();
+	NetworkCore::GetInstance().StartServer();
+
+	return 0;
 }
 

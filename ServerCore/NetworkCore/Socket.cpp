@@ -21,6 +21,9 @@ void Socket::SetSocket( SOCKET socket )
 
 SOCKET Socket::CreateSocket()
 {
+	if( socket_ != INVALID_SOCKET )
+		return socket_;
+
 	socket_ = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 	if( socket_ == INVALID_SOCKET )
 	{

@@ -17,16 +17,25 @@ Session::~Session()
 {
 }
 
-void Session::SetSocket( SOCKET socket )
-{
-	socket_.SetSocket( socket );
-}
-
 SOCKET Session::GetSocket()
 {
 	return socket_.GetSocket();
 }
 
+void Session::SetSocket( Socket& socket )
+{
+	socket_.SetSocket( socket.GetSocket() );
+}
+
+bool Session::ConnectTo( const char* ip, int port )
+{
+	socket_.CreateSocket();
+
+	if( socket_.Connect( "127.0.0.1", port ) == false )
+		return 0;
+
+	return true;
+}
 
 bool Session::RecvPost()
 {
@@ -68,6 +77,11 @@ void Session::RecvBufferConsume( int size )
 	recvBuffer_.ConsumeBuffer( size );
 }
 
+void Session::RecvBufferRestore( int size )
+{
+	recvBuffer_.RestoreBuffer( size );
+}
+
 int Session::RecvPacket()
 {
 	if( socket_.GetSocket() == INVALID_SOCKET )
@@ -75,12 +89,12 @@ int Session::RecvPacket()
 		return -1;
 	}
 
-	if( MAX_NET_BUFFER - recvBuffer_.GetBufferSize() <= 0 )
+	if( recvBuffer_.GetBufferSize() <= 0 )
 	{
 		return -1;
 	}
 
-	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPos(), MAX_NET_BUFFER - recvBuffer_.GetBufferSize(), 0  );
+	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPos(), recvBuffer_.GetBufferSize(), 0  );
 
 	if ( size < 0 )
 	{
@@ -133,33 +147,4 @@ void Session::Disconnect( bool wait_for_removal )
 bool Session::IsConnected() const
 {
 	return socket_.IsConnected();
-}
-
-void Session::SetOnDisconnectionHandler( const std::function<void()>& /*disconnection_handler*/ )
-{
-}
-
-int Session::SendBuffer(const std::vector<char>& data, std::size_t size_to_write)
-{
-	return send( socket_.GetSocket(), data.data(), static_cast<int>( size_to_write ), 0 );
-}
-
-int Session::RecvBuffer( std::vector<char>& data, std::size_t& recvSize )
-{
-	recvSize = recv( socket_.GetSocket(), recvBuffer_.GetBufferPos(), MAX_NET_BUFFER - recvBuffer_.GetBufferSize(), 0  );
-
-	if ( recvSize < 0 )
-	{
-		int err = GetLastError();
-		if( EWOULDBLOCK == err )
-		{
-			recvSize = 0;
-		}
-		else
-		{
-			return -1;
-		}
-	}
-
-	return static_cast<int>( recvSize );
 }

@@ -4,8 +4,8 @@
 #include <array>
 #include <json/json.h>
 
-#include "../ServerCore/ObjectPool.h"
-#include "../ServerCore/ObjectQueue.h"
+#include "../Utility/ObjectPool.h"
+#include "../Utility/ObjectQueue.h"
 
 #include "DatabaseCore.h"
 #include "DatabaseThread.h"

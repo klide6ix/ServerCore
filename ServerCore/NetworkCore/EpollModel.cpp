@@ -1,4 +1,4 @@
-#include "../ServerCore/Packet.h"
+#include "../Utility/Packet.h"
 
 #include "EpollModel.h"
 #include "Session.h"
@@ -91,6 +91,7 @@ void EpollModel::SelectSession( std::vector<SessionEvent>& sessionList )
 				continue;
 			}
 
+			session->RecvBufferConsume( recvSize );
 			sessionList.push_back( { SESSION_RECV, session, recvSize } );
 			
 		} 

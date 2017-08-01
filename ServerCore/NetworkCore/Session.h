@@ -4,10 +4,10 @@
 #include <functional>
 #include <vector>
 
-#include "../ServerCore/Packet.h"
+#include "../Utility/Packet.h"
+#include "../Utility/NetworkBuffer.h"
 
 #include "Socket.h"
-#include "NetworkBuffer.h"
 
 // 확장 OVERLAPPED 구조체
 #define  ASYNCFLAG_SEND				0x01
@@ -32,13 +32,15 @@ public:
 	Session( SOCKET socket );
 	virtual ~Session();
 
-	void SetSocket( SOCKET socket );
 	SOCKET GetSocket();
+	void SetSocket( Socket& socket );
 
+	bool ConnectTo( const char* ip, int port );
 	bool RecvPost();
 	int  RecvPacket();
 	
 	char* RecvBufferPos() { return recvBuffer_.GetBufferOrg(); }
+	void  RecvBufferRestore( int size );
 	void  RecvBufferConsume( int size );
 
 	int  SendPacket( Packet& packet );
@@ -48,8 +50,4 @@ public:
 	void Connect( const std::string& addr, std::uint32_t port );
 	void Disconnect( bool wait_for_removal = false );
 	bool IsConnected() const;
-
-	void SetOnDisconnectionHandler( const std::function<void()>& disconnection_handler );	
-	int  SendBuffer( const std::vector<char>& data, std::size_t size_to_write );
-	int  RecvBuffer( std::vector<char>& data, std::size_t& recvSize );
 };

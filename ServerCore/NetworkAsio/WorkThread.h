@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IThread.h"
+#include "../Utility/IThread.h"
 
 class WorkThread : public IThread
 {

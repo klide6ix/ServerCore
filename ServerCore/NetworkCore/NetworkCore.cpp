@@ -4,10 +4,16 @@
 #include <signal.h>
 
 #include "ServerApp.h"
+
+#include "EpollModel.h"
+#include "IOCPModel.h"
+#include "SelectModel.h"
+
 #include "CommandQueue.h"
 #include "NetworkCore.h"
 #include "SessionManager.h"
 #include "Accepter.h"
+#include "Socket.h"
 #include "WorkThread.h"
 #include "NetworkThread.h"
 
@@ -17,28 +23,29 @@
 
 #include "../DatabaseConnector/DatabaseCore.h"
 
+#ifdef _WIN32
+#pragma comment(lib, "Ws2_32.lib")
+#endif
 
 class NetworkImplement
 {
 public:
 
 	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
-	
-	boost::asio::io_service							ioService_;
-	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
 
 	DatabaseCore*						databaseCore_ = nullptr;
 
 	std::shared_ptr<IParser>			parser_ = nullptr;
 	std::shared_ptr<ServerApp>			serverApp_ = nullptr;
 	std::shared_ptr<SessionManager>		sessionManager_ = nullptr;
+	std::shared_ptr<Accepter>			accepter_ = nullptr;
+	std::shared_ptr<NetworkModel>		networkModel_ = nullptr;
 
 	std::shared_ptr<CommandQueue>		workQueue_ = nullptr;
 	std::shared_ptr<CommandQueue>		dbQueue_ = nullptr;
 
 	ObjectPool<Packet>					packetPool_;
 
-	std::vector<std::shared_ptr<Accepter>>			accepters_;
 	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
 	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
 };
@@ -85,7 +92,12 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 		networkImpl_->workQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->dbQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->sessionManager_ = std::make_shared<SessionManager>();
-		networkImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(networkImpl_->ioService_);
+
+#ifdef _WIN32
+		networkImpl_->networkModel_ = std::make_shared<IOCPModel>();
+#else
+		networkImpl_->networkModel_ = std::make_shared<EpollModel>();
+#endif
 
 		for( unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i )
 		{
@@ -97,6 +109,9 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 	{
 		return false;
 	}
+
+	if( networkImpl_->networkModel_->InitNetworkModel() == false )
+		return false;
 
 	networkImpl_->packetPool_.SetMaxPoolSize( 32 * 10 );
 	if( networkImpl_->packetPool_.Init() == false )
@@ -144,17 +159,29 @@ bool NetworkCore::InitializeParser( IParser* parser )
 
 bool NetworkCore::InitializeAccepter()
 {
+	try
+	{
+		networkImpl_->accepter_ = std::make_shared<Accepter>();
+
+		if( networkImpl_->accepter_->InitAccepter() == false )
+			return false;
+
+		networkImpl_->accepter_->StartThread();
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
 	return true;
 }
 
 bool NetworkCore::AddAcceptPort( int port )
 {
-	auto accepter = std::make_shared<Accepter>( GetIoService(), port );
-	networkImpl_->accepters_.push_back( accepter );
+	if( networkImpl_->accepter_ == nullptr )
+		return false;
 
-	accepter->StartAccept();
-
-	return true;
+	return networkImpl_->accepter_->AddAcceptPort( port );
 }
 
 Session* NetworkCore::CreateSession()
@@ -164,11 +191,7 @@ Session* NetworkCore::CreateSession()
 
 void NetworkCore::AddSession( Session* newSession, int acceptPort )
 {
-	if( newSession->RecvPost() == false )
-	{
-		CloseSession( newSession );
-		return;
-	}
+	networkImpl_->networkModel_->AddSession( newSession );
 
 	networkImpl_->serverApp_->OnAccept( acceptPort, newSession );
 }
@@ -178,11 +201,17 @@ void NetworkCore::CloseSession( Session* session )
 	if( session == nullptr )
 		return;
 
+	networkImpl_->networkModel_->RemoveSession( session );
 	networkImpl_->sessionManager_->RestoreSession( session );
 
 	session->CleanUp();
 
 	networkImpl_->serverApp_->OnClose( session );
+}
+
+void NetworkCore::SelectSession( std::vector<SessionEvent>& sessionList )
+{
+	networkImpl_->networkModel_->SelectSession( sessionList );
 }
 
 ServerApp* NetworkCore::GetServerApp()
@@ -278,9 +307,4 @@ void NetworkCore::StopServer()
 		if( thread != nullptr )
 			thread->StopThread();
 	}
-}
-
-boost::asio::io_service& NetworkCore::GetIoService()
-{
-	return networkImpl_->ioService_;
 }

@@ -5,37 +5,25 @@
 #include <mutex>
 #include <vector>
 
-class NetworkImplement;
+#include <boost/asio.hpp>
+
+#include "Command.h"
+
+class IParser;
 class Session;
+class Packet;
 class Socket;
 
-enum ENUM_SESSION_EVENT
-{
-	SESSION_CLOSE,
-	SESSION_RECV,
-	SESSION_SEND,
-};
-
-struct SessionEvent
-{
-	ENUM_SESSION_EVENT event_ = SESSION_CLOSE;
-	Session* session_ = nullptr;
-	int recvSize_ = 0;
-};
-
+class ServerApp;
+class NetworkImplement;
+class AsioModel;
 
 class NetworkCore
 {
-	typedef std::function<void( int, void* )> funcOnAccept_t;
-	typedef std::function<void( void* )>	funcOnClose_t;
-
 	static std::unique_ptr<NetworkCore>	 instance_;
 	static std::once_flag				 onceFlag_;
 
 	NetworkImplement* networkImpl_ = nullptr;
-
-	funcOnAccept_t onAccept_;
-	funcOnClose_t onClose_;
 
 	NetworkCore();
 	NetworkCore(const NetworkCore& src) = delete;
@@ -43,17 +31,39 @@ class NetworkCore
 
 public:
 	virtual ~NetworkCore();
-	static NetworkCore* GetInstance();
+	static NetworkCore& GetInstance();
 
-	bool InitNetworkCore( funcOnAccept_t onAccpet, funcOnClose_t onClose );
-	bool InitAccepter();
+	ServerApp* GetServerApp();
+
+	bool InitializeEngine( ServerApp* application );
+	bool InitializeParser( IParser* parser );
+	bool InitializeAccepter();
+
 	bool AddAcceptPort( int port );
 
-	Session* CreateSession( boost::asio::io_service& io_service );
+	void StartServer();
+	void StopServer();
 
+	Session* CreateSession();
 	void AddSession( Session* newSession, int acceptPort );
 	void CloseSession( Session* session );
 
-	void SelectSession( std::vector<SessionEvent>& sessionList );
+	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
+	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );
+
+	Packet* AllocatePacket();
+	void FreePacket( Packet* obj );
+
+	void PushCommand( Command& cmd );
+	bool PopCommand( Command& cmd );
+
+	bool InitializeDatabase( const char* connectString );
+	void PushQuery( const char* query, size_t len );
+	void StartDatabase();
+
+	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
+	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
+
+	boost::asio::io_service& GetIoService();
 };
 

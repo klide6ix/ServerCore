@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Accepter.cpp">
+      <Filter>Accepter</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandQueue.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPModel.cpp">
+      <Filter>NetworkModel</Filter>
+    </ClCompile>
+    <ClCompile Include="EpollModel.cpp">
+      <Filter>NetworkModel</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkModel.cpp">
+      <Filter>NetworkModel</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectModel.cpp">
+      <Filter>NetworkModel</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkCore.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerSocket.cpp">
+      <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="SessionManager.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Accepter.h">
+      <Filter>Accepter</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandQueue.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Command.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPModel.h">
+      <Filter>NetworkModel</Filter>
+    </ClInclude>
+    <ClInclude Include="EpollModel.h">
+      <Filter>NetworkModel</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkModel.h">
+      <Filter>NetworkModel</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectModel.h">
+      <Filter>NetworkModel</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkCore.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Socket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerSocket.h">
+      <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="SessionManager.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerApp.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Accepter">
+      <UniqueIdentifier>{9af2274d-3a22-41f2-afc4-10a66a07cb7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Commands">
+      <UniqueIdentifier>{071ca33c-58e8-4337-b8ba-24712156a613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NetworkModel">
+      <UniqueIdentifier>{af958167-a169-4d41-91ef-13c540cf7e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Session">
+      <UniqueIdentifier>{479e2d54-b8de-4d1b-a0e9-9d9de3f69831}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket">
+      <UniqueIdentifier>{dbf824f1-90da-490d-a30d-9d74850edf15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{79306878-ccdb-4802-9873-633a19573312}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{5d4924f3-8ea9-45cf-9be9-97e85e3d06cb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

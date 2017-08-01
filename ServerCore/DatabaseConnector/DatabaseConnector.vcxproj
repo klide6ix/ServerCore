@@ -95,12 +95,8 @@
     </Link>
     <Lib />
     <Lib />
-    <Xdcmake>
-      <OutputFile>$(SolutionDir)Bin\$(Configuration)\Lib\$(TargetName).xml</OutputFile>
-    </Xdcmake>
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    <Xdcmake />
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -120,9 +116,7 @@
     </Link>
     <Lib />
     <Lib />
-    <Xdcmake>
-      <OutputFile>$(SolutionDir)Bin\$(Configuration)\Lib\$(TargetName).xml</OutputFile>
-    </Xdcmake>
+    <Xdcmake />
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>

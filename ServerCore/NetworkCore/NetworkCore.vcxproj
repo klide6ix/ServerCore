@@ -10,10 +10,43 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Accepter.cpp" />
+    <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="EpollModel.cpp" />
+    <ClCompile Include="IOCPModel.cpp" />
+    <ClCompile Include="NetworkCore.cpp" />
+    <ClCompile Include="NetworkModel.cpp" />
+    <ClCompile Include="NetworkThread.cpp" />
+    <ClCompile Include="SelectModel.cpp" />
+    <ClCompile Include="ServerSocket.cpp" />
+    <ClCompile Include="Session.cpp" />
+    <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="WorkThread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Accepter.h" />
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="CommandQueue.h" />
+    <ClInclude Include="EpollModel.h" />
+    <ClInclude Include="IOCPModel.h" />
+    <ClInclude Include="NetworkCore.h" />
+    <ClInclude Include="NetworkModel.h" />
+    <ClInclude Include="NetworkThread.h" />
+    <ClInclude Include="SelectModel.h" />
+    <ClInclude Include="ServerApp.h" />
+    <ClInclude Include="ServerSocket.h" />
+    <ClInclude Include="Session.h" />
+    <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="Socket.h" />
+    <ClInclude Include="WorkThread.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{87022B28-2DAD-4D2E-A9F4-B87AC3AA93A9}</ProjectGuid>
-    <RootNamespace>ServerCore</RootNamespace>
+    <ProjectGuid>{9135578B-E7DB-4A4B-9F69-81CD318B0B61}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>NetworkCore</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -43,66 +76,45 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Bin\Lib\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Bin\Lib\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Bin\Lib\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\ServerCore</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINSOCK_DEPRECATED_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Lib />
-    <Lib />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <Lib />
-    <Lib />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="IThread.h" />
-    <ClInclude Include="NetworkThread.h" />
-    <ClInclude Include="ObjectQueue.h" />
-    <ClInclude Include="Packet.h" />
-    <ClInclude Include="Parser.h" />
-    <ClInclude Include="ServerApp.h" />
-    <ClInclude Include="ServerEngine.h" />
-    <ClInclude Include="ObjectPool.h" />
-    <ClInclude Include="Command.h" />
-    <ClInclude Include="CommandQueue.h" />
-    <ClInclude Include="WorkThread.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="IThread.cpp" />
-    <ClCompile Include="NetworkThread.cpp" />
-    <ClCompile Include="ServerEngine.cpp" />
-    <ClCompile Include="CommandQueue.cpp" />
-    <ClCompile Include="WorkThread.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

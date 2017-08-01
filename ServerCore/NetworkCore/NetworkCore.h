@@ -1,6 +1,10 @@
 #pragma once
+
+#include <functional>
 #include <memory>
 #include <mutex>
+#include <vector>
+
 #include "Command.h"
 
 class IParser;
@@ -9,38 +13,54 @@ class Packet;
 class Socket;
 
 class ServerApp;
-class ServerImplement;
+class NetworkImplement;
 
-class ServerEngine
+enum ENUM_SESSION_EVENT
 {
-private:
+	SESSION_CLOSE,
+	SESSION_RECV,
+	SESSION_SEND,
+};
 
-	static std::unique_ptr<ServerEngine> instance_;
+struct SessionEvent
+{
+	ENUM_SESSION_EVENT event_ = SESSION_CLOSE;
+	Session* session_ = nullptr;
+	int recvSize_ = 0;
+};
+
+
+class NetworkCore
+{
+	static std::unique_ptr<NetworkCore>	 instance_;
 	static std::once_flag				 onceFlag_;
 
-	ServerImplement* serverImpl_ = nullptr;
+	NetworkImplement* networkImpl_ = nullptr;
 
-	ServerEngine();
-	ServerEngine(const ServerEngine& src) = delete;
-	ServerEngine& operator=(const ServerEngine& rhs) = delete;
+	NetworkCore();
+	NetworkCore(const NetworkCore& src) = delete;
+	NetworkCore& operator=(const NetworkCore& rhs) = delete;
 
 public:
-	virtual ~ServerEngine();
-	static ServerEngine& GetInstance();
-	
+	virtual ~NetworkCore();
+	static NetworkCore& GetInstance();
+
 	ServerApp* GetServerApp();
+
+	bool InitializeEngine( ServerApp* application );
+	bool InitializeParser( IParser* parser );
+	bool InitializeAccepter();
+
+	bool AddAcceptPort( int port );
+
+	void SelectSession( std::vector<SessionEvent>& sessionList );
 
 	void StartServer();
 	void StopServer();
 
-	bool InitializeEngine( ServerApp* application );
-	bool InitializeParser( IParser* parser );
-
-	bool InitializeAccepter();
-	bool AddAcceptPort( int port );
-
-	Session* CreateSession( Socket& socket );
+	Session* CreateSession();
 	void AddSession( Session* newSession, int acceptPort );
+	void CloseSession( Session* session );
 
 	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
 	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );

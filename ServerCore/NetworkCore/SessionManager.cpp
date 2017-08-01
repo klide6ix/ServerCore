@@ -12,7 +12,7 @@ SessionManager::~SessionManager()
 {
 }
 
-Session* SessionManager::CreateSession( SOCKET socket )
+Session* SessionManager::CreateSession()
 {
 	std::unique_lock<std::mutex> lock { mutex_ };
 
@@ -21,7 +21,6 @@ Session* SessionManager::CreateSession( SOCKET socket )
 	if( newSession == nullptr )
 		return nullptr;
 
-	newSession->SetSocket( socket );
 	return newSession;
 }
 

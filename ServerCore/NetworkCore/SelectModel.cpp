@@ -1,4 +1,4 @@
-#include "../ServerCore/Packet.h"
+#include "../Utility/Packet.h"
 
 #include "SelectModel.h"
 #include "Session.h"
@@ -80,6 +80,7 @@ void SelectModel::SelectSession( std::vector<SessionEvent>& sessionList )
 
 			if( recvSize < 0 )
 			{
+				itr->RecvBufferConsume( recvSize );
 				sessionList.push_back( { SESSION_CLOSE, itr, 0 } );
 				continue;
 			}

@@ -160,12 +160,14 @@ void Accepter::Process()
 			if( newSocket.GetSocket() == INVALID_SOCKET )
 				continue;
 
-			Session* newSession = NetworkCore::GetInstance()->CreateSession( newSocket );
+			Session* newSession = NetworkCore::GetInstance().CreateSession();
 
 			if( newSession == nullptr )
 				continue;
 
-			NetworkCore::GetInstance()->AddSession( newSession, listenSock->GetPort() );
+			newSession->SetSocket( newSocket );
+
+			NetworkCore::GetInstance().AddSession( newSession, listenSock->GetPort() );
 		}
 	}
 }

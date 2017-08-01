@@ -4,7 +4,7 @@
 
 class NetworkBuffer
 {
-	char buffer_[MAX_NET_BUFFER] = {0};
+	char buffer_[MAX_NET_BUFFER];
 	int bufferPos_ = 0;
 	int bufferSize_ = MAX_NET_BUFFER;
 
@@ -32,9 +32,22 @@ public:
 		return bufferSize_;
 	}
 
+	inline int RestoreBuffer( int size )
+	{
+		std::memmove( buffer_, buffer_ + size, bufferSize_ - size );
+		bufferSize_ += size;
+		bufferPos_ -= size;
+
+		return bufferSize_;
+	}
+
 	inline int ConsumeBuffer( int size )
 	{
-		memmove( buffer_, buffer_ + size, bufferSize_ - size );
+		if( bufferSize_ < size )
+			size = bufferSize_;
+
+		bufferSize_ -= size;
+		bufferPos_ += size;
 
 		return bufferSize_;
 	}

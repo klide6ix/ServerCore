@@ -1,4 +1,4 @@
-#include "../ServerCore/Packet.h"
+#include "../Utility/Packet.h"
 
 #include "IOCPModel.h"
 #include "Session.h"
@@ -80,14 +80,10 @@ void IOCPModel::SelectSession( std::vector<SessionEvent>& sessionList )
 				{
 				case ASYNCFLAG_RECEIVE:
 					{
+						session->RecvBufferConsume( dwBytesTransfer );
 						sessionList.push_back( { SESSION_RECV, session, static_cast<int>( dwBytesTransfer ) } );
 					}
 				break;
-				}
-
-				if( session->RecvPost() == false )
-				{
-					sessionList.push_back( { SESSION_CLOSE, session, 0 } );
 				}
 			}
 		}

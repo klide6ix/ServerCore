@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-#include "../ServerCore/ObjectPool.h"
+#include "../Utility/ObjectPool.h"
 #include "Session.h"
 
 
@@ -15,7 +15,7 @@ public:
 	SessionManager();
 	~SessionManager();
 
-	Session* CreateSession( SOCKET socket );
+	Session* CreateSession();
 	void RestoreSession( Session* session );
 };
 
