@@ -1,4 +1,6 @@
 #include <list>
+#include <chrono>
+
 #include "stdafx.h"
 
 #include "../Utility/Parser.h"
@@ -96,6 +98,10 @@ int main()
 
 	NetworkCore::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
+		static int _packetCount = 0;
+		static std::chrono::system_clock::time_point before;		
+
+		auto start = std::chrono::system_clock::now();
 		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
 
 		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
@@ -110,6 +116,17 @@ int main()
 		{
 			session->SendPacket( echoPacket );
 		}
+		
+		++_packetCount;
+
+		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+		if( std::chrono::duration_cast<std::chrono::seconds>(now - before).count() > 1 )
+		{
+			printf("RecvPacket (%d)\n", _packetCount );
+			before = now;
+			_packetCount = 0;
+		}
+
 		return 0;
 	} );
 

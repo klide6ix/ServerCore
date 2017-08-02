@@ -99,7 +99,7 @@ int main()
 		newSession->SendPacket( packet );
 		
 		// 1초에 1000번
-		std::this_thread::sleep_for(std::chrono::microseconds(1));
+		std::this_thread::sleep_for(std::chrono::nanoseconds(10));
 	}
 
 	// 에코 테스트
