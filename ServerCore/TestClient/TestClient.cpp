@@ -74,7 +74,7 @@ int main()
 	NetworkCore::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
 	{
 		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
-		printf("Recv : %s\n", packet->GetPacketData() );
+		//printf("Recv : %s\n", packet->GetPacketData() );
 		return 0;
 	} );
 
@@ -88,6 +88,22 @@ int main()
 
 	NetworkCore::GetInstance().AddSession( newSession, 0 );
 
+	// 패킷 테스트
+	std::array<char, 2048> message;
+	message.fill( 'a' );
+	Packet packet;
+
+	packet.AddPacketData( message.data(), static_cast<unsigned short>(message.size()) );
+	while( true )
+	{
+		newSession->SendPacket( packet );
+		
+		// 1초에 1000번
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
+	}
+
+	// 에코 테스트
+	/*
 	while( true )
 	{
 		std::string msg;
@@ -99,16 +115,17 @@ int main()
 		packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
 		newSession->SendPacket( packet );
 	}
+	*/
 
-
-	//while( true )
+	// DB 연결 테스트
+	/*while( true )
 	{
 		Packet packet;
 		packet.SetProtocol( (PROTOCOL_TYPE)1 );
 		newSession->SendPacket( packet );
 
 		Sleep(1);
-	}
+	}*/
 
 	NetworkCore::GetInstance().StopServer();
 

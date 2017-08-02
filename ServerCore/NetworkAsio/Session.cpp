@@ -1,10 +1,15 @@
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "Session.h"
 #include "NetworkCore.h"
 
-Session::Session() : socket_(NetworkCore::GetInstance().GetIoService())
+Session::Session() : 
+	socket_(NetworkCore::GetInstance().GetIoService()),
+	connectTimeOut_(NetworkCore::GetInstance().GetIoService()),
+	recvRetry_(NetworkCore::GetInstance().GetIoService()),
+	sendRetry_(NetworkCore::GetInstance().GetIoService())
 {
 }
 
@@ -27,6 +32,12 @@ bool Session::ConnectTo( const char* ip, int port )
 void Session::_handle_write( const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/ )
 {
 	//printf("_handle_write(%d)\n", bytes_transferred );
+}
+
+void Session::_handle_read_retry( const boost::system::error_code& /*error*/ )
+{
+	printf("_handle_read_retry\n");
+	RecvPost();
 }
 
 void Session::_handle_read( const boost::system::error_code& error, size_t bytes_transferred )
@@ -68,6 +79,14 @@ bool Session::RecvPost()
 {
 	if( socket_.is_open() == false )
 		return false;
+
+	if( recvBuffer_.IsFull() == true )
+	{
+		recvRetry_.expires_from_now( boost::posix_time::seconds(1) );
+		recvRetry_.async_wait( boost::bind( &Session::_handle_read_retry, this, boost::asio::placeholders::error ) );
+
+		return true;
+	}
 
 	socket_.async_receive( boost::asio::buffer( recvBuffer_.GetBufferPos(), recvBuffer_.GetBufferSize() ),
 							  boost::bind( &Session::_handle_read, this,

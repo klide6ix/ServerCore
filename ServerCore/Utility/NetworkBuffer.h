@@ -34,7 +34,7 @@ public:
 
 	inline int RestoreBuffer( int size )
 	{
-		std::memmove( buffer_, buffer_ + size, bufferSize_ - size );
+		std::memmove( buffer_, buffer_ + size, bufferPos_ - size );
 		bufferSize_ += size;
 		bufferPos_ -= size;
 
@@ -43,12 +43,14 @@ public:
 
 	inline int ConsumeBuffer( int size )
 	{
-		if( bufferSize_ < size )
-			size = bufferSize_;
-
 		bufferSize_ -= size;
 		bufferPos_ += size;
 
 		return bufferSize_;
+	}
+
+	inline bool IsFull()
+	{
+		return (bufferSize_ == 0);
 	}
 };

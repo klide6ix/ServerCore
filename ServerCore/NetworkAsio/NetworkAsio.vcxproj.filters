@@ -51,7 +51,6 @@
     <ClInclude Include="CommandQueue.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Accepter">
