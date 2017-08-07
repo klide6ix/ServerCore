@@ -38,6 +38,7 @@ public:
 		bufferSize_ += size;
 		bufferPos_ -= size;
 
+		//printf("RestoreBuffer size(%d), buffer(%d), pos(%d)\n", size, bufferSize_, bufferPos_ );
 		return bufferSize_;
 	}
 
@@ -46,11 +47,17 @@ public:
 		bufferSize_ -= size;
 		bufferPos_ += size;
 
+		//printf("ConsumeBuffer size(%d), buffer(%d), pos(%d)\n", size, bufferSize_, bufferPos_ );
 		return bufferSize_;
 	}
 
 	inline bool IsFull()
 	{
 		return (bufferSize_ == 0);
+	}
+
+	inline int GetCurrentBufferSize()
+	{
+		return bufferPos_;
 	}
 };

@@ -17,5 +17,7 @@ public:
 
 	virtual void SelectSession( std::vector<SessionEvent>& sessionList ) = 0;
 	virtual void StopNetworkModel() = 0;
+
+	virtual int RecvRetry( Session* session ) = 0;
 };
 

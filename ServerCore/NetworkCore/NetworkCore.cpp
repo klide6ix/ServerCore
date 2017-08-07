@@ -1,6 +1,10 @@
 #include <map>
+#include <queue>
 #include <vector>
 #include <stdio.h>
+#include <tuple>
+#include <chrono>
+
 #include <signal.h>
 
 #include "ServerApp.h"
@@ -48,6 +52,9 @@ public:
 
 	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
 	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
+
+	typedef std::tuple<Session*, std::chrono::system_clock::time_point> TypeRetrySession_t;
+	std::priority_queue< TypeRetrySession_t, std::vector<TypeRetrySession_t>, std::greater<TypeRetrySession_t> > retrySessions_;
 };
 
 NetworkCore::NetworkCore()
@@ -307,4 +314,9 @@ void NetworkCore::StopServer()
 		if( thread != nullptr )
 			thread->StopThread();
 	}
+}
+
+void NetworkCore::RecvRetryProcess( Session* session )
+{
+	networkImpl_->networkModel_->RecvRetry( session );
 }

@@ -18,6 +18,8 @@ class Session : public std::enable_shared_from_this<Session>
 	void _handle_read_retry( const boost::system::error_code& /*error*/ );
 	void _handle_write( const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/ );
 
+	void _process_recv( size_t bytes_transferred );
+
 public:
 	boost::asio::ip::tcp::socket& GetSocket() { return socket_; }
 	

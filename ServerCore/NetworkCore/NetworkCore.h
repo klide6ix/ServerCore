@@ -77,5 +77,7 @@ public:
 
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
+
+	void RecvRetryProcess( Session* session );
 };
 

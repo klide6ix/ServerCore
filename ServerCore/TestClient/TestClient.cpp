@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <array>
 
 #include "stdafx.h"
 
@@ -99,7 +100,7 @@ int main()
 		newSession->SendPacket( packet );
 		
 		// 1초에 1000번
-		std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
 	}
 
 	// 에코 테스트

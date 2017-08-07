@@ -37,11 +37,15 @@ bool Session::ConnectTo( const char* ip, int port )
 	return true;
 }
 
-bool Session::RecvPost()
+int Session::RecvPost()
 {
 	if( socket_.GetSocket() == INVALID_SOCKET )
-		return false;
+		return -1;
 
+	if( recvBuffer_.IsFull() == true )
+	{
+		return 0;
+	}
 
 	ZeroMemory( &overlappedRecv_, sizeof( OVERLAPPEDEX ) );
 	overlappedRecv_.dwFlags = ASYNCFLAG_RECEIVE;
@@ -65,11 +69,11 @@ bool Session::RecvPost()
 		int nErrorCode = WSAGetLastError();
 		if( nErrorCode != ERROR_IO_PENDING )
 		{
-			return false;
+			return -1;
 		}
 	}
 
-	return true;
+	return 1;
 }
 
 void Session::RecvBufferConsume( int size )
@@ -80,6 +84,11 @@ void Session::RecvBufferConsume( int size )
 void Session::RecvBufferRestore( int size )
 {
 	recvBuffer_.RestoreBuffer( size );
+}
+
+int Session::GetCurrentRecvBufferSize()
+{
+	return recvBuffer_.GetCurrentBufferSize();
 }
 
 int Session::RecvPacket()

@@ -1,7 +1,7 @@
 #include "../Utility/Packet.h"
 
-#include "IOCPModel.h"
 #include "Session.h"
+#include "IOCPModel.h"
 
 IOCPModel::IOCPModel()
 {
@@ -83,7 +83,13 @@ void IOCPModel::SelectSession( std::vector<SessionEvent>& sessionList )
 						session->RecvBufferConsume( dwBytesTransfer );
 						sessionList.push_back( { SESSION_RECV, session, static_cast<int>( dwBytesTransfer ) } );
 					}
-				break;
+					break;
+				case ASYNCFLAG_RECE_RETRY:
+					{
+						int size = session->GetCurrentRecvBufferSize();
+						sessionList.push_back( { SESSION_RECV, session, size } );
+					}
+					break;
 				}
 			}
 		}
@@ -92,4 +98,18 @@ void IOCPModel::SelectSession( std::vector<SessionEvent>& sessionList )
 
 void IOCPModel::StopNetworkModel()
 {
+}
+
+
+int IOCPModel::RecvRetry( Session* session )
+{
+	ZeroMemory( &overlappedRetry_, sizeof( OVERLAPPEDEX ) );
+	overlappedRetry_.dwFlags = ASYNCFLAG_RECE_RETRY;
+
+	DWORD dwBytesTransfer = 1;
+	ULONG_PTR CompletionKey = reinterpret_cast<ULONG_PTR>(session);
+
+	PostQueuedCompletionStatus( iocpHandle_, dwBytesTransfer, CompletionKey, &overlappedRetry_ );
+
+	return 1;
 }

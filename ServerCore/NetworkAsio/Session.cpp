@@ -34,22 +34,8 @@ void Session::_handle_write( const boost::system::error_code& /*error*/, size_t 
 	//printf("_handle_write(%d)\n", bytes_transferred );
 }
 
-void Session::_handle_read_retry( const boost::system::error_code& /*error*/ )
+void Session::_process_recv( size_t bytes_transferred )
 {
-	printf("_handle_read_retry\n");
-	RecvPost();
-}
-
-void Session::_handle_read( const boost::system::error_code& error, size_t bytes_transferred )
-{
-	if( bytes_transferred == 0 )
-	{
-		NetworkCore::GetInstance().CloseSession( this );
-		return;
-	}
-
-	RecvBufferConsume( static_cast<int>(bytes_transferred) );
-
 	do
 	{
 		Packet* packet = NetworkCore::GetInstance().AllocatePacket();
@@ -75,6 +61,26 @@ void Session::_handle_read( const boost::system::error_code& error, size_t bytes
 	RecvPost();
 }
 
+void Session::_handle_read_retry( const boost::system::error_code& /*error*/ )
+{
+	//printf("_handle_read_retry\n");
+
+	_process_recv( recvBuffer_.GetCurrentBufferSize() );
+}
+
+void Session::_handle_read( const boost::system::error_code& error, size_t bytes_transferred )
+{
+	if( bytes_transferred == 0 )
+	{
+		NetworkCore::GetInstance().CloseSession( this );
+		return;
+	}
+
+	RecvBufferConsume( static_cast<int>(bytes_transferred) );
+	
+	_process_recv( bytes_transferred );
+}
+
 bool Session::RecvPost()
 {
 	if( socket_.is_open() == false )
@@ -82,7 +88,7 @@ bool Session::RecvPost()
 
 	if( recvBuffer_.IsFull() == true )
 	{
-		recvRetry_.expires_from_now( boost::posix_time::seconds(1) );
+		recvRetry_.expires_from_now( boost::posix_time::milliseconds(1) );
 		recvRetry_.async_wait( boost::bind( &Session::_handle_read_retry, this, boost::asio::placeholders::error ) );
 
 		return true;

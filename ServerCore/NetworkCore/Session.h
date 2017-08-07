@@ -12,6 +12,7 @@
 // 확장 OVERLAPPED 구조체
 #define  ASYNCFLAG_SEND				0x01
 #define  ASYNCFLAG_RECEIVE			0x02
+#define  ASYNCFLAG_RECE_RETRY		0x04
 
 typedef struct OVERLAPPEDEX : OVERLAPPED
 {
@@ -36,12 +37,13 @@ public:
 	void SetSocket( Socket& socket );
 
 	bool ConnectTo( const char* ip, int port );
-	bool RecvPost();
+	int  RecvPost();
 	int  RecvPacket();
 	
 	char* RecvBufferPos() { return recvBuffer_.GetBufferOrg(); }
 	void  RecvBufferRestore( int size );
 	void  RecvBufferConsume( int size );
+	int   GetCurrentRecvBufferSize();
 
 	int  SendPacket( Packet& packet );
 

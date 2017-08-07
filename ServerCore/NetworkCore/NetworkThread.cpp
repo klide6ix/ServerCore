@@ -49,11 +49,17 @@ void NetworkThread::Process()
 							sessionEvent.recvSize_ -= packet->GetPacketSize();
 						}
 
-					} while( sessionEvent.recvSize_ > 0 );
+					} while( true );
 
-					if( sessionEvent.session_->RecvPost() == false )
+					int postResult = sessionEvent.session_->RecvPost();
+					
+					if( postResult == -1 )
 					{
 						NetworkCore::GetInstance().CloseSession( sessionEvent.session_ );
+					}
+					else if( postResult == 0 )
+					{
+						NetworkCore::GetInstance().RecvRetryProcess( sessionEvent.session_ );
 					}
 				}
 				break;

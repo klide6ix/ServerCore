@@ -4,9 +4,11 @@
 #include <WinSock2.h>
 #include <list>
 
-class Session;
+#include "Session.h"
+
 class IOCPModel : public NetworkModel
 {
+	OVERLAPPEDEX			overlappedRetry_;
 	HANDLE					iocpHandle_;
 	std::list<Session*>		sessionList_;
 
@@ -21,5 +23,7 @@ public:
 
 	virtual void SelectSession( std::vector<SessionEvent>& sessionList );
 	virtual void StopNetworkModel();
+
+	virtual int RecvRetry( Session* session );
 };
 
