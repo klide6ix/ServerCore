@@ -21,12 +21,12 @@
 // SOFTWARE.
 
 #pragma once
+#include <algorithm>
 
 #include <cpp_redis/network/tcp_client_iface.hpp>
 #include <cpp_redis/redis_error.hpp>
 
-
-#include "../../Session.h"
+#include "../DatabaseConnector/DatabaseCore.h"
 
 namespace cpp_redis
 {
@@ -38,76 +38,107 @@ class tcp_client : public tcp_client_iface
 {
 public:
 	//! ctor & dtor
-	tcp_client( void ) = default;
+	tcp_client( void ) : socket_(DatabaseCore::GetInstance()->GetRedisIoService()) {}
 	~tcp_client( void ) = default;
 
 public:
 	//! start & stop the tcp client
 	void connect( const std::string& addr, std::uint32_t port )
 	{
-		m_client.Connect( addr, port );
+		boost::asio::ip::tcp::resolver resolver(DatabaseCore::GetInstance()->GetRedisIoService());
+		boost::asio::ip::tcp::resolver::query query( addr.c_str(), std::to_string( port ) );
+		boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve( query );
+
+		boost::asio::connect( socket_, endpoint_iterator );
 	}
 
 	void disconnect( bool wait_for_removal = false )
 	{
-		m_client.Disconnect( wait_for_removal );
+		if( socket_.is_open() == true )
+		{
+			socket_.close();
+		}
 	}
 
 	//! returns whether the client is currently connected or not
 	bool is_connected( void ) const
 	{
-		return m_client.IsConnected();
+		return socket_.is_open();
+	}
+
+	void _handle_write( const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/ )
+	{
+		//printf("_handle_write(%d)\n", bytes_transferred );
+	}
+
+	void _handle_read( const boost::system::error_code& error, size_t bytes_transferred )
+	{
+		if( on_recv_call_back_ == false )
+		{
+			return;
+		}
+
+		if (error == boost::asio::error::eof)
+		{
+			return; // Connection closed cleanly by peer.
+		}
+		else if (error)
+		{
+			printf("_handle_read(%d)(%s)\n", bytes_transferred, error.message().c_str() );
+			return;
+		}
+
+		read_result converted_result;
+		converted_result.success = true;
+		converted_result.read_buffer.assign( recv_buffer_.begin(), recv_buffer_.begin() + bytes_transferred );
+
+		on_recv_call_back_(converted_result);
 	}
 
 public:
 	//! async read & write operations
 	void async_read( read_request& request )
 	{
-		auto callback = std::move( request.async_read_callback );
-
-		read_result result;
-		try
-		{
-			request.size = m_client.RecvBuffer( result.buffer, request.size );
-			result.success = true;
-		}
-		catch ( ... )
-		{
-			result.success = false;
-		}
-
-		if( !callback )
+		if( socket_.is_open() == false )
 			return;
 
-		callback( result );
+		if( recv_buffer_.size() != request.size )
+		{
+			recv_buffer_.resize( request.size );
+		}
+
+		socket_.async_receive( boost::asio::buffer( recv_buffer_, recv_buffer_.size() ),
+							   boost::bind( &tcp_client::_handle_read, this,
+											boost::asio::placeholders::error,
+											boost::asio::placeholders::bytes_transferred ) );
 	}
 
 	void async_write( write_request& request )
-	{
-		auto callback = std::move( request.async_write_callback );
-		write_result converted_result;
-
-		converted_result.size = m_client.SendBuffer( request.buffer, request.buffer.size() );
-		
-		if( !callback )
-			return;
-
-		if( converted_result.size > 0 )
-			converted_result.success = true;
-
-		callback( converted_result );
-	}
+		{
+			auto callback = std::move( request.async_write_callback );
+			
+			boost::asio::async_write( socket_, boost::asio::buffer( request.buffer, request.buffer.size() ),
+									  boost::bind( &tcp_client::_handle_write, this,
+												   boost::asio::placeholders::error,
+												   boost::asio::placeholders::bytes_transferred ) );
+		}
 
 public:
 	//! set on disconnection handler
 	void set_on_disconnection_handler( const disconnection_handler_t& disconnection_handler )
 	{
-		m_client.SetOnDisconnectionHandler( disconnection_handler );
+		//socket_.set_on_disconnection_handler( disconnection_handler );
+	}
+
+	void set_on_recv_call_back( const async_read_callback_t& callback )
+	{
+		on_recv_call_back_ = callback;
 	}
 
 private:
-	//! tcp client for redis connection
-	Session m_client;
+	std::vector<char>			 recv_buffer_;
+	boost::asio::ip::tcp::socket socket_;	
+	async_read_callback_t		 on_recv_call_back_;
 };
 
 } //! network

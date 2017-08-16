@@ -1,74 +1,201 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="DatabaseThread.cpp" />
     <ClCompile Include="ODBCHandler.cpp" />
     <ClCompile Include="..\3rdParty\json\json_reader.cpp">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClCompile>
     <ClCompile Include="..\3rdParty\json\json_value.cpp">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClCompile>
     <ClCompile Include="..\3rdParty\json\json_writer.cpp">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClCompile>
     <ClCompile Include="DatabaseCore.cpp" />
+    <ClCompile Include="..\3rdParty\cpp_redis\future_client.cpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\logger.cpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\redis_client.cpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\redis_subscriber.cpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\reply.cpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\array_builder.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\builders_factory.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\bulk_string_builder.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\error_builder.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\integer_builder.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\reply_builder.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\builders\simple_string_builder.cpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\3rdParty\cpp_redis\network\redis_connection.cpp">
+      <Filter>3rd Party\CppRedis\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="RedisThread.cpp">
+      <Filter>Redis Client</Filter>
+    </ClCompile>
+    <ClCompile Include="RedisClient.cpp">
+      <Filter>Redis Client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DatabaseThread.h" />
     <ClInclude Include="ODBCHandler.h" />
     <ClInclude Include="..\3rdParty\json\allocator.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\assertions.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\autolink.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\config.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\features.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\forwards.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\json.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\json_tool.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\reader.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\value.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\version.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="..\3rdParty\json\writer.h">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </ClInclude>
     <ClInclude Include="DatabaseCore.h" />
+    <ClInclude Include="..\3rdParty\cpp_redis\future_client.hpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\logger.hpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\redis_client.hpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\redis_error.hpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\redis_subscriber.hpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\reply.hpp">
+      <Filter>3rd Party\CppRedis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\array_builder.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\builder_iface.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\builders_factory.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\bulk_string_builder.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\error_builder.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\integer_builder.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\reply_builder.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\builders\simple_string_builder.hpp">
+      <Filter>3rd Party\CppRedis\Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\network\redis_connection.hpp">
+      <Filter>3rd Party\CppRedis\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\network\tcp_client.hpp">
+      <Filter>3rd Party\CppRedis\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\3rdParty\cpp_redis\network\tcp_client_iface.hpp">
+      <Filter>3rd Party\CppRedis\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="RedisThread.h">
+      <Filter>Redis Client</Filter>
+    </ClInclude>
+    <ClInclude Include="RedisClient.h">
+      <Filter>Redis Client</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="JsonCpp">
+    <Filter Include="Thread">
+      <UniqueIdentifier>{2c6bf062-a119-40e0-b4a4-671328ca7570}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party">
+      <UniqueIdentifier>{5f199b46-ecae-470d-bfe9-e0344e7d7932}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\JsonCpp">
       <UniqueIdentifier>{a2661991-8f2b-415e-98c1-06236a6e0db2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\CppRedis">
+      <UniqueIdentifier>{dd89ca6d-2fbf-4dcd-a27c-61c145e6c11c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\CppRedis\Builder">
+      <UniqueIdentifier>{dfa0bf5c-a4b1-4ab0-896f-408b9798fd33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rd Party\CppRedis\Network">
+      <UniqueIdentifier>{25af663b-9c97-4f26-86e9-c9f21bccb051}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Redis Client">
+      <UniqueIdentifier>{2a5384cf-4382-4e4c-83dc-37bdd42540e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\3rdParty\json\json_valueiterator.inl">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </None>
     <None Include="..\3rdParty\json\sconscript">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
     </None>
     <None Include="..\3rdParty\json\version.h.in">
-      <Filter>JsonCpp</Filter>
+      <Filter>3rd Party\JsonCpp</Filter>
+    </None>
+    <None Include="..\3rdParty\cpp_redis\cpp_redis">
+      <Filter>3rd Party\CppRedis</Filter>
     </None>
   </ItemGroup>
 </Project>

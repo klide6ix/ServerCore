@@ -3,6 +3,9 @@
 #include <functional>
 #include <mutex>
 
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+
 class DatabaseImplement;
 class DatabaseCore
 {
@@ -21,6 +24,11 @@ public:
 
 	bool InitDatabaseCore( const char* connectString );
 	void StartDatabase();
+
+	bool InitRedisClient();
+	void StartRedisClient();
+	void RunRedisClient();
+	boost::asio::io_service& GetRedisIoService();
 
 	void* AllocJson();
 	void FreeJson( void* value );

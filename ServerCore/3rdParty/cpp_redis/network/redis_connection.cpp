@@ -60,9 +60,11 @@ namespace network
 			//! connect client
 			m_client->connect( host, static_cast<std::uint32_t>( port ) );
 			m_client->set_on_disconnection_handler( std::bind( &redis_connection::tcp_client_disconnection_handler, this ) );
-
+			m_client->set_on_recv_call_back( std::bind( &redis_connection::tcp_client_receive_handler, this, std::placeholders::_1 ) );
+			
 			//! start to read asynchronously
-			tcp_client_iface::read_request request = { __CPP_REDIS_READ_SIZE, std::bind( &redis_connection::tcp_client_receive_handler, this, std::placeholders::_1 ) };
+			tcp_client_iface::read_request request = { __CPP_REDIS_READ_SIZE, nullptr };
+			
 			m_client->async_read( request );
 
 			__CPP_REDIS_LOG( debug, "cpp_redis::network::redis_connection connected" );
@@ -151,11 +153,11 @@ namespace network
 		try
 		{
 			__CPP_REDIS_LOG( debug, "cpp_redis::network::redis_connection receives packet, attempts to build reply" );
-			m_builder << std::string( result.buffer.begin(), result.buffer.end() );
+			m_builder << std::string( result.read_buffer.begin(), result.read_buffer.end() );
 		}
-		catch( const redis_error& )
+		catch( const redis_error& err )
 		{
-			__CPP_REDIS_LOG( error, "cpp_redis::network::redis_connection could not build reply (invalid format), disconnecting" );
+			__CPP_REDIS_LOG( error, "cpp_redis::network::redis_connection could not build reply (invalid format), disconnecting (%s)", err.what() );
 			call_disconnection_handler();
 			return;
 		}

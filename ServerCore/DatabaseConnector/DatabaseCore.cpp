@@ -11,6 +11,9 @@
 #include "DatabaseThread.h"
 #include "ODBCHandler.h"
 
+#include "RedisClient.h"
+#include "RedisThread.h"
+
 #define DEFAULT_BUFFER_SIZE	2048
 using BUFFER_TYPE = std::array<char, DEFAULT_BUFFER_SIZE>;
 
@@ -18,6 +21,9 @@ class DatabaseImplement
 {
 public:
 	std::vector<std::shared_ptr<DatabaseThread>> databaseThreads_;
+
+	std::shared_ptr<RedisClient>	redisClient_;
+	std::vector<std::shared_ptr<RedisThread>> redisThread_;
 
 	ObjectQueue<BUFFER_TYPE>		queryQueue_;
 
@@ -128,4 +134,45 @@ void DatabaseCore::StartDatabase()
 	{
 		thread->StartThread();
 	}
+}
+
+bool DatabaseCore::InitRedisClient()
+{
+	try
+	{
+		databaseImpl_->redisClient_ = std::make_shared<RedisClient>();
+		databaseImpl_->redisClient_->InitializeRedisClient();
+
+		unsigned int REDIS_THREAD_COUNT = 4;
+		for( unsigned int i = 0; i < REDIS_THREAD_COUNT; ++i )
+		{
+			databaseImpl_->redisThread_.push_back( std::make_shared<RedisThread>() );
+		}
+	}
+	catch( std::bad_alloc& )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void DatabaseCore::StartRedisClient()
+{
+	for( auto thread : databaseImpl_->redisThread_ )
+	{
+		thread->StartThread();
+	}
+
+	databaseImpl_->redisClient_->_TestRedis();
+}
+
+void DatabaseCore::RunRedisClient()
+{
+	databaseImpl_->redisClient_->Run();
+}
+
+boost::asio::io_service& DatabaseCore::GetRedisIoService()
+{
+	return databaseImpl_->redisClient_->GetIoService();
 }

@@ -53,7 +53,7 @@ public:
 	struct read_result
 	{
 		bool success = false;
-		std::vector<char> buffer;
+		std::vector<char> read_buffer;
 	};
 
 	//! structure to store write requests result
@@ -94,6 +94,7 @@ public:
 
 	//! set on disconnection handler
 	virtual void set_on_disconnection_handler( const disconnection_handler_t& disconnection_handler ) = 0;
+	virtual void set_on_recv_call_back( const async_read_callback_t& callback ) = 0;
 };
 
 } //! network

@@ -1,15 +1,11 @@
 #pragma once
 
-#include <memory>
-#include <thread>
+#include "../Utility/IThread.h"
 
 class ODBCHandler;
-class DatabaseThread
+class DatabaseThread : public IThread
 {
-	volatile bool isRunning_ = false;
-	
 	std::shared_ptr<ODBCHandler> odbcHandler_;
-	std::shared_ptr<std::thread> dbThread_;
 
 public:
 	DatabaseThread();
@@ -18,10 +14,5 @@ public:
 	bool Initialize( const char* connectString );
 	
 	virtual void Process();
-	virtual bool IsRunning() { return isRunning_; }
-
-	virtual void StartThread();
-	virtual void StopThread();
-	virtual void JoinThread();
 };
 

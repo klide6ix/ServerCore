@@ -139,8 +139,12 @@ int main()
 
 	const char* connectStr = "DRIVER={MySQL ODBC 3.51 Driver};SERVER=127.0.0.1;USER=admin;PASSWORD=admin;Trusted_Connection=yes;Database=world";
 	NetworkCore::GetInstance().InitializeDatabase( connectStr );
-
 	NetworkCore::GetInstance().StartDatabase();
+
+	NetworkCore::GetInstance().InitializeRedis();
+	NetworkCore::GetInstance().StartRedis();
+
+	// Join Server
 	NetworkCore::GetInstance().StartServer();
 
 	return 0;

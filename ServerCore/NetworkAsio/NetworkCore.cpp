@@ -222,7 +222,10 @@ bool NetworkCore::PopCommand( Command& cmd )
 
 bool NetworkCore::InitializeDatabase( const char* connectString )
 {
-	networkImpl_->databaseCore_ = DatabaseCore::GetInstance();
+	if( networkImpl_->databaseCore_ == nullptr )
+	{
+		networkImpl_->databaseCore_ = DatabaseCore::GetInstance();
+	}
 
 	return networkImpl_->databaseCore_->InitDatabaseCore( connectString );
 }
@@ -238,6 +241,21 @@ void NetworkCore::PushQuery( const char* query, size_t len )
 void NetworkCore::StartDatabase()
 {
 	networkImpl_->databaseCore_->StartDatabase();
+}
+
+bool NetworkCore::InitializeRedis()
+{
+	if( networkImpl_->databaseCore_ == nullptr )
+	{
+		networkImpl_->databaseCore_ = DatabaseCore::GetInstance();
+	}
+
+	return networkImpl_->databaseCore_->InitRedisClient();
+}
+
+void NetworkCore::StartRedis()
+{
+	networkImpl_->databaseCore_->StartRedisClient();
 }
 
 void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

@@ -27,7 +27,9 @@ public:
 	~Session();
 
 	bool RecvPost();
+	bool IsConnected() const;
 	bool ConnectTo( const char* ip, int port );
+	void Disconnect( bool wait_for_removal );
 
 	char* RecvBufferPos() { return recvBuffer_.GetBufferOrg(); }
 	void  RecvBufferRestore( int size );
@@ -35,4 +37,7 @@ public:
 	void  CleanUp();
 
 	int  SendPacket( Packet& packet );
+
+	size_t RecvBuffer( std::vector<char>& buffer, size_t size );
+	size_t SendBuffer( std::vector<char>& buffer, size_t size );
 };

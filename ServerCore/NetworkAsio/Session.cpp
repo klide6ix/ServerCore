@@ -18,6 +18,11 @@ Session::~Session()
 	CleanUp();
 }
 
+bool Session::IsConnected() const
+{
+	return socket_.is_open();
+}
+
 bool Session::ConnectTo( const char* ip, int port )
 {
 	boost::asio::ip::tcp::resolver resolver(NetworkCore::GetInstance().GetIoService());
@@ -27,6 +32,11 @@ bool Session::ConnectTo( const char* ip, int port )
 	boost::asio::connect( socket_, endpoint_iterator );
 
 	return true;
+}
+
+void Session::Disconnect( bool /*wait_for_removal*/ )
+{
+	CleanUp();
 }
 
 void Session::_handle_write( const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/ )
@@ -122,6 +132,21 @@ void Session::CleanUp()
 int Session::SendPacket( Packet& packet )
 {
 	boost::asio::async_write( socket_, boost::asio::buffer( packet.GetPacketBuffer(), packet.GetPacketSize() ),
+							  boost::bind( &Session::_handle_write, this,
+										   boost::asio::placeholders::error,
+										   boost::asio::placeholders::bytes_transferred ) );
+
+	return 0;
+}
+
+size_t Session::RecvBuffer( std::vector<char>& buffer, size_t size )
+{
+	return 0;
+}
+
+size_t Session::SendBuffer( std::vector<char>& buffer, size_t size )
+{
+	boost::asio::async_write( socket_, boost::asio::buffer( buffer, size ),
 							  boost::bind( &Session::_handle_write, this,
 										   boost::asio::placeholders::error,
 										   boost::asio::placeholders::bytes_transferred ) );

@@ -32,26 +32,6 @@ bool DatabaseThread::Initialize( const char* connectString )
 	return true;
 }
 
-void DatabaseThread::StartThread()
-{
-	isRunning_ = true;
-
-	dbThread_ = std::make_shared<std::thread>( [&] () { Process(); } );
-}
-
-void DatabaseThread::StopThread()
-{
-	isRunning_ = false;
-}
-
-void DatabaseThread::JoinThread()
-{
-	if( dbThread_ != nullptr && dbThread_->joinable() == true )
-	{
-		dbThread_->join();
-	}
-}
-
 void DatabaseThread::Process()
 {
 	while( IsRunning() == true )
