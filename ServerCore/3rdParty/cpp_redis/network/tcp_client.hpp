@@ -84,7 +84,7 @@ public:
 		}
 		else if (error)
 		{
-			printf("_handle_read(%d)(%s)\n", bytes_transferred, error.message().c_str() );
+			//printf("_handle_read(%d)(%s)\n", bytes_transferred, error.message().c_str() );
 			return;
 		}
 
