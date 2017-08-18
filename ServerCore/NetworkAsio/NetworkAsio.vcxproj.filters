@@ -51,6 +51,27 @@
     <ClInclude Include="CommandQueue.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utility\CircularBuffer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\IThread.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\NetworkBuffer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\ObjectPool.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\ObjectQueue.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\Packet.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\Parser.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Accepter">
@@ -67,6 +88,9 @@
     </Filter>
     <Filter Include="Commands">
       <UniqueIdentifier>{fd4bf454-5b49-411e-84b2-4da69608ab89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{f1dbe404-d9e0-4b82-a8b0-1f909cc650ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

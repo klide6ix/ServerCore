@@ -3,11 +3,11 @@
 #include <boost/asio.hpp>
 
 #include "../Utility/Packet.h"
-#include "../Utility/NetworkBuffer.h"
+#include "../Utility/CircularBuffer.h"
 
 class Session : public std::enable_shared_from_this<Session>
 {
-	NetworkBuffer recvBuffer_;
+	CircularBuffer recvBuffer_;
 	boost::asio::ip::tcp::socket socket_;
 
 	boost::asio::deadline_timer	connectTimeOut_;

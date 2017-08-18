@@ -19,7 +19,12 @@ public:
 	{
 	}
 
-	inline char* GetBuffer()
+	inline char* GetBufferOrg()
+	{
+		return buffer_;
+	}
+
+	inline char* GetBufferPos()
 	{
 		return buffer_ + bufferPos_;
 	}
