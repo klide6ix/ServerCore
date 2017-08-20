@@ -15,9 +15,6 @@
 #include "../Utility/Parser.h"
 #include "../Utility/Packet.h"
 
-#include "../DatabaseConnector/DatabaseCore.h"
-
-
 class NetworkImplement
 {
 public:
@@ -26,8 +23,6 @@ public:
 	
 	boost::asio::io_service							ioService_;
 	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
-
-	DatabaseCore*						databaseCore_ = nullptr;
 
 	std::shared_ptr<IParser>			parser_ = nullptr;
 	std::shared_ptr<ServerApp>			serverApp_ = nullptr;
@@ -218,44 +213,6 @@ void NetworkCore::PushCommand( Command& cmd )
 bool NetworkCore::PopCommand( Command& cmd )
 {
 	return networkImpl_->workQueue_->Pop( cmd );
-}
-
-bool NetworkCore::InitializeDatabase( const char* connectString )
-{
-	if( networkImpl_->databaseCore_ == nullptr )
-	{
-		networkImpl_->databaseCore_ = DatabaseCore::GetInstance();
-	}
-
-	return networkImpl_->databaseCore_->InitDatabaseCore( connectString );
-}
-
-void NetworkCore::PushQuery( const char* query, size_t len )
-{
-	if( networkImpl_->databaseCore_ == nullptr )
-		return;
-
-	networkImpl_->databaseCore_->PushQuery( query, len );
-}
-
-void NetworkCore::StartDatabase()
-{
-	networkImpl_->databaseCore_->StartDatabase();
-}
-
-bool NetworkCore::InitializeRedis()
-{
-	if( networkImpl_->databaseCore_ == nullptr )
-	{
-		networkImpl_->databaseCore_ = DatabaseCore::GetInstance();
-	}
-
-	return networkImpl_->databaseCore_->InitRedisClient();
-}
-
-void NetworkCore::StartRedis()
-{
-	networkImpl_->databaseCore_->StartRedisClient();
 }
 
 void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

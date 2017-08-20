@@ -52,7 +52,7 @@ int Session::RecvPost()
 
 	// WSABUF 구조체 셋팅
 	WSABUF wsaBuffer;
-	wsaBuffer.buf = recvBuffer_.GetBufferPos();
+	wsaBuffer.buf = recvBuffer_.GetBufferPosRecv();
 	wsaBuffer.len = recvBuffer_.GetBufferSize();
 
 	DWORD dwRecvBytes = 0;
@@ -78,12 +78,17 @@ int Session::RecvPost()
 
 void Session::RecvBufferConsume( int size )
 {
-	recvBuffer_.ConsumeBuffer( size );
+	recvBuffer_.ConsumeRecvBuffer( size );
 }
 
-void Session::RecvBufferRestore( int size )
+void Session::ReadBufferConsume( int size )
 {
-	recvBuffer_.RestoreBuffer( size );
+	recvBuffer_.ConsumeReadBuffer( size );
+}
+
+void Session::ArrangeBuffer()
+{
+	recvBuffer_.ArrageBuffer();
 }
 
 int Session::GetCurrentRecvBufferSize()
@@ -103,7 +108,7 @@ int Session::RecvPacket()
 		return -1;
 	}
 
-	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPos(), recvBuffer_.GetBufferSize(), 0  );
+	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPosRecv(), recvBuffer_.GetBufferSize(), 0  );
 
 	if ( size < 0 )
 	{

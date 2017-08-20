@@ -62,18 +62,19 @@ void Session::_process_recv( size_t bytes_transferred )
 		else
 		{
 			NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
-			RecvBufferRestore( packet->GetPacketSize() );
+			ReadBufferConsume( packet->GetPacketSize() );
 			bytes_transferred -= packet->GetPacketSize();
 		}
 
 	} while( bytes_transferred > 0 );
 
+	ArrangeBuffer();
 	RecvPost();
 }
 
 void Session::_handle_read_retry( const boost::system::error_code& /*error*/ )
 {
-	//printf("_handle_read_retry\n");
+	//printf("_handle_read_retry (%d)\n", recvBuffer_.GetCurrentBufferSize());
 
 	_process_recv( recvBuffer_.GetCurrentBufferSize() );
 }
@@ -104,7 +105,7 @@ bool Session::RecvPost()
 		return true;
 	}
 
-	socket_.async_receive( boost::asio::buffer( recvBuffer_.GetBufferPos(), recvBuffer_.GetBufferSize() ),
+	socket_.async_receive( boost::asio::buffer( recvBuffer_.GetBufferPosRecv(), recvBuffer_.GetBufferSize() ),
 							  boost::bind( &Session::_handle_read, this,
 										   boost::asio::placeholders::error,
 										   boost::asio::placeholders::bytes_transferred ) );
@@ -113,12 +114,17 @@ bool Session::RecvPost()
 
 void Session::RecvBufferConsume( int size )
 {
-	recvBuffer_.ConsumeBuffer( size );
+	recvBuffer_.ConsumeRecvBuffer( size );
 }
 
-void Session::RecvBufferRestore( int size )
+void Session::ReadBufferConsume( int size )
 {
-	recvBuffer_.RestoreBuffer( size );
+	recvBuffer_.ConsumeReadBuffer( size );
+}
+
+void Session::ArrangeBuffer()
+{
+	recvBuffer_.ArrageBuffer();
 }
 
 void Session::CleanUp()

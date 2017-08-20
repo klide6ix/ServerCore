@@ -5,8 +5,9 @@
 
 #include "../Utility/Parser.h"
 
-#define USE_BOOST_ASIO
+#include "../DatabaseConnector/DatabaseCore.h"
 
+#define USE_BOOST_ASIO
 #ifdef USE_BOOST_ASIO
 
 #include "../NetworkAsio/ServerApp.h"
@@ -133,16 +134,19 @@ int main()
 	NetworkCore::GetInstance().AddServerCommand( 1, [] ( Command& cmd ) -> unsigned int
 	{
 		char* query = "select * from city where Name like '%SE%';";
-		NetworkCore::GetInstance().PushQuery( query, strlen(query)  );
+		DatabaseCore::GetInstance()->PushQuery( query, strlen(query)  );
 		return 0;
 	} );
 
+	// Set Database
+	/*
 	const char* connectStr = "DRIVER={MySQL ODBC 3.51 Driver};SERVER=127.0.0.1;USER=admin;PASSWORD=admin;Trusted_Connection=yes;Database=world";
-	NetworkCore::GetInstance().InitializeDatabase( connectStr );
-	NetworkCore::GetInstance().StartDatabase();
+	DatabaseCore::GetInstance()->InitDatabaseCore( connectStr );
+	DatabaseCore::GetInstance()->StartDatabase();
 
-	NetworkCore::GetInstance().InitializeRedis();
-	NetworkCore::GetInstance().StartRedis();
+	DatabaseCore::GetInstance()->InitRedisClient();
+	DatabaseCore::GetInstance()->StartRedisClient();
+	*/
 
 	// Join Server
 	NetworkCore::GetInstance().StartServer();

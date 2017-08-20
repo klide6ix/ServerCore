@@ -40,9 +40,10 @@ public:
 	int  RecvPost();
 	int  RecvPacket();
 	
-	char* RecvBufferPos() { return recvBuffer_.GetBufferOrg(); }
-	void  RecvBufferRestore( int size );
+	char* RecvBufferPos() { return recvBuffer_.GetBufferPosRead(); }
+	void  ReadBufferConsume( int size );
 	void  RecvBufferConsume( int size );
+	void  ArrangeBuffer();
 	int   GetCurrentRecvBufferSize();
 
 	int  SendPacket( Packet& packet );

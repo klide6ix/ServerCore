@@ -25,8 +25,6 @@
 #include "../Utility/Parser.h"
 #include "../Utility/Packet.h"
 
-#include "../DatabaseConnector/DatabaseCore.h"
-
 #ifdef _WIN32
 #pragma comment(lib, "Ws2_32.lib")
 #endif
@@ -36,8 +34,6 @@ class NetworkImplement
 public:
 
 	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
-
-	DatabaseCore*						databaseCore_ = nullptr;
 
 	std::shared_ptr<IParser>			parser_ = nullptr;
 	std::shared_ptr<ServerApp>			serverApp_ = nullptr;
@@ -254,26 +250,6 @@ void NetworkCore::PushCommand( Command& cmd )
 bool NetworkCore::PopCommand( Command& cmd )
 {
 	return networkImpl_->workQueue_->Pop( cmd );
-}
-
-bool NetworkCore::InitializeDatabase( const char* connectString )
-{
-	networkImpl_->databaseCore_ = DatabaseCore::GetInstance();
-
-	return networkImpl_->databaseCore_->InitDatabaseCore( connectString );
-}
-
-void NetworkCore::PushQuery( const char* query, size_t len )
-{
-	if( networkImpl_->databaseCore_ == nullptr )
-		return;
-
-	networkImpl_->databaseCore_->PushQuery( query, len );
-}
-
-void NetworkCore::StartDatabase()
-{
-	networkImpl_->databaseCore_->StartDatabase();
 }
 
 void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

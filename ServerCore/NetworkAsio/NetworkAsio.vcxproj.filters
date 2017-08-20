@@ -51,9 +51,6 @@
     <ClInclude Include="CommandQueue.h">
       <Filter>Commands</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utility\CircularBuffer.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\Utility\IThread.h">
       <Filter>Utility</Filter>
     </ClInclude>

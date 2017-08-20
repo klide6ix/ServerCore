@@ -4,7 +4,7 @@
 
 class CircularBuffer
 {
-	char buffer_[MAX_NET_BUFFER];
+	char buffer_[MAX_NET_BUFFER * 3];
 	int bufferPos_;
 	int bufferSize_;
 
@@ -21,7 +21,7 @@ public:
 
 	inline char* GetBufferOrg()
 	{
-		return buffer_;
+		return buffer_ + bufferPos_;
 	}
 
 	inline char* GetBufferPos()
@@ -34,19 +34,32 @@ public:
 		return bufferSize_;
 	}
 
+	inline int RestoreBuffer( int size )
+	{
+		std::memmove( buffer_, buffer_ + size, bufferPos_ - size );
+		bufferSize_ += size;
+		bufferPos_ -= size;
+
+		//printf("RestoreBuffer size(%d), buffer(%d), pos(%d)\n", size, bufferSize_, bufferPos_ );
+		return bufferSize_;
+	}
+
 	inline int ConsumeBuffer( int size )
 	{
-		if( bufferPos_ + size > MAX_NET_BUFFER )
-		{
-			bufferPos_ = 0;
-			bufferSize_ = MAX_NET_BUFFER;
-		}
-		else
-		{
-			bufferPos_ += size;
-			bufferSize_ -= size;
-		}
-		
+		bufferSize_ -= size;
+		bufferPos_ += size;
+
+		//printf("ConsumeBuffer size(%d), buffer(%d), pos(%d)\n", size, bufferSize_, bufferPos_ );
 		return bufferSize_;
+	}
+
+	inline bool IsFull()
+	{
+		return (bufferSize_ == 0);
+	}
+
+	inline int GetCurrentBufferSize()
+	{
+		return bufferPos_;
 	}
 };

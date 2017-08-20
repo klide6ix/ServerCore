@@ -20,7 +20,6 @@
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Utility\CircularBuffer.h" />
     <ClInclude Include="..\Utility\IThread.h" />
     <ClInclude Include="..\Utility\NetworkBuffer.h" />
     <ClInclude Include="..\Utility\ObjectPool.h" />

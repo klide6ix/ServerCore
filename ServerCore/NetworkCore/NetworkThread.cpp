@@ -45,12 +45,13 @@ void NetworkThread::Process()
 						else
 						{
 							NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
-							sessionEvent.session_->RecvBufferRestore( packet->GetPacketSize() );
+							sessionEvent.session_->ReadBufferConsume( packet->GetPacketSize() );
 							sessionEvent.recvSize_ -= packet->GetPacketSize();
 						}
 
-					} while( true );
+					} while( sessionEvent.recvSize_ > 0 );
 
+					sessionEvent.session_->ArrangeBuffer();
 					int postResult = sessionEvent.session_->RecvPost();
 					
 					if( postResult == -1 )

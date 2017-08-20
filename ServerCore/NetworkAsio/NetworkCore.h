@@ -57,13 +57,6 @@ public:
 	void PushCommand( Command& cmd );
 	bool PopCommand( Command& cmd );
 
-	bool InitializeDatabase( const char* connectString );
-	void PushQuery( const char* query, size_t len );
-	void StartDatabase();
-
-	bool InitializeRedis();
-	void StartRedis();
-
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
 
