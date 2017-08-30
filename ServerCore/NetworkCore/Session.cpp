@@ -130,7 +130,7 @@ int Session::RecvPacket()
 	return size;
 }
 
-void Session::CleanUp()
+void Session::Close()
 {
 	socket_.CloseSocket();
 }

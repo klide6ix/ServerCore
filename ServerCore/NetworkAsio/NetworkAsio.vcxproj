@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Utility\Allocator.cpp" />
+    <ClCompile Include="..\Utility\System.cpp" />
     <ClCompile Include="Accepter.cpp" />
     <ClCompile Include="CommandQueue.cpp" />
     <ClCompile Include="NetworkCore.cpp" />
@@ -20,12 +22,16 @@
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Utility\Allocator.h" />
+    <ClInclude Include="..\Utility\BoostObjectPoolWrapper.h" />
     <ClInclude Include="..\Utility\IThread.h" />
     <ClInclude Include="..\Utility\NetworkBuffer.h" />
     <ClInclude Include="..\Utility\ObjectPool.h" />
     <ClInclude Include="..\Utility\ObjectQueue.h" />
     <ClInclude Include="..\Utility\Packet.h" />
     <ClInclude Include="..\Utility\Parser.h" />
+    <ClInclude Include="..\Utility\StringTokenizer.h" />
+    <ClInclude Include="..\Utility\System.h" />
     <ClInclude Include="Accepter.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandQueue.h" />

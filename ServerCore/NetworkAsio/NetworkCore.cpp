@@ -14,6 +14,7 @@
 #include "../Utility/ObjectPool.h"
 #include "../Utility/Parser.h"
 #include "../Utility/Packet.h"
+#include "../Utility/BoostObjectPoolWrapper.h"
 
 class NetworkImplement
 {
@@ -175,9 +176,17 @@ void NetworkCore::CloseSession( Session* session )
 
 	networkImpl_->sessionManager_->RestoreSession( session );
 
-	session->CleanUp();
+	session->Close();
 
 	networkImpl_->serverApp_->OnClose( session );
+}
+
+void NetworkCore::ShutdownSession( Session* session )
+{
+	if( session == nullptr )
+		return;
+
+	session->Shutdown();
 }
 
 ServerApp* NetworkCore::GetServerApp()

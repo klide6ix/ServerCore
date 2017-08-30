@@ -47,6 +47,7 @@ public:
 	Session* CreateSession();
 	void AddSession( Session* newSession, int acceptPort );
 	void CloseSession( Session* session );
+	void ShutdownSession( Session* session );
 
 	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
 	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );

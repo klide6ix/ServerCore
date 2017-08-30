@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkAsio", "NetworkAsio\NetworkAsio.vcxproj", "{D771E399-C58B-4C6C-9DD4-B7775C9DEEF7}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DatabaseConnector", "DatabaseConnector\DatabaseConnector.vcxproj", "{0D70F2C2-2F36-478C-AC57-ED32641038D7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerLibrary", "ServerLibrary", "{0A943E7A-7324-4728-B1B7-E32CAE3DF30A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server Engine", "Server Engine", "{0A943E7A-7324-4728-B1B7-E32CAE3DF30A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkCore", "NetworkCore\NetworkCore.vcxproj", "{9135578B-E7DB-4A4B-9F69-81CD318B0B61}"
 EndProject
@@ -22,7 +22,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestClient", "TestClient\Te
 		{D771E399-C58B-4C6C-9DD4-B7775C9DEEF7} = {D771E399-C58B-4C6C-9DD4-B7775C9DEEF7}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{849A55EE-B8E6-4FC5-93CD-E8258E4B9173}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{849A55EE-B8E6-4FC5-93CD-E8258E4B9173}"
 	ProjectSection(SolutionItems) = preProject
 		..\README.txt = ..\README.txt
 	EndProjectSection
@@ -61,5 +61,8 @@ Global
 		{D771E399-C58B-4C6C-9DD4-B7775C9DEEF7} = {0A943E7A-7324-4728-B1B7-E32CAE3DF30A}
 		{0D70F2C2-2F36-478C-AC57-ED32641038D7} = {0A943E7A-7324-4728-B1B7-E32CAE3DF30A}
 		{9135578B-E7DB-4A4B-9F69-81CD318B0B61} = {0A943E7A-7324-4728-B1B7-E32CAE3DF30A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E18B8709-1352-456F-8127-563BC153BF0F}
 	EndGlobalSection
 EndGlobal

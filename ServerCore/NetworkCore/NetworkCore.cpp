@@ -207,7 +207,7 @@ void NetworkCore::CloseSession( Session* session )
 	networkImpl_->networkModel_->RemoveSession( session );
 	networkImpl_->sessionManager_->RestoreSession( session );
 
-	session->CleanUp();
+	session->Close();
 
 	networkImpl_->serverApp_->OnClose( session );
 }

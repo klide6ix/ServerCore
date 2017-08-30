@@ -22,6 +22,12 @@
     <ClCompile Include="CommandQueue.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utility\Allocator.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utility\System.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h">
@@ -67,6 +73,18 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\Utility\Parser.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\Allocator.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\BoostObjectPoolWrapper.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\System.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\StringTokenizer.h">
       <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,6 +10,9 @@ class Session : public std::enable_shared_from_this<Session>
 	NetworkBuffer recvBuffer_;
 	boost::asio::ip::tcp::socket socket_;
 
+	volatile bool				isShutdown_;
+	std::atomic<int>			isAbortiveDisconnect_;
+
 	boost::asio::deadline_timer	connectTimeOut_;
 	boost::asio::deadline_timer	recvRetry_;
 	boost::asio::deadline_timer	sendRetry_;
@@ -31,11 +34,14 @@ public:
 	bool ConnectTo( const char* ip, int port );
 	void Disconnect( bool wait_for_removal );
 
+	bool IsClosed() const;
+
 	char* RecvBufferPos() { return recvBuffer_.GetBufferPosRead(); }
 	void  ReadBufferConsume( int size );
 	void  RecvBufferConsume( int size );
 	void  ArrangeBuffer();
-	void  CleanUp();
+	void  Close();
+	void  Shutdown();
 
 	int  SendPacket( Packet& packet );
 

@@ -48,7 +48,7 @@ public:
 
 	int  SendPacket( Packet& packet );
 
-	void CleanUp();
+	void Close();
 
 	void Connect( const std::string& addr, std::uint32_t port );
 	void Disconnect( bool wait_for_removal = false );

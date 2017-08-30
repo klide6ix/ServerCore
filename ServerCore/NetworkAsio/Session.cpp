@@ -11,11 +11,13 @@ Session::Session() :
 	recvRetry_(NetworkCore::GetInstance().GetIoService()),
 	sendRetry_(NetworkCore::GetInstance().GetIoService())
 {
+	isShutdown_ = false;
+	isAbortiveDisconnect_ = 0;
 }
 
 Session::~Session()
 {
-	CleanUp();
+	Close();
 }
 
 bool Session::IsConnected() const
@@ -36,7 +38,7 @@ bool Session::ConnectTo( const char* ip, int port )
 
 void Session::Disconnect( bool /*wait_for_removal*/ )
 {
-	CleanUp();
+	Close();
 }
 
 void Session::_handle_write( const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/ )
@@ -127,12 +129,30 @@ void Session::ArrangeBuffer()
 	recvBuffer_.ArrageBuffer();
 }
 
-void Session::CleanUp()
+bool Session::IsClosed() const
 {
-	if( socket_.is_open() == true )
-	{
-		socket_.close();
-	}
+	return isShutdown_ == true || socket_.is_open() == false || isAbortiveDisconnect_ == 1;
+}
+
+void Session::Close()
+{
+	if( socket_.is_open() == false )
+		return;
+	
+	boost::system::error_code errorCode;
+	socket_.close(errorCode);
+
+	isAbortiveDisconnect_ = 1;
+}
+
+void Session::Shutdown()
+{
+	if( socket_.is_open() == false )
+		return;
+
+	boost::system::error_code errorCode;
+	socket_.shutdown( boost::asio::ip::tcp::socket::shutdown_both, errorCode );
+	isShutdown_ = true;
 }
 
 int Session::SendPacket( Packet& packet )
