@@ -15,17 +15,6 @@ Accepter::~Accepter()
 	accepter_.close( err );
 }
 
-void Accepter::_handleAccept( Session* newConnection, const boost::system::error_code& error )
-{
-	if( error != 0 )
-	{
-		printf( "%s\n", error.message().c_str() );
-	}  
-
-	StartAccept();
-	NetworkCore::GetInstance().AddSession( newConnection, port_ );
-}
-
 void Accepter::StartAccept()
 {
 	Session* newSession = NetworkCore::GetInstance().CreateSession();
@@ -33,6 +22,15 @@ void Accepter::StartAccept()
 	if( newSession == nullptr )
 		return;
 
-	accepter_.async_accept( newSession->GetSocket(),
-							boost::bind( &Accepter::_handleAccept, this, newSession, boost::asio::placeholders::error ) );
+	accepter_.async_accept( newSession->GetSocket(), [&, this, newSession] ( boost::system::error_code error )
+	{
+		if( error != 0 )
+		{
+			printf( "%s\n", error.message().c_str() );
+		}  
+
+		NetworkCore::GetInstance().AddSession( newSession, port_ );
+
+		StartAccept();
+	} );
 }

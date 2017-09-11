@@ -162,13 +162,14 @@ Session* NetworkCore::CreateSession()
 
 void NetworkCore::AddSession( Session* newSession, int acceptPort )
 {
+	// Accept 수행 후 Recv 수행
+	networkImpl_->serverApp_->OnAccept( acceptPort, newSession );
+
 	if( newSession->RecvPost() == false )
 	{
 		CloseSession( newSession );
 		return;
 	}
-
-	networkImpl_->serverApp_->OnAccept( acceptPort, newSession );
 }
 
 void NetworkCore::CloseSession( Session* session )
