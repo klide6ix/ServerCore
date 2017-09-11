@@ -7,7 +7,8 @@
 
 class Session : public std::enable_shared_from_this<Session>
 {
-	NetworkBuffer recvBuffer_;
+	void*						sessionObj_ = nullptr;
+	NetworkBuffer				recvBuffer_;
 	boost::asio::ip::tcp::socket socket_;
 
 	volatile bool				isShutdown_;
@@ -29,6 +30,9 @@ public:
 	Session();
 	~Session();
 
+	void  SetSessionObject( void* obj ) { sessionObj_ = obj; }
+	void* GetSessionObject() { return sessionObj_; }
+
 	bool RecvPost();
 	bool IsConnected() const;
 	bool ConnectTo( const char* ip, int port );
@@ -44,7 +48,8 @@ public:
 	void  Shutdown();
 
 	int  SendPacket( Packet& packet );
-
-	size_t RecvBuffer( std::vector<char>& buffer, size_t size );
+	
+	size_t SendBuffer( const void* buffer, size_t size );
 	size_t SendBuffer( std::vector<char>& buffer, size_t size );
+	size_t RecvBuffer( std::vector<char>& buffer, size_t size );
 };

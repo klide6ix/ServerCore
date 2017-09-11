@@ -1,3 +1,5 @@
+#pragma warning ( disable : 4996 )
+
 #include <map>
 #include <vector>
 #include <stdio.h>
@@ -174,11 +176,10 @@ void NetworkCore::CloseSession( Session* session )
 	if( session == nullptr )
 		return;
 
+	networkImpl_->serverApp_->OnClose( session );
 	networkImpl_->sessionManager_->RestoreSession( session );
 
 	session->Close();
-
-	networkImpl_->serverApp_->OnClose( session );
 }
 
 void NetworkCore::ShutdownSession( Session* session )
@@ -194,14 +195,14 @@ ServerApp* NetworkCore::GetServerApp()
 	return networkImpl_->serverApp_.get();
 }
 
-bool NetworkCore::EncodePacket( const char* src, int srcSize, char* dest, int& destSize )
+bool NetworkCore::EncodePacket( const char* src, int srcSize, Packet* packet )
 {
-	return networkImpl_->parser_->encodeMessage( src, srcSize, dest, destSize );
+	return networkImpl_->parser_->encodeMessage( src, srcSize, packet );
 }
 
-bool NetworkCore::DecodePacket( const char* src, int srcSize, char* dest, int& destSize )
+bool NetworkCore::DecodePacket( const char* src, int srcSize, Packet* packet )
 {
-	return networkImpl_->parser_->decodeMessage( src, srcSize, dest, destSize );
+	return networkImpl_->parser_->decodeMessage( src, srcSize, packet );
 }
 
 Packet* NetworkCore::AllocatePacket()
@@ -228,7 +229,7 @@ void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t comma
 {
 	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
 	{
-		networkImpl_->serverCommand_.insert( std::pair< PROTOCOL_TYPE, CommandFunction_t >( protocol, command ) );
+		networkImpl_->serverCommand_.insert( std::pair< unsigned int, CommandFunction_t >( protocol, command ) );
 	}
 	else
 	{
@@ -267,4 +268,116 @@ void NetworkCore::StopServer()
 boost::asio::io_service& NetworkCore::GetIoService()
 {
 	return networkImpl_->ioService_;
+}
+
+// 윈도우 서비스
+#ifdef WIN32
+
+HANDLE					gServerEvent = INVALID_HANDLE_VALUE;
+DWORD					gCurrentStatus = 0;
+SERVICE_STATUS_HANDLE	gServiceStatus;
+char					gServiceName[100] = {0};
+
+
+void SetStatus( SERVICE_STATUS_HANDLE serviceHandle, DWORD dwState, DWORD dwAccept = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_PAUSE_CONTINUE, DWORD dwCheckPoint = 0, DWORD dwWaitHint = 0, DWORD dwWin32ExitCode = 0 )
+{
+	SERVICE_STATUS ServiceStatus;
+	ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+	ServiceStatus.dwCurrentState = dwState;
+	ServiceStatus.dwControlsAccepted = dwAccept;
+	ServiceStatus.dwWin32ExitCode = dwWin32ExitCode;
+	ServiceStatus.dwServiceSpecificExitCode = 0;
+	ServiceStatus.dwCheckPoint = dwCheckPoint;
+	ServiceStatus.dwWaitHint = dwWaitHint;
+
+	// 현재 상태를 보관해 둔다.
+	gCurrentStatus = dwState;
+
+	SetServiceStatus( serviceHandle, &ServiceStatus );
+}
+
+void ServiceHandler( DWORD opCode )
+{
+	// 현재 상태와 같은 제어 코드일 경우는 처리할 필요 없다.	
+	if ( opCode ==  gCurrentStatus )
+		return;
+
+	switch ( opCode ) 
+	{
+	case SERVICE_CONTROL_STOP:
+		SetStatus( gServiceStatus, SERVICE_STOP_PENDING, 0, 1, 1000 );
+		WSASetEvent( gServerEvent );
+		break;
+	case SERVICE_CONTROL_INTERROGATE:
+	default:
+		SetStatus( gServiceStatus, gCurrentStatus, SERVICE_ACCEPT_STOP );
+		break;
+	}
+
+}
+
+void ServiceMain(DWORD argc, LPTSTR *argv)
+{
+	// register service handler
+	gServiceStatus = RegisterServiceCtrlHandler( gServiceName, (LPHANDLER_FUNCTION)ServiceHandler );
+
+	// notice start pending
+	SetStatus( gServiceStatus, SERVICE_START_PENDING );
+	SetStatus( gServiceStatus, SERVICE_RUNNING );
+}
+
+#endif
+void NetworkCore::MakeDaemon( bool debug, char* serviceName )
+{
+#ifdef WIN32
+
+	memset( gServiceName, 0, 100 );
+
+	if( serviceName )
+		strncpy( gServiceName, serviceName, 99 );
+	else
+		strcpy( gServiceName, "Server" );
+
+	SERVICE_TABLE_ENTRY lpServiceTableEntry[]=
+	{
+		{ gServiceName, (LPSERVICE_MAIN_FUNCTION)ServiceMain },
+		{ NULL, NULL }
+	};
+
+	// start service
+	BOOL ret = StartServiceCtrlDispatcher( lpServiceTableEntry );
+
+	int err = 0;
+	if( !ret )
+	{
+		err = GetLastError();
+	}
+
+#else
+
+	pid_t pid;
+
+	if( ( pid = fork() ) < 0 ) 
+	{
+		log( DBG, " Daemon start fork failed");              
+		exit( 0 );
+	}
+	else if( pid != 0 )
+	{
+		exit( 0 );
+	}
+
+	if( !debug )
+	{
+		//! stdin, stdout close       
+		int fd0, fd1, fd2;
+		fd0 = open("/dev/null", O_RDWR);
+		dup2( fd0, 1 );
+		dup2( fd0, 2 );
+		close( fd0 );
+	}
+
+
+	setsid();
+#endif
 }

@@ -8,4 +8,5 @@ public:
 
 	virtual void OnAccept( int /*port*/, void* /*session*/ ) {}
 	virtual void OnClose( void* /*session*/ ) {}
+	virtual void InitializeCommands() {}
 };

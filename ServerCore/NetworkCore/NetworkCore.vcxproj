@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Utility\LogWriter.cpp" />
+    <ClCompile Include="..\Utility\System.cpp" />
     <ClCompile Include="Accepter.cpp" />
     <ClCompile Include="CommandQueue.cpp" />
     <ClCompile Include="EpollModel.cpp" />
@@ -26,6 +28,17 @@
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Utility\BoostObjectPoolWrapper.h" />
+    <ClInclude Include="..\Utility\CircularBuffer.h" />
+    <ClInclude Include="..\Utility\IThread.h" />
+    <ClInclude Include="..\Utility\LogWriter.h" />
+    <ClInclude Include="..\Utility\NetworkBuffer.h" />
+    <ClInclude Include="..\Utility\ObjectPool.h" />
+    <ClInclude Include="..\Utility\ObjectQueue.h" />
+    <ClInclude Include="..\Utility\Packet.h" />
+    <ClInclude Include="..\Utility\Parser.h" />
+    <ClInclude Include="..\Utility\StringTokenizer.h" />
+    <ClInclude Include="..\Utility\System.h" />
     <ClInclude Include="Accepter.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandQueue.h" />
@@ -47,7 +60,7 @@
     <ProjectGuid>{9135578B-E7DB-4A4B-9F69-81CD318B0B61}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NetworkCore</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

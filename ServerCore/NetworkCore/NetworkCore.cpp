@@ -222,14 +222,14 @@ ServerApp* NetworkCore::GetServerApp()
 	return networkImpl_->serverApp_.get();
 }
 
-bool NetworkCore::EncodePacket( const char* src, int srcSize, char* dest, int& destSize )
+bool NetworkCore::EncodePacket( const char* src, int srcSize, Packet* packet )
 {
-	return networkImpl_->parser_->encodeMessage( src, srcSize, dest, destSize );
+	return networkImpl_->parser_->encodeMessage( src, srcSize, packet );
 }
 
-bool NetworkCore::DecodePacket( const char* src, int srcSize, char* dest, int& destSize )
+bool NetworkCore::DecodePacket( const char* src, int srcSize, Packet* packet )
 {
-	return networkImpl_->parser_->decodeMessage( src, srcSize, dest, destSize );
+	return networkImpl_->parser_->decodeMessage( src, srcSize, packet );
 }
 
 Packet* NetworkCore::AllocatePacket()
@@ -256,7 +256,7 @@ void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t comma
 {
 	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
 	{
-		networkImpl_->serverCommand_.insert( std::pair< PROTOCOL_TYPE, CommandFunction_t >( protocol, command ) );
+		networkImpl_->serverCommand_.insert( std::pair< unsigned int, CommandFunction_t >( protocol, command ) );
 	}
 	else
 	{

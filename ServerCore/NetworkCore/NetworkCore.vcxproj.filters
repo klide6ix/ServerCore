@@ -40,6 +40,12 @@
     <ClCompile Include="NetworkThread.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utility\LogWriter.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utility\System.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h">
@@ -87,6 +93,39 @@
     <ClInclude Include="ServerApp.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utility\BoostObjectPoolWrapper.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\CircularBuffer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\IThread.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\LogWriter.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\NetworkBuffer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\ObjectPool.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\ObjectQueue.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\Packet.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\Parser.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\StringTokenizer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\System.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Accepter">
@@ -109,6 +148,9 @@
     </Filter>
     <Filter Include="Thread">
       <UniqueIdentifier>{5d4924f3-8ea9-45cf-9be9-97e85e3d06cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{962d338f-c63d-42fc-a56b-14012aab3e9d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@ Session::Session() :
 
 Session::~Session()
 {
+	sessionObj_ = nullptr;
 	Close();
 }
 
@@ -55,15 +56,14 @@ void Session::_process_recv( size_t bytes_transferred )
 		if( packet == nullptr )
 			break;
 
-		int packetSize = 0;
-		if( NetworkCore::GetInstance().DecodePacket( RecvBufferPos(), static_cast<int>(bytes_transferred), packet->GetPacketBuffer(), packetSize ) == false )
+		if( NetworkCore::GetInstance().DecodePacket( RecvBufferPos(), static_cast<int>(bytes_transferred), packet ) == false )
 		{
 			NetworkCore::GetInstance().FreePacket( packet );
 			break;
 		}
 		else
 		{
-			NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
+			NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet), sessionObj_ ) );
 			ReadBufferConsume( packet->GetPacketSize() );
 			bytes_transferred -= packet->GetPacketSize();
 		}
@@ -165,8 +165,13 @@ int Session::SendPacket( Packet& packet )
 	return 0;
 }
 
-size_t Session::RecvBuffer( std::vector<char>& buffer, size_t size )
+size_t Session::SendBuffer( const void* buffer, size_t size )
 {
+	boost::asio::async_write( socket_, boost::asio::buffer( buffer, size ),
+							  boost::bind( &Session::_handle_write, this,
+										   boost::asio::placeholders::error,
+										   boost::asio::placeholders::bytes_transferred ) );
+
 	return 0;
 }
 
@@ -179,3 +184,9 @@ size_t Session::SendBuffer( std::vector<char>& buffer, size_t size )
 
 	return 0;
 }
+
+size_t Session::RecvBuffer( std::vector<char>& buffer, size_t size )
+{
+	return 0;
+}
+

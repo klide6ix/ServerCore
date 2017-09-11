@@ -1,38 +1,39 @@
 #pragma once
 #include <memory>
 
-typedef unsigned short PROTOCOL_TYPE;
-typedef unsigned short SIZE_TYPE;
-
-struct PacketHeader
-{
-	PROTOCOL_TYPE	packetProtcol_;
-	SIZE_TYPE		packetSize_;
-};
-
-#define HEADER_SIZE (sizeof(PacketHeader))
 #define MESSAGE_BUFFER_SIZE_MAX	(20000)
 
 class Packet
 {
 private:
 	char				packetBuffer_[MESSAGE_BUFFER_SIZE_MAX] = {0};
-	PacketHeader*		packetHeader_ = reinterpret_cast<PacketHeader*>(packetBuffer_);
+	unsigned int		packetProtocol_ = 0;
+	unsigned int		packetSize_ = 0;
 
 public:
-	Packet() { memset( packetBuffer_, 0, MESSAGE_BUFFER_SIZE_MAX ); packetHeader_ = reinterpret_cast<PacketHeader*>(packetBuffer_); }
+	Packet()
+	{
+		memset( packetBuffer_, 0, MESSAGE_BUFFER_SIZE_MAX );
+	}
+
+	Packet( const char* data, unsigned int size )
+	{
+		memset( packetBuffer_, 0, MESSAGE_BUFFER_SIZE_MAX );
+		memcpy( packetBuffer_, data, size );
+		packetSize_ = size;
+	}
+
 	virtual ~Packet() {}
 
-	void			SetProtocol( PROTOCOL_TYPE protocol ) { (*packetHeader_).packetProtcol_ = protocol; }
-	PROTOCOL_TYPE	GetProtocol() { return (*packetHeader_).packetProtcol_; }
+	void			SetProtocol( unsigned int protocol ) { packetProtocol_ = protocol; }
+	unsigned int	GetProtocol() { return packetProtocol_; }
 
 	char*			GetPacketBuffer() { return packetBuffer_; }
-	SIZE_TYPE		GetPacketSize() { return (*packetHeader_).packetSize_ + HEADER_SIZE; }
 
-	const char*		GetPacketData() const { return packetBuffer_ + HEADER_SIZE; }
-	SIZE_TYPE		GetPacketDataSize() const { return (*packetHeader_).packetSize_; }
+	void			SetPacketSize( unsigned int size ) { packetSize_ = size; }
+	unsigned int	GetPacketSize() { return packetSize_; }
 
-	bool AddPacketData( const char* data, SIZE_TYPE size )
+	bool AddPacketData( const char* data, unsigned int size )
 	{
 		int currentPos = GetPacketSize();
 
@@ -41,7 +42,7 @@ public:
 
 		memcpy( &packetBuffer_[currentPos], data, static_cast<size_t>(size) );
 
-		(*packetHeader_).packetSize_ += size;
+		packetSize_ += size;
 
 		return true;
 	}

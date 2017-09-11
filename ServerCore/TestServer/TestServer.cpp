@@ -4,6 +4,7 @@
 #include "stdafx.h"
 
 #include "../Utility/Parser.h"
+#include "../Utility/LogWriter.h"
 
 #include "../DatabaseConnector/DatabaseCore.h"
 
@@ -36,6 +37,15 @@
 
 #define SERVER_PORT 1500
 
+struct _PACKET_HEADER
+{
+	unsigned short protocol_ = 0;
+	unsigned short size_ = 0;
+
+	void setProtocol( unsigned short protocol ) { protocol_ = protocol; }
+	void setSize( unsigned short size ) { size_ = size; }
+};
+
 class ServerTest : public ServerApp
 {
 	std::list<Session*>	clientList_;
@@ -66,24 +76,29 @@ public:
 	ParserTest() {}
 	virtual ~ParserTest() {}
 
-	virtual bool encodeMessage( const char* src, int srcSize, char* dest, int& destSize )
+	virtual bool encodeMessage( const char* src, int srcSize, Packet* packet )
 	{
-		destSize = srcSize;
-		memcpy( dest, src, destSize );
+		packet->SetPacketSize( srcSize );
+		memcpy( packet->GetPacketBuffer(), src, srcSize );
 
 		return true;
 	}
-	virtual bool decodeMessage( const char* src, int srcSize, char* dest, int& destSize )
+	virtual bool decodeMessage( const char* src, int srcSize, Packet* packet )
 	{
-		if( HEADER_SIZE > srcSize )
+		if( packet == nullptr )
 			return false;
 
-		const PacketHeader* header = reinterpret_cast<const PacketHeader*>(src);
-		if( static_cast<int>( header->packetSize_ + HEADER_SIZE ) > srcSize )
+		if( sizeof(_PACKET_HEADER) > srcSize )
 			return false;
 
-		destSize = header->packetSize_ + HEADER_SIZE;
-		memcpy( dest, src, destSize );
+		const _PACKET_HEADER* header = reinterpret_cast<const _PACKET_HEADER*>(src);
+		if( static_cast<int>(header->size_) > srcSize )
+			return false;
+
+		packet->SetPacketSize( header->size_ );
+		packet->SetProtocol( header->protocol_ );
+		
+		memcpy( packet->GetPacketBuffer(), src, header->size_ );
 
 		return true;
 	}
@@ -91,6 +106,10 @@ public:
 
 int main()
 {
+	Logger::GetInstance().Initialize( "Log", "Old_Log", "TestServer" );
+	Logger::GetInstance().Log( "Start Server" );
+	Logger::GetInstance().Log( "Server Port [%d]", SERVER_PORT );
+
 	NetworkCore::GetInstance().InitializeEngine( new ServerTest );
 	NetworkCore::GetInstance().InitializeParser( new ParserTest );
 
@@ -110,12 +129,9 @@ int main()
 		if( serverApp == nullptr )
 			return __LINE__;
 
-		Packet echoPacket;
-		echoPacket.AddPacketData( packet->GetPacketData(), packet->GetPacketDataSize() );
-
 		for( auto session : serverApp->GetClientList() )
 		{
-			session->SendPacket( echoPacket );
+			session->SendPacket( *packet );
 		}
 		
 		++_packetCount;

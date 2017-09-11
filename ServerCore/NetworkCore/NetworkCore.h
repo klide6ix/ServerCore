@@ -62,8 +62,8 @@ public:
 	void AddSession( Session* newSession, int acceptPort );
 	void CloseSession( Session* session );
 
-	bool EncodePacket( const char* src, int srcSize, char* dest, int& destSize );
-	bool DecodePacket( const char* src, int srcSize, char* dest, int& destSize );
+	bool EncodePacket( const char* src, int srcSize, Packet* packet );
+	bool DecodePacket( const char* src, int srcSize, Packet* packet );
 
 	Packet* AllocatePacket();
 	void FreePacket( Packet* obj );

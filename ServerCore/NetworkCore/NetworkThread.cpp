@@ -37,7 +37,7 @@ void NetworkThread::Process()
 							return;
 
 						int packetSize = 0;
-						if( NetworkCore::GetInstance().DecodePacket( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_), packet->GetPacketBuffer(), packetSize ) == false )
+						if( NetworkCore::GetInstance().DecodePacket( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_), packet ) == false )
 						{
 							NetworkCore::GetInstance().FreePacket( packet );
 							break;
