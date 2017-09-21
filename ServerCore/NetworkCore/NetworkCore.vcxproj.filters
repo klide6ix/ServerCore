@@ -4,9 +4,6 @@
     <ClCompile Include="Accepter.cpp">
       <Filter>Accepter</Filter>
     </ClCompile>
-    <ClCompile Include="CommandQueue.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
     <ClCompile Include="IOCPModel.cpp">
       <Filter>NetworkModel</Filter>
     </ClCompile>
@@ -46,13 +43,19 @@
     <ClCompile Include="..\Utility\System.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="TimerThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="Command.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="EventTimer.cpp">
+      <Filter>Timer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Accepter.h">
       <Filter>Accepter</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandQueue.h">
-      <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="Command.h">
       <Filter>Commands</Filter>
@@ -126,6 +129,12 @@
     <ClInclude Include="..\Utility\System.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="TimerThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="EventTimer.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Accepter">
@@ -151,6 +160,9 @@
     </Filter>
     <Filter Include="Utility">
       <UniqueIdentifier>{962d338f-c63d-42fc-a56b-14012aab3e9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{40eba10c-7cbe-4480-a803-14f42cc9c845}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

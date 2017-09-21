@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Command.h"
+#include "EventTimer.h"
 
 class IParser;
 class Session;
@@ -41,11 +42,17 @@ class NetworkCore
 	NetworkCore(const NetworkCore& src) = delete;
 	NetworkCore& operator=(const NetworkCore& rhs) = delete;
 
+	unsigned int networkThreadCount_ = 0;
+	unsigned int workThreadCount_ = 0;
+
 public:
 	virtual ~NetworkCore();
 	static NetworkCore& GetInstance();
 
 	ServerApp* GetServerApp();
+
+	void SetNetworkThreadCount( unsigned int count ) { networkThreadCount_ = count; }
+	void SetWorkThreadCount( unsigned int count ) { workThreadCount_ = count; }
 
 	bool InitializeEngine( ServerApp* application );
 	bool InitializeParser( IParser* parser );
@@ -68,11 +75,19 @@ public:
 	Packet* AllocatePacket();
 	void FreePacket( Packet* obj );
 
+	// Command
 	void PushCommand( Command& cmd );
 	bool PopCommand( Command& cmd );
 
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
+
+	// Timer Message
+	void PushTimerMessage( TIMER_ID id, int workCount, int workTime, void* object );
+	bool PopTimerMessage( TimerObject*& timerObj );
+
+	void AddTimerCommand( TIMER_ID protocol, TimerFunction_t command );
+	TimerFunction_t GetTimerCommand( TIMER_ID protocol );
 
 	void RecvRetryProcess( Session* session );
 };

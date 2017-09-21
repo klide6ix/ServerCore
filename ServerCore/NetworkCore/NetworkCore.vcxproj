@@ -14,8 +14,9 @@
     <ClCompile Include="..\Utility\LogWriter.cpp" />
     <ClCompile Include="..\Utility\System.cpp" />
     <ClCompile Include="Accepter.cpp" />
-    <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="Command.cpp" />
     <ClCompile Include="EpollModel.cpp" />
+    <ClCompile Include="EventTimer.cpp" />
     <ClCompile Include="IOCPModel.cpp" />
     <ClCompile Include="NetworkCore.cpp" />
     <ClCompile Include="NetworkModel.cpp" />
@@ -25,6 +26,7 @@
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SessionManager.cpp" />
     <ClCompile Include="Socket.cpp" />
+    <ClCompile Include="TimerThread.cpp" />
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -41,8 +43,8 @@
     <ClInclude Include="..\Utility\System.h" />
     <ClInclude Include="Accepter.h" />
     <ClInclude Include="Command.h" />
-    <ClInclude Include="CommandQueue.h" />
     <ClInclude Include="EpollModel.h" />
+    <ClInclude Include="EventTimer.h" />
     <ClInclude Include="IOCPModel.h" />
     <ClInclude Include="NetworkCore.h" />
     <ClInclude Include="NetworkModel.h" />
@@ -53,6 +55,7 @@
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="TimerThread.h" />
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

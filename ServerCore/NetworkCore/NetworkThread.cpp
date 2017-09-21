@@ -44,7 +44,7 @@ void NetworkThread::Process()
 						}
 						else
 						{
-							NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet) ) );
+							NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet), sessionEvent.session_ ) );
 							sessionEvent.session_->ReadBufferConsume( packet->GetPacketSize() );
 							sessionEvent.recvSize_ -= packet->GetPacketSize();
 						}

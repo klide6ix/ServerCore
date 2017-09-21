@@ -13,13 +13,14 @@
 #include "IOCPModel.h"
 #include "SelectModel.h"
 
-#include "CommandQueue.h"
+#include "Command.h"
 #include "NetworkCore.h"
 #include "SessionManager.h"
 #include "Accepter.h"
 #include "Socket.h"
 #include "WorkThread.h"
 #include "NetworkThread.h"
+#include "TimerThread.h"
 
 #include "../Utility/ObjectPool.h"
 #include "../Utility/Parser.h"
@@ -34,6 +35,7 @@ class NetworkImplement
 public:
 
 	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
+	std::map< TIMER_ID, TimerFunction_t >	  timerCommand_;
 
 	std::shared_ptr<IParser>			parser_ = nullptr;
 	std::shared_ptr<ServerApp>			serverApp_ = nullptr;
@@ -43,11 +45,14 @@ public:
 
 	std::shared_ptr<CommandQueue>		workQueue_ = nullptr;
 	std::shared_ptr<CommandQueue>		dbQueue_ = nullptr;
+	std::shared_ptr<EventTimer>			timerQueue_ = nullptr;
 
 	ObjectPool<Packet>					packetPool_;
 
 	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
 	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
+
+	std::shared_ptr<TimerThread>					timerThread_;
 
 	typedef std::tuple<Session*, std::chrono::system_clock::time_point> TypeRetrySession_t;
 	std::priority_queue< TypeRetrySession_t, std::vector<TypeRetrySession_t>, std::greater<TypeRetrySession_t> > retrySessions_;
@@ -94,6 +99,8 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 
 		networkImpl_->workQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->dbQueue_ = std::make_shared<CommandQueue>();
+		networkImpl_->timerQueue_ = std::make_shared<EventTimer>();
+
 		networkImpl_->sessionManager_ = std::make_shared<SessionManager>();
 
 #ifdef _WIN32
@@ -102,11 +109,23 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 		networkImpl_->networkModel_ = std::make_shared<EpollModel>();
 #endif
 
-		for( unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i )
+		if( networkThreadCount_ == 0 )
+			networkThreadCount_ = std::thread::hardware_concurrency();
+
+		for( unsigned int i = 0; i < networkThreadCount_; ++i )
 		{
-			networkImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
 			networkImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
 		}
+
+		if( workThreadCount_ == 0 )
+			workThreadCount_ = std::thread::hardware_concurrency();
+		
+		for( unsigned int i = 0; i < workThreadCount_; ++i )
+		{
+			networkImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
+		}
+
+		networkImpl_->timerThread_ = std::make_shared<TimerThread>();
 	}
 	catch( std::bad_alloc& )
 	{
@@ -244,19 +263,19 @@ void NetworkCore::FreePacket( Packet* obj )
 
 void NetworkCore::PushCommand( Command& cmd )
 {
-	networkImpl_->workQueue_->Push( cmd );
+	networkImpl_->workQueue_->PushCommand( cmd );
 }
 
 bool NetworkCore::PopCommand( Command& cmd )
 {
-	return networkImpl_->workQueue_->Pop( cmd );
+	return networkImpl_->workQueue_->PopCommand( cmd );
 }
 
 void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )
 {
 	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
 	{
-		networkImpl_->serverCommand_.insert( std::pair< unsigned int, CommandFunction_t >( protocol, command ) );
+		networkImpl_->serverCommand_.insert( std::pair< TIMER_ID, CommandFunction_t >( protocol, command ) );
 	}
 	else
 	{
@@ -274,6 +293,38 @@ CommandFunction_t NetworkCore::GetServerCommand( COMMAND_ID protocol )
 	return networkImpl_->serverCommand_[protocol];
 }
 
+void NetworkCore::PushTimerMessage( TIMER_ID id, int workCount, int workTime, void* object )
+{
+	networkImpl_->timerQueue_->PushTimer( id, workCount, workTime, object );
+}
+
+bool NetworkCore::PopTimerMessage( TimerObject*& timerObj )
+{
+	return networkImpl_->timerQueue_->PopTimer( timerObj );
+}
+
+void NetworkCore::AddTimerCommand( TIMER_ID protocol, TimerFunction_t command )
+{
+	if( networkImpl_->timerCommand_.find( protocol ) == networkImpl_->timerCommand_.end() )
+	{
+		networkImpl_->timerCommand_.insert( std::pair< TIMER_ID, TimerFunction_t >( protocol, command ) );
+	}
+	else
+	{
+		networkImpl_->timerCommand_[protocol] = command;
+	}
+}
+
+TimerFunction_t NetworkCore::GetTimerCommand( TIMER_ID protocol )
+{
+	if( networkImpl_->timerCommand_.find( protocol ) == networkImpl_->timerCommand_.end() )
+	{
+		return nullptr;
+	}
+
+	return networkImpl_->timerCommand_[protocol];
+}
+
 void NetworkCore::StartServer()
 {
 	for( auto thread : networkImpl_->networkThreads_ )
@@ -285,13 +336,22 @@ void NetworkCore::StartServer()
 
 void NetworkCore::StopServer()
 {
+	networkImpl_->accepter_->StopThread();
+
 	for( auto thread : networkImpl_->networkThreads_ )
 	{
 		if( thread != nullptr )
 			thread->StopThread();
 	}
-}
 
+	for( auto thread : networkImpl_->workThreads_ )
+	{
+		if( thread != nullptr )
+			thread->StopThread();
+	}
+
+	networkImpl_->timerThread_->StopThread();
+}
 void NetworkCore::RecvRetryProcess( Session* session )
 {
 	networkImpl_->networkModel_->RecvRetry( session );
