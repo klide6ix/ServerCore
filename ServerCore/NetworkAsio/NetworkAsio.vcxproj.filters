@@ -19,9 +19,6 @@
     <ClCompile Include="WorkThread.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
-    <ClCompile Include="CommandQueue.cpp">
-      <Filter>Commands</Filter>
-    </ClCompile>
     <ClCompile Include="..\Utility\Allocator.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
@@ -30,6 +27,15 @@
     </ClCompile>
     <ClCompile Include="..\Utility\LogWriter.cpp">
       <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="EventTimer.cpp">
+      <Filter>Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Command.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -55,9 +61,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Command.h">
-      <Filter>Commands</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandQueue.h">
       <Filter>Commands</Filter>
     </ClInclude>
     <ClInclude Include="..\Utility\IThread.h">
@@ -93,6 +96,12 @@
     <ClInclude Include="..\Utility\LogWriter.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="TimerThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="EventTimer.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Accepter">
@@ -112,6 +121,9 @@
     </Filter>
     <Filter Include="Utility">
       <UniqueIdentifier>{f1dbe404-d9e0-4b82-a8b0-1f909cc650ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{2be34ca4-c1f9-4b7a-8e68-d595435f625b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

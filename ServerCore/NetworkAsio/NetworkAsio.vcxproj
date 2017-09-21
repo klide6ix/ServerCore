@@ -15,11 +15,13 @@
     <ClCompile Include="..\Utility\LogWriter.cpp" />
     <ClCompile Include="..\Utility\System.cpp" />
     <ClCompile Include="Accepter.cpp" />
-    <ClCompile Include="CommandQueue.cpp" />
+    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="EventTimer.cpp" />
     <ClCompile Include="NetworkCore.cpp" />
     <ClCompile Include="NetworkThread.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="TimerThread.cpp" />
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -36,12 +38,13 @@
     <ClInclude Include="..\Utility\System.h" />
     <ClInclude Include="Accepter.h" />
     <ClInclude Include="Command.h" />
-    <ClInclude Include="CommandQueue.h" />
+    <ClInclude Include="EventTimer.h" />
     <ClInclude Include="NetworkCore.h" />
     <ClInclude Include="NetworkThread.h" />
     <ClInclude Include="ServerApp.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="TimerThread.h" />
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

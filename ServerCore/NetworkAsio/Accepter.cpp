@@ -34,3 +34,9 @@ void Accepter::StartAccept()
 		StartAccept();
 	} );
 }
+
+void Accepter::StopAccept()
+{
+	accepter_.cancel();
+	accepter_.close();
+}

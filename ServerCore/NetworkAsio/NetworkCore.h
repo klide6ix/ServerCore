@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 
 #include "Command.h"
+#include "EventTimer.h"
 
 class IParser;
 class Session;
@@ -57,12 +58,19 @@ public:
 	Packet* AllocatePacket();
 	void FreePacket( Packet* obj );
 
+	// Command
 	void PushCommand( Command& cmd );
 	bool PopCommand( Command& cmd );
 
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
 
+	// Timer Message
+	void PushTimerMessage( TIMER_ID id, int workCount, int workTime, void* object );
+	bool PopTimerMessage( TimerObject*& timerObj );
+
+	void AddTimerCommand( TIMER_ID protocol, TimerFunction_t command );
+	TimerFunction_t GetTimerCommand( TIMER_ID protocol );
+
 	boost::asio::io_service& GetIoService();
 };
-

@@ -14,5 +14,6 @@ public:
 	virtual ~Accepter();
 
 	void StartAccept();
+	void StopAccept();
 };
 

@@ -1,11 +1,8 @@
-#include "CommandQueue.h"
-
-
+#include "Command.h"
 
 CommandQueue::CommandQueue()
 {
 }
-
 
 CommandQueue::~CommandQueue()
 {
@@ -28,7 +25,7 @@ bool CommandQueue::_Empty()
 	return commandQueue_.empty();
 }
 
-bool CommandQueue::Pop( Command& cmd )
+bool CommandQueue::PopCommand( Command& cmd )
 {
 	if( _Empty() == true )
 	{
@@ -49,7 +46,7 @@ bool CommandQueue::Pop( Command& cmd )
 	return true;
 }
 
-void CommandQueue::Push( Command& cmd )
+void CommandQueue::PushCommand( Command& cmd )
 {
 	if( cmd.cmdMessage_ == nullptr )
 		return;

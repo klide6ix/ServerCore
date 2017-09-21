@@ -6,13 +6,15 @@
 #include <signal.h>
 
 #include "ServerApp.h"
-#include "CommandQueue.h"
+#include "EventTimer.h"
 #include "NetworkCore.h"
 #include "SessionManager.h"
 #include "Accepter.h"
 #include "WorkThread.h"
 #include "NetworkThread.h"
+#include "TimerThread.h"
 
+#include "../Utility/LogWriter.h"
 #include "../Utility/ObjectPool.h"
 #include "../Utility/Parser.h"
 #include "../Utility/Packet.h"
@@ -22,23 +24,27 @@ class NetworkImplement
 {
 public:
 
-	std::map< COMMAND_ID, CommandFunction_t > serverCommand_;
+	std::map< COMMAND_ID, CommandFunction_t >		serverCommand_;
+	std::map< TIMER_ID, TimerFunction_t >			timerCommand_;
 	
 	boost::asio::io_service							ioService_;
 	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
 
-	std::shared_ptr<IParser>			parser_ = nullptr;
-	std::shared_ptr<ServerApp>			serverApp_ = nullptr;
-	std::shared_ptr<SessionManager>		sessionManager_ = nullptr;
+	std::shared_ptr<IParser>						parser_ = nullptr;
+	std::shared_ptr<ServerApp>						serverApp_ = nullptr;
+	std::shared_ptr<SessionManager>					sessionManager_ = nullptr;
 
-	std::shared_ptr<CommandQueue>		workQueue_ = nullptr;
-	std::shared_ptr<CommandQueue>		dbQueue_ = nullptr;
+	std::shared_ptr<CommandQueue>					workQueue_ = nullptr;
+	std::shared_ptr<CommandQueue>					dbQueue_ = nullptr;
+	std::shared_ptr<EventTimer>						timerQueue_ = nullptr;
 
-	ObjectPool<Packet>					packetPool_;
+	ObjectPool<Packet>								packetPool_;
 
 	std::vector<std::shared_ptr<Accepter>>			accepters_;
 	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
 	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
+	
+	std::shared_ptr<TimerThread>					timerThread_;
 };
 
 NetworkCore::NetworkCore()
@@ -82,6 +88,8 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 
 		networkImpl_->workQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->dbQueue_ = std::make_shared<CommandQueue>();
+		networkImpl_->timerQueue_ = std::make_shared<EventTimer>();
+
 		networkImpl_->sessionManager_ = std::make_shared<SessionManager>();
 		networkImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(networkImpl_->ioService_);
 
@@ -90,6 +98,8 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 			networkImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
 			networkImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
 		}
+
+		networkImpl_->timerThread_ = std::make_shared<TimerThread>();
 	}
 	catch( std::bad_alloc& )
 	{
@@ -109,6 +119,8 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 	{
 		thread->StartThread();
 	}
+
+	networkImpl_->timerThread_->StartThread();
 
 	signal( SIGABRT, [] (int param) 
 	{
@@ -162,7 +174,6 @@ Session* NetworkCore::CreateSession()
 
 void NetworkCore::AddSession( Session* newSession, int acceptPort )
 {
-	// Accept 수행 후 Recv 수행
 	networkImpl_->serverApp_->OnAccept( acceptPort, newSession );
 
 	if( newSession->RecvPost() == false )
@@ -218,19 +229,19 @@ void NetworkCore::FreePacket( Packet* obj )
 
 void NetworkCore::PushCommand( Command& cmd )
 {
-	networkImpl_->workQueue_->Push( cmd );
+	networkImpl_->workQueue_->PushCommand( cmd );
 }
 
 bool NetworkCore::PopCommand( Command& cmd )
 {
-	return networkImpl_->workQueue_->Pop( cmd );
+	return networkImpl_->workQueue_->PopCommand( cmd );
 }
 
 void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )
 {
 	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
 	{
-		networkImpl_->serverCommand_.insert( std::pair< unsigned int, CommandFunction_t >( protocol, command ) );
+		networkImpl_->serverCommand_.insert( std::pair< TIMER_ID, CommandFunction_t >( protocol, command ) );
 	}
 	else
 	{
@@ -248,6 +259,38 @@ CommandFunction_t NetworkCore::GetServerCommand( COMMAND_ID protocol )
 	return networkImpl_->serverCommand_[protocol];
 }
 
+void NetworkCore::PushTimerMessage( TIMER_ID id, int workCount, int workTime, void* object )
+{
+	networkImpl_->timerQueue_->PushTimer( id, workCount, workTime, object );
+}
+
+bool NetworkCore::PopTimerMessage( TimerObject*& timerObj )
+{
+	return networkImpl_->timerQueue_->PopTimer( timerObj );
+}
+
+void NetworkCore::AddTimerCommand( TIMER_ID protocol, TimerFunction_t command )
+{
+	if( networkImpl_->timerCommand_.find( protocol ) == networkImpl_->timerCommand_.end() )
+	{
+		networkImpl_->timerCommand_.insert( std::pair< TIMER_ID, TimerFunction_t >( protocol, command ) );
+	}
+	else
+	{
+		networkImpl_->timerCommand_[protocol] = command;
+	}
+}
+
+TimerFunction_t NetworkCore::GetTimerCommand( TIMER_ID protocol )
+{
+	if( networkImpl_->timerCommand_.find( protocol ) == networkImpl_->timerCommand_.end() )
+	{
+		return nullptr;
+	}
+
+	return networkImpl_->timerCommand_[protocol];
+}
+
 void NetworkCore::StartServer()
 {
 	for( auto thread : networkImpl_->networkThreads_ )
@@ -259,11 +302,26 @@ void NetworkCore::StartServer()
 
 void NetworkCore::StopServer()
 {
+	for( auto itr : networkImpl_->accepters_ )
+	{
+		itr->StopAccept();
+	}
+
+	networkImpl_->ioWork_->get_io_service().stop();
+
 	for( auto thread : networkImpl_->networkThreads_ )
 	{
 		if( thread != nullptr )
 			thread->StopThread();
 	}
+
+	for( auto thread : networkImpl_->workThreads_ )
+	{
+		if( thread != nullptr )
+			thread->StopThread();
+	}
+
+	networkImpl_->timerThread_->StopThread();
 }
 
 boost::asio::io_service& NetworkCore::GetIoService()
@@ -271,96 +329,13 @@ boost::asio::io_service& NetworkCore::GetIoService()
 	return networkImpl_->ioService_;
 }
 
-// 윈도우 서비스
-#ifdef WIN32
-
-HANDLE					gServerEvent = INVALID_HANDLE_VALUE;
-DWORD					gCurrentStatus = 0;
-SERVICE_STATUS_HANDLE	gServiceStatus;
-char					gServiceName[100] = {0};
-
-
-void SetStatus( SERVICE_STATUS_HANDLE serviceHandle, DWORD dwState, DWORD dwAccept = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_PAUSE_CONTINUE, DWORD dwCheckPoint = 0, DWORD dwWaitHint = 0, DWORD dwWin32ExitCode = 0 )
-{
-	SERVICE_STATUS ServiceStatus;
-	ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-	ServiceStatus.dwCurrentState = dwState;
-	ServiceStatus.dwControlsAccepted = dwAccept;
-	ServiceStatus.dwWin32ExitCode = dwWin32ExitCode;
-	ServiceStatus.dwServiceSpecificExitCode = 0;
-	ServiceStatus.dwCheckPoint = dwCheckPoint;
-	ServiceStatus.dwWaitHint = dwWaitHint;
-
-	// 현재 상태를 보관해 둔다.
-	gCurrentStatus = dwState;
-
-	SetServiceStatus( serviceHandle, &ServiceStatus );
-}
-
-void ServiceHandler( DWORD opCode )
-{
-	// 현재 상태와 같은 제어 코드일 경우는 처리할 필요 없다.	
-	if ( opCode ==  gCurrentStatus )
-		return;
-
-	switch ( opCode ) 
-	{
-	case SERVICE_CONTROL_STOP:
-		SetStatus( gServiceStatus, SERVICE_STOP_PENDING, 0, 1, 1000 );
-		WSASetEvent( gServerEvent );
-		break;
-	case SERVICE_CONTROL_INTERROGATE:
-	default:
-		SetStatus( gServiceStatus, gCurrentStatus, SERVICE_ACCEPT_STOP );
-		break;
-	}
-
-}
-
-void ServiceMain(DWORD argc, LPTSTR *argv)
-{
-	// register service handler
-	gServiceStatus = RegisterServiceCtrlHandler( gServiceName, (LPHANDLER_FUNCTION)ServiceHandler );
-
-	// notice start pending
-	SetStatus( gServiceStatus, SERVICE_START_PENDING );
-	SetStatus( gServiceStatus, SERVICE_RUNNING );
-}
-
-#endif
 void NetworkCore::MakeDaemon( bool debug, char* serviceName )
 {
-#ifdef WIN32
-
-	memset( gServiceName, 0, 100 );
-
-	if( serviceName )
-		strncpy( gServiceName, serviceName, 99 );
-	else
-		strcpy( gServiceName, "Server" );
-
-	SERVICE_TABLE_ENTRY lpServiceTableEntry[]=
-	{
-		{ gServiceName, (LPSERVICE_MAIN_FUNCTION)ServiceMain },
-		{ NULL, NULL }
-	};
-
-	// start service
-	BOOL ret = StartServiceCtrlDispatcher( lpServiceTableEntry );
-
-	int err = 0;
-	if( !ret )
-	{
-		err = GetLastError();
-	}
-
-#else
-
+#ifndef WIN32
 	pid_t pid;
 
 	if( ( pid = fork() ) < 0 ) 
 	{
-		log( DBG, " Daemon start fork failed");              
 		exit( 0 );
 	}
 	else if( pid != 0 )
