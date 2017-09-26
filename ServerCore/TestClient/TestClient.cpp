@@ -93,6 +93,19 @@ int main()
 		return 0;
 	} );
 
+	NetworkCore::GetInstance().AddServerCommand( 100, [] ( Command& cmd ) -> unsigned int
+	{
+		Packet packet;
+		_PACKET_HEADER header;
+		header.protocol_ = 101;
+		header.size_ = static_cast<unsigned short>(sizeof( _PACKET_HEADER ));
+		packet.AddPacketData( (const char*)&header, sizeof( _PACKET_HEADER ) );
+
+		cmd.cmdSession_->SendPacket( packet );
+
+		return 0;
+	} );
+
 	Session* newSession = NetworkCore::GetInstance().CreateSession();
 
 	if( newSession == nullptr )

@@ -58,6 +58,9 @@ bool EventTimer::PopTimer( TimerObject*& obj )
 	obj = timerQueue_.top();
 	timerQueue_.pop();
 
+	if( obj->timerDeleted_ == true )
+		return false;
+
 	if( obj->timerUse_ == TIMER_INFINITE )
 	{
 		obj->timerTime_ = std::chrono::system_clock::now() + std::chrono::seconds( obj->timerDuration_ );

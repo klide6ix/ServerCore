@@ -154,6 +154,37 @@ int main()
 		return 0;
 	} );
 
+	NetworkCore::GetInstance().AddServerCommand( 101, [] ( Command& cmd ) -> unsigned int
+	{
+		printf("Pong Recv\n");
+		return 0;
+	} );
+
+	NetworkCore::GetInstance().AddTimerCommand( 0, [] ( TimerObject& obj ) -> unsigned int
+	{
+		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
+
+		if( serverApp == nullptr )
+			return __LINE__;
+
+		printf("Send Ping\n");
+
+		Packet ping;
+		_PACKET_HEADER header;
+		header.protocol_ = 100;
+		header.size_ = static_cast<unsigned short>(sizeof( _PACKET_HEADER ));
+		ping.AddPacketData( (const char*)&header, sizeof( _PACKET_HEADER ) );
+
+		for( auto session : serverApp->GetClientList() )
+		{
+			session->SendPacket( ping );
+		}
+
+		return 0;
+	} );
+
+	NetworkCore::GetInstance().PushTimerMessage( 0, TIMER_INFINITE, 10, nullptr );
+
 	// Set Database
 	/*
 	const char* connectStr = "DRIVER={MySQL ODBC 3.51 Driver};SERVER=127.0.0.1;USER=admin;PASSWORD=admin;Trusted_Connection=yes;Database=world";
