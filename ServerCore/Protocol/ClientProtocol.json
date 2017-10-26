@@ -1,0 +1,176 @@
+{
+	"CS_CONNECT_REQ" :
+	[
+		{ "TYPE" : "char [PLAYER_NICKNAME_LENGTH]", "NAME" : "nickName_", "DEFAULT" : "{}", "INDEX" : "0" }
+	],
+	
+	"SC_CONNECT_ACK" :
+	[
+		{ "TYPE" : "MEMBER_INFO", "NAME" : "memberInfo_" }
+	],
+	
+	"SC_LOBBY_PLAYER_LIST" :
+	[
+		{ "TYPE" : "std::vector<MEMBER_INFO>", "NAME" : "memberList_" }
+	],
+	
+	"CS_ROOM_PLAYER_JOIN_REQ" :
+	[
+		{ "TYPE" : "unsigned int", "NAME" : "roomId_", "DEFAULT" : "0" }
+	],
+	
+	"SC_ROOM_PLAYER_JOIN_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" },
+		{ "TYPE" : "unsigned int", "NAME" : "roomId_", "DEFAULT" : "0" },
+		{ "TYPE" : "ENUM_TEAM_TYPE", "NAME" : "team_", "DEFAULT" : "TEAM_RED" }
+	],
+	
+	"CS_ROOM_PLAYER_CHANGE_REQ" :
+	[
+		{ "TYPE" : "unsigned char", "NAME" : "team_", "DEFAULT" : "0" }
+	],
+	
+	"SC_ROOM_PLAYER_CHANGE_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" },
+		{ "TYPE" : "ENUM_TEAM_TYPE", "NAME" : "team_", "DEFAULT" : "TEAM_RED" }
+	],
+	
+	"CS_ROOM_PLAYER_LEAVE_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"SC_ROOM_PLAYER_LEAVE_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" }
+	],
+	
+	"SC_ROOM_PLAYER_LIST" :
+	[
+		{ "TYPE" : "MEMBER_INFO [MAX_TEAM_PLAYER]", "NAME" : "blueList_" },
+		{ "TYPE" : "MEMBER_INFO [MAX_TEAM_PLAYER]", "NAME" : "redList_" }
+	],
+	
+	"CS_ROOM_CHAT_REQ" :
+	[
+		{ "TYPE" : "char [1024]", "NAME" : "chatMsg_", "DEFAULT" : "{}" }
+	],
+	
+	"SC_ROOM_CHAT_MSG" :
+	[
+		{ "TYPE" : "MEMBER_INFO", "NAME" : "sender_" },
+		{ "TYPE" : "char [1024]", "NAME" : "chatMsg_", "DEFAULT" : "{}" }
+	],
+	
+	"CS_GAME_START_REQ" :
+	[
+		{ "TYPE" : "char [LEVEL_NAME_LENGTH]", "NAME" : "levelName_", "DEFAULT" : "{}" }
+	],
+	
+	"SC_GAME_START_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" }
+	],
+	
+	"SC_LOAD_GAME_NOT" :
+	[
+		{ "TYPE" : "char [20]", "NAME" : "dedicateIp_", "DEFAULT" : "{}" },
+		{ "TYPE" : "int", "NAME" : "dedicatePort_", "DEFAULT" : "0" }
+	],
+	
+	"CS_GAME_READY_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"SC_LEAVE_GAME_NOT" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"CS_LOBBY_PLAYER_LIST_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"CS_ROOM_PLAYER_LIST_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"CS_ROOM_LIST_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"SC_ROOM_LIST_NOT" :
+	[
+		{ "TYPE" : "std::vector<ROOM_INFO>", "NAME" : "roomList_" }
+	],
+	
+	"CS_CREATE_ROOM_REQ" :
+	[
+		{ "TYPE" : "char [ROOM_NAME_LENGTH]", "NAME" : "roomName_", "DEFAULT" : "{}" }
+	],
+	
+	"SC_CREATE_ROOM_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" }
+	],
+	
+	"DS_CONNECT_REQ" :
+	[
+		{ "TYPE" : "char [20]", "NAME" : "dedicateIp_", "DEFAULT" : "{}", "INDEX" : "1000" },
+		{ "TYPE" : "int", "NAME" : "dedicatePort_", "DEFAULT" : "0" }
+	],
+	
+	"SD_CONNECT_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" }
+	],
+	
+	"SD_LOAD_GAME_NOT" :
+	[
+		{ "TYPE" : "char [LEVEL_NAME_LENGTH]", "NAME" : "levelName_", "DEFAULT" : "{}" }
+	],
+	
+	"DS_GAME_READY_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"SD_START_GAME_NOT" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"DS_END_GAME_REQ" :
+	[
+		{ "TYPE" : null, "NAME" : null }
+	],
+	
+	"SD_END_GAME_ACK" :
+	[
+		{ "TYPE" : "bool", "NAME" : "success_", "DEFAULT" : "false" },
+		{ "TYPE" : "int", "NAME" : "errorCode_", "DEFAULT" : "0" }
+	],
+	
+	"SC_PING" :
+	[
+		{ "TYPE" : "int", "NAME" : "sequence_", "DEFAULT" : "0", "INDEX" : "9999" }
+	],
+	
+	"CS_PONG" :
+	[
+		{ "TYPE" : "int", "NAME" : "sequence_", "DEFAULT" : "0" }
+	]
+}
+	
