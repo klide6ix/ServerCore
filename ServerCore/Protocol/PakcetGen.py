@@ -2,29 +2,36 @@ import json
 import os
 import shutil
 
+ServerList = [ "..\GameServer" ]
+ClientList = [ "..\TestClient",
+               "..\..\VoltStrikeClient\Source\VoltStrike" ]
+
 def CopyToServer( FileName ) :
-    ServerPath = os.path.abspath("..\GameServer")
-    dstFile = os.path.join( ServerPath, FileName )
-    #print( dstFile )
 
-    srcFile = os.path.join( ".\\", FileName )
-    #print( srcFile )
+	for AbsPath in ServerList :
+		ServerPath = os.path.abspath( AbsPath )
+		dstFile = os.path.join( ServerPath, FileName )
+		#print( dstFile )
 
-    if os.path.exists(dstFile):
-        os.remove(dstFile)
-    shutil.copy2( srcFile, dstFile )
+		srcFile = os.path.join( ".\\", FileName )
+		#print( srcFile )
+
+		if os.path.exists(dstFile):
+			os.remove(dstFile)
+		shutil.copy2( srcFile, dstFile )
 
 def CopyToClient( FileName ) :
-    ClientPath = os.path.abspath("..\..\VoltStrikeClient\Source\VoltStrike")
-    dstFile = os.path.join( ClientPath, FileName )
-    #print( dstFile )
+	for AbsPath in ClientList :
+		ClientPath = os.path.abspath( AbsPath )
+		dstFile = os.path.join( ClientPath, FileName )
+		#print( dstFile )
 
-    srcFile = os.path.join( ".\\", FileName )
-    #print( srcFile )
+		srcFile = os.path.join( ".\\", FileName )
+		#print( srcFile )
 
-    if os.path.exists(dstFile):
-        os.remove(dstFile)
-    shutil.copy2( srcFile, dstFile )
+		if os.path.exists(dstFile):
+			os.remove(dstFile)
+		shutil.copy2( srcFile, dstFile )
 
 def CreateProtocolFile( jsonName ) :
     print("CreateProtocolFile Start")
@@ -198,7 +205,7 @@ def CreateEncoderFile( jsonName ) :
     # 설정
     resultFile.write("#pragma once\n\n")
     resultFile.write("#include \"ClientProtocol.h\"\n\n")
-    resultFile.write("#include \"..\"Utility\"BufferSerializer.h\n\n")
+    resultFile.write("#include \"..\\Utility\\BufferSerializer.h\"\n\n")
 
     resultFile.write("class IEncodeIterator\n")
     resultFile.write("{\n")
@@ -319,7 +326,7 @@ def CreateDecoderFile( jsonName ) :
 
     resultFile.write("#include \"ClientProtocol.h\"\n\n")
 
-    resultFile.write("using DecodeFunction_t = bool (*)( PACKET_HEADER* pck, char* buffer );\n")
+    resultFile.write("using DecodeFunction_t = bool (*)( PACKET_HEADER*& pck, char* buffer );\n")
     resultFile.write("class ClientProtocolDecoder\n")
     resultFile.write("{\n")
     resultFile.write("\tstd::map<EnumClientProtocol, DecodeFunction_t> decodeFunction_;\n\n")
@@ -328,7 +335,7 @@ def CreateDecoderFile( jsonName ) :
     resultFile.write("\tClientProtocolDecoder();\n")
     resultFile.write("\t~ClientProtocolDecoder();\n\n")
 
-    resultFile.write("\tbool DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER* pck, char* buffer );\n")
+    resultFile.write("\tbool DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER*& pck, char* buffer );\n")
     resultFile.write("};\n")
 
 
@@ -367,17 +374,15 @@ def CreateDecoderCppFile( jsonName ) :
         #print( dictLine )
         protocolTypeDict = json.loads( dictLine )
 
-        resultFile.write("\tdecodeFunction_.insert( std::pair<EnumClientProtocol, DecodeFunction_t>( " + k + ", [] ( PACKET_HEADER* pck, char* buffer ) -> bool\n")
+        resultFile.write("\tdecodeFunction_.insert( std::pair<EnumClientProtocol, DecodeFunction_t>( " + k + ", [] ( PACKET_HEADER*& pck, char* buffer ) -> bool\n")
         resultFile.write("\t{\n")
-        resultFile.write("\t\tconst PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>( buffer );\n\n")
+        resultFile.write("\t\tbuffer += sizeof( PACKET_HEADER );\n\n")
 
-        resultFile.write("\t\tif( pck->protocol_ != " + k + " )\n")
+        resultFile.write("\t\tPCK_" + k + "* packet = new (std::nothrow) PCK_" + k + ";\n")
+
+        resultFile.write("\t\tif( packet == nullptr )\n")
         resultFile.write("\t\t\treturn false;\n\n")
 	
-        resultFile.write("\t\tbuffer += sizeof( PACKET_HEADER );\n\n")
-	
-        resultFile.write("\t\tPCK_" + k +"* packet = static_cast<PCK_" + k + "*>( pck );\n\n")
-
         for ptdct in protocolTypeDict :
             if type(ptdct['TYPE']) != str :
                 continue
@@ -418,6 +423,8 @@ def CreateDecoderCppFile( jsonName ) :
             if ptdct == protocolTypeDict[-1] :
                 resultFile.write( "\n" )
 
+        resultFile.write("\t\tpck = packet;\n\n")
+
         resultFile.write("\t\treturn true;\n")
         resultFile.write("\t} ));\n\n")
 
@@ -428,11 +435,8 @@ def CreateDecoderCppFile( jsonName ) :
     resultFile.write("\tdecodeFunction_.clear();\n")
     resultFile.write("}\n\n")
 
-    resultFile.write("bool ClientProtocolDecoder::DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER* pck, char* buffer )\n")
+    resultFile.write("bool ClientProtocolDecoder::DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER*& pck, char* buffer )\n")
     resultFile.write("{\n")
-    resultFile.write("\tif( pck == nullptr )\n")
-    resultFile.write("\t\treturn false;\n\n")
-
     resultFile.write("\tif( buffer == nullptr )\n")
     resultFile.write("\t\treturn false;\n\n")
 
@@ -449,11 +453,128 @@ def CreateDecoderCppFile( jsonName ) :
     print("CreateDecoderCppFile End")
 #CreateDecoderCppFile end
 
+def CreateDecoderInlineFile( jsonName ) :
+    print("CreateDecoderInlineHeader Start")
+
+    protocolFile = open( jsonName, 'r' )
+
+    fileData = protocolFile.read()
+
+    protocolFile.close()
+
+    protocolDict = json.loads(fileData)
+
+    fileName = jsonName[ : jsonName.find( '.' ) ]
+    fileName = fileName + "Decode2.h"
+    resultFile = open( fileName, 'w' )
+
+    resultFile.write("#pragma once\n")
+
+    resultFile.write("#include \"ClientProtocol.h\"\n\n")
+
+    resultFile.write("#include \"ClientProtocolDecode2.inl\"\n")
+    resultFile.close()
+
+    CopyToClient( fileName )
+
+    print("CreateDecoderInlineHeader End")
+
+    # .inl file
+    fileName = jsonName[ : jsonName.find( '.' ) ]
+    fileName = fileName + "Decode2.inl"
+    resultFile = open( fileName, 'w' )
+
+    for k in protocolDict.keys() :
+        dictLine = str(protocolDict[k])
+        dictLine = dictLine.replace('\'', '\"')
+        dictLine = dictLine.replace('None', 'null')
+        #print( dictLine )
+        protocolTypeDict = json.loads( dictLine )
+
+        resultFile.write("inline bool decode_" + k + "( std::shared_ptr<PACKET_HEADER>& pck, char* buffer )\n")
+        resultFile.write("{\n")
+        resultFile.write("\tbuffer += sizeof( PACKET_HEADER );\n\n")
+
+        resultFile.write("\tstd::shared_ptr<PCK_" + k + "> packet = std::make_shared<PCK_" + k + ">();\n")
+
+        resultFile.write("\tif( packet == nullptr )\n")
+        resultFile.write("\t\treturn false;\n\n")
+	
+        for ptdct in protocolTypeDict :
+            if type(ptdct['TYPE']) != str :
+                continue
+
+            # 배열 처리
+            if ptdct['TYPE'].find( '[' ) != -1 :
+                arrayType = ptdct['TYPE'][ : ptdct['TYPE'].find( '[' ) ]
+                arrayLength = ptdct['TYPE'][ ptdct['TYPE'].find( '[' ) + 1 : ptdct['TYPE'].find( ']' ) ]
+                arrayLengthName = "sizeof( " + arrayType + ") * " +  arrayLength;
+
+                resultFile.write( "\tmemcpy( &packet->" + ptdct['NAME'] + ", buffer, " + arrayLengthName + " );\n" )
+                resultFile.write( "\tbuffer += ( "+ arrayLengthName + " );\n" )
+
+            # 벡터
+            elif ptdct['TYPE'].find( 'std::vector<' ) != -1 :
+                resultFile.write( "\tunsigned short count = 0;\n" )
+                resultFile.write( "\tmemcpy( &count, buffer, sizeof( unsigned short ) );\n" )
+                resultFile.write( "\tbuffer += sizeof( unsigned short );\n\n" )
+
+                typeName = ptdct['TYPE'][ ptdct['TYPE'].find( '<' ) + 1 : ptdct['TYPE'].find( '>' ) ]
+                valueName = ptdct['NAME'][ : -1 ]
+
+                resultFile.write( "\tfor( unsigned short i = 0; i < count; ++i )\n" )
+                resultFile.write( "\t{\n" )
+                resultFile.write( "\t\t" + typeName + " " + valueName + ";\n" )
+                resultFile.write( "\t\tmemcpy( &" + valueName + ", buffer, sizeof( " + typeName + " ) );\n" )
+                resultFile.write( "\t\tbuffer += sizeof( " + typeName + " );\n\n" )
+
+                resultFile.write( "\t\tpacket->" + ptdct['NAME'] + ".push_back( " + valueName + " );\n" )
+                resultFile.write( "\t}\n" )
+
+            # 일반 타입
+            else :
+                resultFile.write( "\tmemcpy( &packet->" + ptdct['NAME'] + ", buffer, sizeof( " + ptdct['TYPE'] +" ) );\n" )
+                resultFile.write( "\tbuffer += sizeof( "+ ptdct['TYPE'] + " );\n" )
+
+            # 마지막 라인일 경우 줄바꿈 추가
+            if ptdct == protocolTypeDict[-1] :
+                resultFile.write( "\n" )
+
+        resultFile.write("\tpck = std::static_pointer_cast<PACKET_HEADER>( packet );\n\n")
+        resultFile.write("\treturn true;\n")
+        resultFile.write("};\n\n")
+
+    resultFile.write("inline bool DecodeClientProtocol(EnumClientProtocol protocol, std::shared_ptr<PACKET_HEADER>& pck, char* buffer)\n")
+    resultFile.write("{\n")
+    resultFile.write("\tswitch( protocol )\n")
+    resultFile.write("\t{\n")
+
+    for k in protocolDict.keys() :
+        resultFile.write("\tcase " + k + " :\n")
+        resultFile.write("\t\treturn decode_" + k + "( pck, buffer );\n")
+
+    resultFile.write("\tdefault :\n")
+    resultFile.write("\t\tbreak;\n")
+
+    resultFile.write("\t}\n\n")
+    resultFile.write("\t\treturn false;\n\n")
+    resultFile.write("}\n")
+
+    resultFile.close()
+
+    CopyToClient( fileName )
+#CreateDecoderInlineFile end
+
+#Copy define files
+CopyToServer( "ProtocolDefine.h" )
+CopyToClient( "ProtocolDefine.h" )
+
 CreateProtocolFile( "ClientProtocol.json" )
 CreateEncoderFile( "ClientProtocol.json" )
 CreateEncoderInlFile( "ClientProtocol.json" )
 CreateDecoderFile( "ClientProtocol.json" )
 CreateDecoderCppFile( "ClientProtocol.json" )
+CreateDecoderInlineFile( "ClientProtocol.json" )
 
 
 

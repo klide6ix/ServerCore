@@ -58,13 +58,15 @@
 	
 	"CS_ROOM_CHAT_REQ" :
 	[
-		{ "TYPE" : "char [1024]", "NAME" : "chatMsg_", "DEFAULT" : "{}" }
+		{ "TYPE" : "char [CHAT_MSG_LENGTH]", "NAME" : "chatMsg_", "DEFAULT" : "{}" },
+		{ "TYPE" : "int", "NAME" : "chatSize_", "DEFAULT" : "0" }
 	],
 	
 	"SC_ROOM_CHAT_MSG" :
 	[
 		{ "TYPE" : "MEMBER_INFO", "NAME" : "sender_" },
-		{ "TYPE" : "char [1024]", "NAME" : "chatMsg_", "DEFAULT" : "{}" }
+		{ "TYPE" : "char [CHAT_MSG_LENGTH]", "NAME" : "chatMsg_", "DEFAULT" : "{}" },
+		{ "TYPE" : "int", "NAME" : "chatSize_", "DEFAULT" : "0" }
 	],
 	
 	"CS_GAME_START_REQ" :

@@ -3,7 +3,7 @@
 
 #include "ProtocolDefine.h"
 
-#define PROTOCOL_VERSION 1033
+#define PROTOCOL_VERSION 1072
 
 enum EnumClientProtocol
 {
@@ -159,7 +159,8 @@ struct PCK_SC_ROOM_PLAYER_LIST : public PACKET_HEADER
 
 struct PCK_CS_ROOM_CHAT_REQ : public PACKET_HEADER
 {
-	char  chatMsg_[1024] = {};
+	char  chatMsg_[CHAT_MSG_LENGTH] = {};
+	int chatSize_ = 0;
 
 	PCK_CS_ROOM_CHAT_REQ() : PACKET_HEADER()
 	{
@@ -171,7 +172,8 @@ struct PCK_CS_ROOM_CHAT_REQ : public PACKET_HEADER
 struct PCK_SC_ROOM_CHAT_MSG : public PACKET_HEADER
 {
 	MEMBER_INFO sender_;
-	char  chatMsg_[1024] = {};
+	char  chatMsg_[CHAT_MSG_LENGTH] = {};
+	int chatSize_ = 0;
 
 	PCK_SC_ROOM_CHAT_MSG() : PACKET_HEADER()
 	{

@@ -2,7 +2,7 @@
 
 #include "ClientProtocol.h"
 
-#include ".."Utility"BufferSerializer.h
+#include "..\Utility\BufferSerializer.h"
 
 class IEncodeIterator
 {
@@ -23,8 +23,8 @@ inline static bool encode_SC_ROOM_PLAYER_CHANGE_ACK( BufferSerializer& serialize
 inline static bool encode_CS_ROOM_PLAYER_LEAVE_REQ( BufferSerializer& serializer );
 inline static bool encode_SC_ROOM_PLAYER_LEAVE_ACK( BufferSerializer& serializer, const bool& success_, const int& errorCode_ );
 inline static bool encode_SC_ROOM_PLAYER_LIST( BufferSerializer& serializer, const MEMBER_INFO * blueList_, unsigned short blueListSize_, const MEMBER_INFO * redList_, unsigned short redListSize_ );
-inline static bool encode_CS_ROOM_CHAT_REQ( BufferSerializer& serializer, const char * chatMsg_, unsigned short chatMsgSize_ );
-inline static bool encode_SC_ROOM_CHAT_MSG( BufferSerializer& serializer, const MEMBER_INFO& sender_, const char * chatMsg_, unsigned short chatMsgSize_ );
+inline static bool encode_CS_ROOM_CHAT_REQ( BufferSerializer& serializer, const char * chatMsg_, unsigned short chatMsgSize_, const int& chatSize_ );
+inline static bool encode_SC_ROOM_CHAT_MSG( BufferSerializer& serializer, const MEMBER_INFO& sender_, const char * chatMsg_, unsigned short chatMsgSize_, const int& chatSize_ );
 inline static bool encode_CS_GAME_START_REQ( BufferSerializer& serializer, const char * levelName_, unsigned short levelNameSize_ );
 inline static bool encode_SC_GAME_START_ACK( BufferSerializer& serializer, const bool& success_, const int& errorCode_ );
 inline static bool encode_SC_LOAD_GAME_NOT( BufferSerializer& serializer, const char * dedicateIp_, unsigned short dedicateIpSize_, const int& dedicatePort_ );

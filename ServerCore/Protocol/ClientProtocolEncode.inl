@@ -121,24 +121,26 @@ inline static bool encode_SC_ROOM_PLAYER_LIST( BufferSerializer& serializer, con
 
 	return true;
 }
-inline static bool encode_CS_ROOM_CHAT_REQ( BufferSerializer& serializer, const char * chatMsg_, unsigned short chatMsgSize_ )
+inline static bool encode_CS_ROOM_CHAT_REQ( BufferSerializer& serializer, const char * chatMsg_, unsigned short chatMsgSize_, const int& chatSize_ )
 {
 	PACKET_HEADER* header = serializer.getTypePointer<PACKET_HEADER>();
 	header->protocol_ = CS_ROOM_CHAT_REQ;
 
 	serializer.put_data( chatMsg_, chatMsgSize_ );
+	serializer.put_data( chatSize_ );
 
 	header->size_ = static_cast<unsigned short>( serializer.getSize() );
 
 	return true;
 }
-inline static bool encode_SC_ROOM_CHAT_MSG( BufferSerializer& serializer, const MEMBER_INFO& sender_, const char * chatMsg_, unsigned short chatMsgSize_ )
+inline static bool encode_SC_ROOM_CHAT_MSG( BufferSerializer& serializer, const MEMBER_INFO& sender_, const char * chatMsg_, unsigned short chatMsgSize_, const int& chatSize_ )
 {
 	PACKET_HEADER* header = serializer.getTypePointer<PACKET_HEADER>();
 	header->protocol_ = SC_ROOM_CHAT_MSG;
 
 	serializer.put_data( sender_ );
 	serializer.put_data( chatMsg_, chatMsgSize_ );
+	serializer.put_data( chatSize_ );
 
 	header->size_ = static_cast<unsigned short>( serializer.getSize() );
 
