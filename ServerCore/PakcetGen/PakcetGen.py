@@ -43,19 +43,20 @@ def CreateProtocolFile( jsonName ) :
 	protocolDict = json.loads(fileData)
 	#print(protocolDict)
 
-	fileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = fileName + ".h"
+	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = orgFileName + ".h"
 	
 	# 프로토콜 버전
 	PROTOCOL_VERSION = 1000
-	orgFile = open( fileName, 'r' )
-	orgData = orgFile.readlines()
-	for orgLine in orgData :
-		if orgLine.find("PROTOCOL_VERSION") != -1 :
-			thisVersion = orgLine[ 25 : ]
-			PROTOCOL_VERSION = int(thisVersion) + 1
+	if os.path.exists(fileName):
+		orgFile = open( fileName, 'r' )
+		orgData = orgFile.readlines()
+		for orgLine in orgData :
+			if orgLine.find("PROTOCOL_VERSION") != -1 :
+				thisVersion = orgLine[ 25 : ]
+				PROTOCOL_VERSION = int(thisVersion) + 1
 		
-	orgFile.close()
+		orgFile.close()
 	
 	resultFile = open( fileName, 'w' )
 
@@ -68,7 +69,7 @@ def CreateProtocolFile( jsonName ) :
 	resultFile.write("#define PROTOCOL_VERSION " + str(PROTOCOL_VERSION) + "\n\n")
 
 	# 프로토콜 Enum
-	resultFile.write("enum Enum" + fileName[ : fileName.find( '.' ) ] + "\n")
+	resultFile.write("enum Enum" + orgFileName + "\n")
 	resultFile.write("{\n")
 
 	for k in protocolDict.keys() :
@@ -196,13 +197,13 @@ def CreateEncoderFile( jsonName ) :
 	protocolDict = json.loads(fileData)
 	#print(protocolDict)
 
-	fileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = fileName + "Encode.h"
+	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = orgFileName + "Encode.h"
 	resultFile = open( fileName, 'w' )
 
 	# 설정
 	resultFile.write("#pragma once\n\n")
-	resultFile.write("#include \"ClientProtocol.h\"\n\n")
+	resultFile.write("#include \"" + orgFileName + ".h\"\n\n")
 	resultFile.write("#include \"..\\Utility\\BufferSerializer.h\"\n\n")
 
 	resultFile.write("class IEncodeIterator\n")
@@ -217,7 +218,7 @@ def CreateEncoderFile( jsonName ) :
 	for k in protocolDict.keys() :
 		ParseFunctionLine( resultFile, k, str(protocolDict[k]), True )
 
-	resultFile.write("\n#include \"ClientProtocolEncode.inl\"\n")
+	resultFile.write("\n#include \"" + orgFileName + "Encode.inl\"\n")
 	resultFile.close()
 
 	CopyToServer( fileName )
@@ -257,7 +258,7 @@ def CreateEncoderInlFile( jsonName ) :
 
 		# 내용
 		resultFile.write("{\n")
-		resultFile.write("\tPACKET_HEADER* header = serializer.getTypePointer<PACKET_HEADER>();\n")
+		resultFile.write("\tPACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();\n")
 		resultFile.write("\theader->protocol_ = " + k + ";\n\n")
 
 		for ptdct in protocolTypeDict :
@@ -292,7 +293,7 @@ def CreateEncoderInlFile( jsonName ) :
 			if ptdct == protocolTypeDict[-1] :
 				resultFile.write( "\n" )
 	
-		resultFile.write("\theader->size_ = static_cast<unsigned short>( serializer.getSize() );\n")
+		resultFile.write("\theader->size_ = static_cast<unsigned short>( serializer.GetSize() );\n")
 
 		resultFile.write("\n\treturn true;\n")
 		resultFile.write("}\n")
@@ -315,25 +316,25 @@ def CreateDecoderFile( jsonName ) :
 
 	protocolDict = json.loads(fileData)
 
-	fileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = fileName + "Decode.h"
+	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = orgFileName + "Decode.h"
 	resultFile = open( fileName, 'w' )
 
 	resultFile.write("#pragma once\n")
 	resultFile.write("#include <map>\n")
 
-	resultFile.write("#include \"ClientProtocol.h\"\n\n")
+	resultFile.write("#include \"" + orgFileName + ".h\"\n\n")
 
 	resultFile.write("using DecodeFunction_t = bool (*)( PACKET_HEADER*& pck, char* buffer );\n")
-	resultFile.write("class ClientProtocolDecoder\n")
+	resultFile.write("class " + orgFileName + "Decoder\n")
 	resultFile.write("{\n")
-	resultFile.write("\tstd::map<EnumClientProtocol, DecodeFunction_t> decodeFunction_;\n\n")
+	resultFile.write("\tstd::map<Enum" + orgFileName + ", DecodeFunction_t> decodeFunction_;\n\n")
 
 	resultFile.write("public:\n")
-	resultFile.write("\tClientProtocolDecoder();\n")
-	resultFile.write("\t~ClientProtocolDecoder();\n\n")
+	resultFile.write("\t" + orgFileName + "Decoder();\n")
+	resultFile.write("\t~" + orgFileName + "Decoder();\n\n")
 
-	resultFile.write("\tbool DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER*& pck, char* buffer );\n")
+	resultFile.write("\tbool Decode" + orgFileName + "( Enum" + orgFileName + " protocol, PACKET_HEADER*& pck, char* buffer );\n")
 	resultFile.write("};\n")
 
 
@@ -355,13 +356,13 @@ def CreateDecoderCppFile( jsonName ) :
 
 	protocolDict = json.loads(fileData)
 
-	fileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = fileName + "Decode.cpp"
+	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = orgFileName + "Decode.cpp"
 	resultFile = open( fileName, 'w' )
 
-	resultFile.write("#include \"ClientProtocolDecode.h\"\n\n")
+	resultFile.write("#include \"" + orgFileName + "Decode.h\"\n\n")
 
-	resultFile.write("ClientProtocolDecoder::ClientProtocolDecoder()\n")
+	resultFile.write( orgFileName + "Decoder::" + orgFileName + "Decoder()\n")
 	resultFile.write("{\n")
 
 	# 디코더 내용 정의
@@ -428,12 +429,12 @@ def CreateDecoderCppFile( jsonName ) :
 
 	resultFile.write("}\n\n")
 	
-	resultFile.write("ClientProtocolDecoder::~ClientProtocolDecoder()\n")
+	resultFile.write( orgFileName + "Decoder::~" + orgFileName + "Decoder()\n")
 	resultFile.write("{\n")
 	resultFile.write("\tdecodeFunction_.clear();\n")
 	resultFile.write("}\n\n")
 
-	resultFile.write("bool ClientProtocolDecoder::DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER*& pck, char* buffer )\n")
+	resultFile.write("bool " + orgFileName + "Decoder::DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER*& pck, char* buffer )\n")
 	resultFile.write("{\n")
 	resultFile.write("\tif( buffer == nullptr )\n")
 	resultFile.write("\t\treturn false;\n\n")
@@ -462,15 +463,15 @@ def CreateDecoderInlineFile( jsonName ) :
 
 	protocolDict = json.loads(fileData)
 
-	fileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = fileName + "Decode2.h"
+	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = orgFileName + "Decode2.h"
 	resultFile = open( fileName, 'w' )
 
 	resultFile.write("#pragma once\n")
 
-	resultFile.write("#include \"ClientProtocol.h\"\n\n")
+	resultFile.write("#include \"" + orgFileName + ".h\"\n\n")
 
-	resultFile.write("#include \"ClientProtocolDecode2.inl\"\n")
+	resultFile.write("#include \"" + orgFileName + "Decode2.inl\"\n")
 	resultFile.close()
 
 	CopyToClient( fileName )
@@ -478,8 +479,8 @@ def CreateDecoderInlineFile( jsonName ) :
 	print("CreateDecoderInlineHeader End")
 
 	# .inl file
-	fileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = fileName + "Decode2.inl"
+	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = orgFileName + "Decode2.inl"
 	resultFile = open( fileName, 'w' )
 
 	for k in protocolDict.keys() :
@@ -542,7 +543,7 @@ def CreateDecoderInlineFile( jsonName ) :
 		resultFile.write("\treturn true;\n")
 		resultFile.write("};\n\n")
 
-	resultFile.write("inline bool DecodeClientProtocol(EnumClientProtocol protocol, std::shared_ptr<PACKET_HEADER>& pck, char* buffer)\n")
+	resultFile.write("inline bool Decode" + orgFileName + "(Enum" + orgFileName + " protocol, std::shared_ptr<PACKET_HEADER>& pck, char* buffer)\n")
 	resultFile.write("{\n")
 	resultFile.write("\tswitch( protocol )\n")
 	resultFile.write("\t{\n")
@@ -567,12 +568,12 @@ def CreateDecoderInlineFile( jsonName ) :
 CopyToServer( "ProtocolDefine.h" )
 CopyToClient( "ProtocolDefine.h" )
 
-CreateProtocolFile( "ClientProtocol.json" )
-CreateEncoderFile( "ClientProtocol.json" )
-CreateEncoderInlFile( "ClientProtocol.json" )
-CreateDecoderFile( "ClientProtocol.json" )
-CreateDecoderCppFile( "ClientProtocol.json" )
-CreateDecoderInlineFile( "ClientProtocol.json" )
+CreateProtocolFile( "TestProtocol.json" )
+CreateEncoderFile( "TestProtocol.json" )
+CreateEncoderInlFile( "TestProtocol.json" )
+CreateDecoderFile( "TestProtocol.json" )
+CreateDecoderCppFile( "TestProtocol.json" )
+CreateDecoderInlineFile( "TestProtocol.json" )
 
 
 

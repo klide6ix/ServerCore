@@ -34,16 +34,9 @@
 #pragma comment(lib, "DatabaseConnector.lib")
 #endif
 
+#include "TestProtocolDecode2.h"
+
 #define SERVER_PORT 1500
-
-struct _PACKET_HEADER
-{
-	unsigned short protocol_ = 0;
-	unsigned short size_ = 0;
-
-	void setProtocol( unsigned short protocol ) { protocol_ = protocol; }
-	void setSize( unsigned short size ) { size_ = size; }
-};
 
 class ParserTest : public IParser
 {
@@ -63,10 +56,10 @@ public:
 		if( packet == nullptr )
 			return false;
 
-		if( sizeof(_PACKET_HEADER) > srcSize )
+		if( sizeof(PACKET_HEADER) > srcSize )
 			return false;
 
-		const _PACKET_HEADER* header = reinterpret_cast<const _PACKET_HEADER*>(src);
+		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
 		if( static_cast<int>(header->size_) > srcSize )
 			return false;
 
@@ -86,20 +79,20 @@ int main()
 	NetworkCore::GetInstance().InitializeEngine( new ServerApp );
 	NetworkCore::GetInstance().InitializeParser( new ParserTest );
 
-	NetworkCore::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( SC_ECHO_TEST_ACK, [] ( Command& cmd ) -> unsigned int
 	{
 		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
 		//printf("Recv : %s\n", packet->GetPacketData() );
 		return 0;
 	} );
 
-	NetworkCore::GetInstance().AddServerCommand( 100, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( SC_PING, [] ( Command& cmd ) -> unsigned int
 	{
 		Packet packet;
-		_PACKET_HEADER header;
-		header.protocol_ = 101;
-		header.size_ = static_cast<unsigned short>(sizeof( _PACKET_HEADER ));
-		packet.AddPacketData( (const char*)&header, sizeof( _PACKET_HEADER ) );
+		PACKET_HEADER header;
+		header.protocol_ = CS_PONG;
+		header.size_ = static_cast<unsigned short>(sizeof( PACKET_HEADER ));
+		packet.AddPacketData( (const char*)&header, sizeof( PACKET_HEADER ) );
 
 		cmd.cmdSession_->SendPacket( packet );
 
@@ -120,10 +113,10 @@ int main()
 	std::array<char, 2048> message;
 	message.fill( 'a' );
 	Packet packet;
-	_PACKET_HEADER header;
-	header.protocol_ = 0;
-	header.size_ = static_cast<unsigned short>(sizeof( _PACKET_HEADER ) + message.size());
-	packet.AddPacketData( (const char*)&header, sizeof( _PACKET_HEADER ) );
+	PACKET_HEADER header;
+	header.protocol_ = CS_ECHO_TEST_REQ;
+	header.size_ = static_cast<unsigned short>(sizeof( PACKET_HEADER ) + message.size());
+	packet.AddPacketData( (const char*)&header, sizeof( PACKET_HEADER ) );
 	packet.AddPacketData( message.data(), static_cast<unsigned short>(message.size()) );
 	while( true )
 	{

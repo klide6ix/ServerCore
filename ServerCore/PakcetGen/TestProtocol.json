@@ -1,0 +1,26 @@
+{
+	"CS_ECHO_TEST_REQ" :
+	[
+		{ "TYPE" : "char [2048]", "NAME" : "data_", "DEFAULT" : "{}", "INDEX" : "0" }
+	],
+	
+	"SC_ECHO_TEST_ACK" :
+	[
+		{ "TYPE" : "char [2048]", "NAME" : "data_", "DEFAULT" : "{}" }
+	],
+	
+	"CS_DB_TEST_REQ" :
+	[
+	],
+	
+	"SC_PING" :
+	[
+		{ "TYPE" : "unsigned int", "NAME" : "sequence_", "DEFAULT" : "0" }
+	],
+	
+	"CS_PONG" :
+	[
+		{ "TYPE" : "unsigned int", "NAME" : "sequence_", "DEFAULT" : "0" }
+	]
+}
+	

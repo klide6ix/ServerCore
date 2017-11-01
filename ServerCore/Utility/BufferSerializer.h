@@ -1,13 +1,12 @@
 #pragma once
 
-#include <boost/asio.hpp>
-#include <boost/array.hpp>
+#include <array>
 
 #include "NetworkBuffer.h"
 
 class BufferSerializer
 {
-	boost::array<char, MAX_NET_BUFFER>	buffer_ = {};
+	std::array<char, MAX_NET_BUFFER>	buffer_ = {};
 	char*								bufferPos_ = &buffer_[0];
 	unsigned short						bufferSize_ = 0;
 
@@ -25,11 +24,11 @@ public:
 	BufferSerializer() {}
 	~BufferSerializer() {}
 	
-	char*			getBuffer() { return &buffer_[0]; }
-	unsigned short	getSize() { return bufferSize_; }
+	char*			GetBuffer() { return &buffer_[0]; }
+	unsigned short	GetSize() { return bufferSize_; }
 
 	template< typename TType >
-	inline TType* getTypePointer( size_t count = 1 )
+	inline TType* GetTypePointer( size_t count = 1 )
 	{
 		if( _IsOverData( static_cast<unsigned short>( sizeof( TType ) * count ) ) == true )
 			return nullptr;

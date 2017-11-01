@@ -75,9 +75,6 @@
     <ClInclude Include="..\Utility\ObjectQueue.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utility\Packet.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\Utility\Parser.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -101,6 +98,12 @@
     </ClInclude>
     <ClInclude Include="EventTimer.h">
       <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\BufferSerializer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utility\Packet.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

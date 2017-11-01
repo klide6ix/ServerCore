@@ -31,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utility\BoostObjectPoolWrapper.h" />
+    <ClInclude Include="..\Utility\BufferSerializer.h" />
     <ClInclude Include="..\Utility\CircularBuffer.h" />
     <ClInclude Include="..\Utility\IThread.h" />
     <ClInclude Include="..\Utility\LogWriter.h" />

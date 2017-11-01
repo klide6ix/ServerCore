@@ -37,14 +37,7 @@
 
 #define SERVER_PORT 1500
 
-struct _PACKET_HEADER
-{
-	unsigned short protocol_ = 0;
-	unsigned short size_ = 0;
-
-	void setProtocol( unsigned short protocol ) { protocol_ = protocol; }
-	void setSize( unsigned short size ) { size_ = size; }
-};
+#include "TestProtocolEncode.h"
 
 class ServerTest : public ServerApp
 {
@@ -88,10 +81,10 @@ public:
 		if( packet == nullptr )
 			return false;
 
-		if( sizeof(_PACKET_HEADER) > srcSize )
+		if( sizeof(PACKET_HEADER) > srcSize )
 			return false;
 
-		const _PACKET_HEADER* header = reinterpret_cast<const _PACKET_HEADER*>(src);
+		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
 		if( static_cast<int>(header->size_) > srcSize )
 			return false;
 
@@ -116,22 +109,26 @@ int main()
 	NetworkCore::GetInstance().InitializeAccepter();
 	NetworkCore::GetInstance().AddAcceptPort( SERVER_PORT );
 
-	NetworkCore::GetInstance().AddServerCommand( 0, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( CS_ECHO_TEST_REQ, [] ( Command& cmd ) -> unsigned int
 	{
 		static int _packetCount = 0;
 		static std::chrono::system_clock::time_point before;		
 
 		auto start = std::chrono::system_clock::now();
-		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
+		Packet* pck = static_cast<Packet*>(cmd.cmdMessage_);
 
 		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
 
 		if( serverApp == nullptr )
 			return __LINE__;
 
+		Packet echoPacket;
+		echoPacket.SetProtocol( SC_ECHO_TEST_ACK );
+		echoPacket.AddPacketData( pck->GetPacketBuffer() + sizeof( PACKET_HEADER ), pck->GetPacketSize() - sizeof( PACKET_HEADER ) );
+
 		for( auto session : serverApp->GetClientList() )
 		{
-			session->SendPacket( *packet );
+			session->SendPacket( echoPacket );
 		}
 		
 		++_packetCount;
@@ -147,14 +144,14 @@ int main()
 		return 0;
 	} );
 
-	NetworkCore::GetInstance().AddServerCommand( 1, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( CS_DB_TEST_REQ, [] ( Command& cmd ) -> unsigned int
 	{
 		char* query = "select * from city where Name like '%SE%';";
 		DatabaseCore::GetInstance()->PushQuery( query, strlen(query)  );
 		return 0;
 	} );
 
-	NetworkCore::GetInstance().AddServerCommand( 101, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( CS_PONG, [] ( Command& cmd ) -> unsigned int
 	{
 		printf("Pong Recv\n");
 		return 0;
@@ -170,10 +167,10 @@ int main()
 		printf("Send Ping\n");
 
 		Packet ping;
-		_PACKET_HEADER header;
-		header.protocol_ = 100;
-		header.size_ = static_cast<unsigned short>(sizeof( _PACKET_HEADER ));
-		ping.AddPacketData( (const char*)&header, sizeof( _PACKET_HEADER ) );
+		PACKET_HEADER header;
+		header.protocol_ = SC_PING;
+		header.size_ = static_cast<unsigned short>(sizeof( PACKET_HEADER ));
+		ping.AddPacketData( (const char*)&header, sizeof( PACKET_HEADER ) );
 
 		for( auto session : serverApp->GetClientList() )
 		{
