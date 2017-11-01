@@ -3,7 +3,7 @@
 
 #include "ProtocolDefine.h"
 
-#define PROTOCOL_VERSION 1072
+#define PROTOCOL_VERSION 1075
 
 enum EnumClientProtocol
 {
