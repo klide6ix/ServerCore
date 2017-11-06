@@ -1,14 +1,15 @@
 import json
+from os import path
 import os
 import shutil
 
-ServerList = [ "..\TestServer" ]
-ClientList = [ "..\TestClient" ]
+EncodeList = [ "..\TestServer", "..\TestClient" ]
+DecodeList = [ "..\TestServer", "..\TestClient" ]
 
-def CopyToServer( FileName ) :
-	for AbsPath in ServerList :
-		ServerPath = os.path.abspath( AbsPath )
-		dstFile = os.path.join( ServerPath, FileName )
+def CopyToEncode( FileName ) :
+	for AbsPath in EncodeList :
+		EncodePath = os.path.abspath( AbsPath )
+		dstFile = os.path.join( EncodePath, FileName )
 		#print( dstFile )
 
 		srcFile = os.path.join( os.path.abspath( ".\\" ), FileName )
@@ -18,10 +19,10 @@ def CopyToServer( FileName ) :
 			os.remove(dstFile)
 		shutil.copy( srcFile, dstFile )
 
-def CopyToClient( FileName ) :
-	for AbsPath in ClientList :
-		ClientPath = os.path.abspath( AbsPath )
-		dstFile = os.path.join( ClientPath, FileName )
+def CopyToDecode( FileName ) :
+	for AbsPath in DecodeList :
+		DecodePath = os.path.abspath( AbsPath )
+		dstFile = os.path.join( DecodePath, FileName )
 		#print( dstFile )
 
 		srcFile = os.path.join( os.path.abspath( ".\\" ), FileName )
@@ -134,13 +135,13 @@ def CreateProtocolFile( jsonName ) :
 
 	resultFile.close()
 
-	CopyToServer( fileName )
-	CopyToClient( fileName )
+	CopyToEncode( fileName )
+	CopyToDecode( fileName )
 
 	print("CreateProtocolFile End")
 #CreateProtocolFile end
 
-def ParseFunctionLine( resultFile, protocolName, dictLine, isDefine ) :
+def ParseFunctionLine( resultFile, protocolName, dictLine, isDefine, isEncode ) :
 	dictLine = dictLine.replace('\'', '\"')
 	dictLine = dictLine.replace('None', 'null')
 	#print(dictLine)
@@ -148,7 +149,13 @@ def ParseFunctionLine( resultFile, protocolName, dictLine, isDefine ) :
 
 	#print( protocolName, protocolTypeDict )
 
-	resultFile.write("inline static bool encode_" + protocolName + "( BufferSerializer& serializer")
+	resultFile.write( "inline static bool ")
+	if isEncode == True :
+		resultFile.write( "encode_" )
+	else :
+		resultFile.write( "decode_" )
+
+	resultFile.write( protocolName + "( BufferSerializer& serializer" )
 
 	# 파라미터
 	for ptdct in protocolTypeDict :
@@ -158,20 +165,27 @@ def ParseFunctionLine( resultFile, protocolName, dictLine, isDefine ) :
 		if ptdct == protocolTypeDict[0] :
 			resultFile.write( "," )
 
-	# 배열 처리
+		# 배열 처리
 		if ptdct['TYPE'].find( '[' ) != -1 :
 			arrayType = ptdct['TYPE'][ : ptdct['TYPE'].find( '[' ) ]
 			arrayLength = ptdct['TYPE'][ ptdct['TYPE'].find( '[' ) + 1 : ptdct['TYPE'].find( ']' ) ]
 			arrayLengthName = ptdct['NAME'][ : -1] + "Size_"
-			resultFile.write( " const " + arrayType + "* " + ptdct['NAME'] + ", unsigned short " + arrayLengthName )
+			if isEncode == True :
+				resultFile.write( " const" )
+			resultFile.write( " " + arrayType + "* " + ptdct['NAME'] + ",")
+			if isEncode == True :
+				resultFile.write( " const" )
+			resultFile.write( " unsigned short& " + arrayLengthName )
 
-	# 벡터
+		# 벡터
 		elif ptdct['TYPE'].find( 'std::vector<' ) != -1 :
 			resultFile.write( " IEncodeIterator* " + ptdct['NAME'] )
 
-	# 일반 타입
+		# 일반 타입
 		else :
-			resultFile.write( " const " + ptdct['TYPE'] + "& " + ptdct['NAME'] )
+			if isEncode == True :
+				resultFile.write( " const" )
+			resultFile.write( " " + ptdct['TYPE'] + "& " + ptdct['NAME'] )
 
 		if ptdct != protocolTypeDict[-1] :
 			resultFile.write( "," )
@@ -216,12 +230,12 @@ def CreateEncoderFile( jsonName ) :
 	resultFile.write("};\n\n")
 
 	for k in protocolDict.keys() :
-		ParseFunctionLine( resultFile, k, str(protocolDict[k]), True )
+		ParseFunctionLine( resultFile, k, str(protocolDict[k]), True, True )
 
 	resultFile.write("\n#include \"" + orgFileName + "Encode.inl\"\n")
 	resultFile.close()
 
-	CopyToServer( fileName )
+	CopyToEncode( fileName )
 
 	print("CreateEncoderFile End")
 #CreateEncoderFile end
@@ -248,7 +262,7 @@ def CreateEncoderInlFile( jsonName ) :
 	for k in protocolDict.keys() :
 
 		# 정의
-		ParseFunctionLine( resultFile, k, str(protocolDict[k]), False )
+		ParseFunctionLine( resultFile, k, str(protocolDict[k]), False, True )
 
 		dictLine = str(protocolDict[k])
 		dictLine = dictLine.replace('\'', '\"')
@@ -274,7 +288,7 @@ def CreateEncoderInlFile( jsonName ) :
 
 			# 벡터
 			elif ptdct['TYPE'].find( 'std::vector<' ) != -1 :
-				resultFile.write( "\tunsigned short* count = serializer.getTypePointer<unsigned short>();\n" )
+				resultFile.write( "\tunsigned short* count = serializer.GetTypePointer<unsigned short>();\n" )
 
 				resultFile.write( "\tif( count == nullptr )\n" )
 				resultFile.write( "\t\treturn false;\n\n" )
@@ -300,7 +314,7 @@ def CreateEncoderInlFile( jsonName ) :
 
 	resultFile.close()
 
-	CopyToServer( fileName )
+	CopyToEncode( fileName )
 
 	print("CreateEncoderInlFile End")
 #CreateEncoderInlFile end
@@ -320,137 +334,20 @@ def CreateDecoderFile( jsonName ) :
 	fileName = orgFileName + "Decode.h"
 	resultFile = open( fileName, 'w' )
 
-	resultFile.write("#pragma once\n")
-	resultFile.write("#include <map>\n")
-
+	resultFile.write("#pragma once\n\n")
 	resultFile.write("#include \"" + orgFileName + ".h\"\n\n")
+	resultFile.write("#include \"..\\Utility\\BufferSerializer.h\"\n\n")
 
-	resultFile.write("using DecodeFunction_t = bool (*)( PACKET_HEADER*& pck, char* buffer );\n")
-	resultFile.write("class " + orgFileName + "Decoder\n")
-	resultFile.write("{\n")
-	resultFile.write("\tstd::map<Enum" + orgFileName + ", DecodeFunction_t> decodeFunction_;\n\n")
+	for k in protocolDict.keys() :
+		resultFile.write("inline static bool decode_" + k + "( BufferSerializer& serializer, PCK_" + k + "& pck );\n")
 
-	resultFile.write("public:\n")
-	resultFile.write("\t" + orgFileName + "Decoder();\n")
-	resultFile.write("\t~" + orgFileName + "Decoder();\n\n")
-
-	resultFile.write("\tbool Decode" + orgFileName + "( Enum" + orgFileName + " protocol, PACKET_HEADER*& pck, char* buffer );\n")
-	resultFile.write("};\n")
-
-
+	resultFile.write("\n#include \"" + orgFileName + "Decode.inl\"\n")
 	resultFile.close()
 
-	CopyToClient( fileName )
+	CopyToDecode( fileName )
 	
 	print("CreateDecoderFile End")
 #CreateDecoderFile end
-
-def CreateDecoderCppFile( jsonName ) :
-	print("CreateDecoderCppFile Start")
-
-	protocolFile = open( jsonName, 'r' )
-
-	fileData = protocolFile.read()
-
-	protocolFile.close()
-
-	protocolDict = json.loads(fileData)
-
-	orgFileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = orgFileName + "Decode.cpp"
-	resultFile = open( fileName, 'w' )
-
-	resultFile.write("#include \"" + orgFileName + "Decode.h\"\n\n")
-
-	resultFile.write( orgFileName + "Decoder::" + orgFileName + "Decoder()\n")
-	resultFile.write("{\n")
-
-	# 디코더 내용 정의
-	for k in protocolDict.keys() :
-		dictLine = str(protocolDict[k])
-		dictLine = dictLine.replace('\'', '\"')
-		dictLine = dictLine.replace('None', 'null')
-		#print( dictLine )
-		protocolTypeDict = json.loads( dictLine )
-
-		resultFile.write("\tdecodeFunction_.insert( std::pair<EnumClientProtocol, DecodeFunction_t>( " + k + ", [] ( PACKET_HEADER*& pck, char* buffer ) -> bool\n")
-		resultFile.write("\t{\n")
-		resultFile.write("\t\tbuffer += sizeof( PACKET_HEADER );\n\n")
-
-		resultFile.write("\t\tPCK_" + k + "* packet = new (std::nothrow) PCK_" + k + ";\n")
-
-		resultFile.write("\t\tif( packet == nullptr )\n")
-		resultFile.write("\t\t\treturn false;\n\n")
-	
-		for ptdct in protocolTypeDict :
-			if type(ptdct['TYPE']) != str :
-				continue
-
-			# 배열 처리
-			if ptdct['TYPE'].find( '[' ) != -1 :
-				arrayType = ptdct['TYPE'][ : ptdct['TYPE'].find( '[' ) ]
-				arrayLength = ptdct['TYPE'][ ptdct['TYPE'].find( '[' ) + 1 : ptdct['TYPE'].find( ']' ) ]
-				arrayLengthName = "sizeof( " + arrayType + ") * " +	 arrayLength;
-
-				resultFile.write( "\t\tmemcpy( &packet->" + ptdct['NAME'] + ", buffer, " + arrayLengthName + " );\n" )
-				resultFile.write( "\t\tbuffer += ( "+ arrayLengthName + " );\n" )
-
-			# 벡터
-			elif ptdct['TYPE'].find( 'std::vector<' ) != -1 :
-				resultFile.write( "\t\tunsigned short count = 0;\n" )
-				resultFile.write( "\t\tmemcpy( &count, buffer, sizeof( unsigned short ) );\n" )
-				resultFile.write( "\t\tbuffer += sizeof( unsigned short );\n\n" )
-
-				typeName = ptdct['TYPE'][ ptdct['TYPE'].find( '<' ) + 1 : ptdct['TYPE'].find( '>' ) ]
-				valueName = ptdct['NAME'][ : -1 ]
-
-				resultFile.write( "\t\tfor( unsigned short i = 0; i < count; ++i )\n" )
-				resultFile.write( "\t\t{\n" )
-				resultFile.write( "\t\t\t" + typeName + " " + valueName + ";\n" )
-				resultFile.write( "\t\t\tmemcpy( &" + valueName + ", buffer, sizeof( " + typeName + " ) );\n" )
-				resultFile.write( "\t\t\tbuffer += sizeof( " + typeName + " );\n\n" )
-
-				resultFile.write( "\t\t\tpacket->" + ptdct['NAME'] + ".push_back( " + valueName + " );\n" )
-				resultFile.write( "\t\t}\n" )
-
-			# 일반 타입
-			else :
-				resultFile.write( "\t\tmemcpy( &packet->" + ptdct['NAME'] + ", buffer, sizeof( " + ptdct['TYPE'] +" ) );\n" )
-				resultFile.write( "\t\tbuffer += sizeof( "+ ptdct['TYPE'] + " );\n" )
-
-			# 마지막 라인일 경우 줄바꿈 추가
-			if ptdct == protocolTypeDict[-1] :
-				resultFile.write( "\n" )
-
-		resultFile.write("\t\tpck = packet;\n\n")
-
-		resultFile.write("\t\treturn true;\n")
-		resultFile.write("\t} ));\n\n")
-
-	resultFile.write("}\n\n")
-	
-	resultFile.write( orgFileName + "Decoder::~" + orgFileName + "Decoder()\n")
-	resultFile.write("{\n")
-	resultFile.write("\tdecodeFunction_.clear();\n")
-	resultFile.write("}\n\n")
-
-	resultFile.write("bool " + orgFileName + "Decoder::DecodeClientProtocol( EnumClientProtocol protocol, PACKET_HEADER*& pck, char* buffer )\n")
-	resultFile.write("{\n")
-	resultFile.write("\tif( buffer == nullptr )\n")
-	resultFile.write("\t\treturn false;\n\n")
-
-	resultFile.write("\tif( decodeFunction_.find( protocol ) == decodeFunction_.end() )\n")
-	resultFile.write("\t\treturn false;\n\n")
-
-	resultFile.write("\treturn decodeFunction_[protocol]( pck, buffer );\n")
-	resultFile.write("}\n")
-
-	resultFile.close()
-
-	CopyToClient( fileName )
-	
-	print("CreateDecoderCppFile End")
-#CreateDecoderCppFile end
 
 def CreateDecoderInlineFile( jsonName ) :
 	print("CreateDecoderInlineHeader Start")
@@ -464,115 +361,76 @@ def CreateDecoderInlineFile( jsonName ) :
 	protocolDict = json.loads(fileData)
 
 	orgFileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = orgFileName + "Decode2.h"
-	resultFile = open( fileName, 'w' )
-
-	resultFile.write("#pragma once\n")
-
-	resultFile.write("#include \"" + orgFileName + ".h\"\n\n")
-
-	resultFile.write("#include \"" + orgFileName + "Decode2.inl\"\n")
-	resultFile.close()
-
-	CopyToClient( fileName )
-
-	print("CreateDecoderInlineHeader End")
-
-	# .inl file
-	orgFileName = jsonName[ : jsonName.find( '.' ) ]
-	fileName = orgFileName + "Decode2.inl"
+	fileName = orgFileName + "Decode.inl"
 	resultFile = open( fileName, 'w' )
 
 	for k in protocolDict.keys() :
+
+		resultFile.write("inline static bool decode_" + k + "( BufferSerializer& serializer, PCK_" + k + "& pck )\n")
+
 		dictLine = str(protocolDict[k])
 		dictLine = dictLine.replace('\'', '\"')
 		dictLine = dictLine.replace('None', 'null')
 		#print( dictLine )
 		protocolTypeDict = json.loads( dictLine )
 
-		resultFile.write("inline bool decode_" + k + "( std::shared_ptr<PACKET_HEADER>& pck, char* buffer )\n")
+		# 내용
 		resultFile.write("{\n")
-		resultFile.write("\tbuffer += sizeof( PACKET_HEADER );\n\n")
-
-		resultFile.write("\tstd::shared_ptr<PCK_" + k + "> packet = std::make_shared<PCK_" + k + ">();\n")
-
-		resultFile.write("\tif( packet == nullptr )\n")
+		resultFile.write("\tPACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();\n")
+		resultFile.write("\tif( header->protocol_ != " + k + " )\n")
 		resultFile.write("\t\treturn false;\n\n")
-	
+
 		for ptdct in protocolTypeDict :
 			if type(ptdct['TYPE']) != str :
 				continue
 
 			# 배열 처리
 			if ptdct['TYPE'].find( '[' ) != -1 :
-				arrayType = ptdct['TYPE'][ : ptdct['TYPE'].find( '[' ) ]
-				arrayLength = ptdct['TYPE'][ ptdct['TYPE'].find( '[' ) + 1 : ptdct['TYPE'].find( ']' ) ]
-				arrayLengthName = "sizeof( " + arrayType + ") * " +	 arrayLength;
-
-				resultFile.write( "\tmemcpy( &packet->" + ptdct['NAME'] + ", buffer, " + arrayLengthName + " );\n" )
-				resultFile.write( "\tbuffer += ( "+ arrayLengthName + " );\n" )
+				resultFile.write( "\tunsigned short size = 0;\n" )
+				resultFile.write( "\tserializer.get_data( pck." + ptdct['NAME'] + ", size );\n" );
 
 			# 벡터
 			elif ptdct['TYPE'].find( 'std::vector<' ) != -1 :
-				resultFile.write( "\tunsigned short count = 0;\n" )
-				resultFile.write( "\tmemcpy( &count, buffer, sizeof( unsigned short ) );\n" )
-				resultFile.write( "\tbuffer += sizeof( unsigned short );\n\n" )
 
-				typeName = ptdct['TYPE'][ ptdct['TYPE'].find( '<' ) + 1 : ptdct['TYPE'].find( '>' ) ]
-				valueName = ptdct['NAME'][ : -1 ]
+				vectorType = ptdct['TYPE'][ ptdct['TYPE'].find( '<' ) + 1 : ptdct['TYPE'].find( ']' ) ]
+				resultFile.write( "\tunsigned short* count = serializer.GetTypePointer<unsigned short>();\n" )
 
-				resultFile.write( "\tfor( unsigned short i = 0; i < count; ++i )\n" )
+				resultFile.write( "\tif( count == nullptr )\n" )
+				resultFile.write( "\t\treturn false;\n\n" )
+
+				resultFile.write( "\tfor( unsigned short i = 0; i < (*count); ++i )\n" )
 				resultFile.write( "\t{\n" )
-				resultFile.write( "\t\t" + typeName + " " + valueName + ";\n" )
-				resultFile.write( "\t\tmemcpy( &" + valueName + ", buffer, sizeof( " + typeName + " ) );\n" )
-				resultFile.write( "\t\tbuffer += sizeof( " + typeName + " );\n\n" )
-
-				resultFile.write( "\t\tpacket->" + ptdct['NAME'] + ".push_back( " + valueName + " );\n" )
+				resultFile.write( "\t\t" + vectorType + " temp;\n" )
+				resultFile.write( "\t\tserializer.get_data( temp );\n" )
+				resultFile.write( "\t\tpck." + ptdct['NAME'] + ".push_back( temp );\n" )
 				resultFile.write( "\t}\n" )
 
 			# 일반 타입
 			else :
-				resultFile.write( "\tmemcpy( &packet->" + ptdct['NAME'] + ", buffer, sizeof( " + ptdct['TYPE'] +" ) );\n" )
-				resultFile.write( "\tbuffer += sizeof( "+ ptdct['TYPE'] + " );\n" )
+				resultFile.write( "\tserializer.get_data( pck." + ptdct['NAME'] + " );\n" )
 
 			# 마지막 라인일 경우 줄바꿈 추가
 			if ptdct == protocolTypeDict[-1] :
 				resultFile.write( "\n" )
-
-		resultFile.write("\tpck = std::static_pointer_cast<PACKET_HEADER>( packet );\n\n")
-		resultFile.write("\treturn true;\n")
-		resultFile.write("};\n\n")
-
-	resultFile.write("inline bool Decode" + orgFileName + "(Enum" + orgFileName + " protocol, std::shared_ptr<PACKET_HEADER>& pck, char* buffer)\n")
-	resultFile.write("{\n")
-	resultFile.write("\tswitch( protocol )\n")
-	resultFile.write("\t{\n")
-
-	for k in protocolDict.keys() :
-		resultFile.write("\tcase " + k + " :\n")
-		resultFile.write("\t\treturn decode_" + k + "( pck, buffer );\n")
-
-	resultFile.write("\tdefault :\n")
-	resultFile.write("\t\tbreak;\n")
-
-	resultFile.write("\t}\n\n")
-	resultFile.write("\t\treturn false;\n\n")
-	resultFile.write("}\n")
+	
+		resultFile.write("\n\treturn true;\n")
+		resultFile.write("}\n")
 
 	resultFile.close()
 
-	CopyToClient( fileName )
+	CopyToDecode( fileName )
 #CreateDecoderInlineFile end
 
 #Copy define files
-CopyToServer( "ProtocolDefine.h" )
-CopyToClient( "ProtocolDefine.h" )
+CopyToEncode( "ProtocolDefine.h" )
+CopyToDecode( "ProtocolDefine.h" )
 
 CreateProtocolFile( "TestProtocol.json" )
+
 CreateEncoderFile( "TestProtocol.json" )
 CreateEncoderInlFile( "TestProtocol.json" )
+
 CreateDecoderFile( "TestProtocol.json" )
-CreateDecoderCppFile( "TestProtocol.json" )
 CreateDecoderInlineFile( "TestProtocol.json" )
 
 
