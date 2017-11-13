@@ -15,7 +15,7 @@
     <ProjectGuid>{E894BD1A-ECD7-4A28-AB8E-AEFF2AC925D2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>TestClient</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -87,12 +87,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ProtocolDefine.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TestProtocol.h" />
+    <ClInclude Include="TestProtocolDecode.h" />
+    <ClInclude Include="TestProtocolEncode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TestClient.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestProtocolDecode.inl" />
+    <None Include="TestProtocolEncode.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

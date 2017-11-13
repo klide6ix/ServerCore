@@ -12,7 +12,6 @@
 
 class IParser;
 class Session;
-class Packet;
 class Socket;
 
 class ServerApp;
@@ -52,15 +51,14 @@ public:
 	void CloseSession( Session* session );
 	void ShutdownSession( Session* session );
 
-	bool EncodePacket( const char* src, int srcSize, Packet* packet );
-	bool DecodePacket( const char* src, int srcSize, Packet* packet );
+	int ParsePacket( const char* src, int srcSize, Command* command );
 
-	Packet* AllocatePacket();
-	void FreePacket( Packet* obj );
+	Command* AllocateCommand();
+	void DeallocateCommand( Command* obj );
 
 	// Command
-	void PushCommand( Command& cmd );
-	bool PopCommand( Command& cmd );
+	void PushCommand( Command* cmd );
+	Command* PopCommand();
 
 	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
 	CommandFunction_t GetServerCommand( COMMAND_ID protocol );

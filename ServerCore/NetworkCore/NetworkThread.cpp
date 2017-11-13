@@ -31,22 +31,22 @@ void NetworkThread::Process()
 				{
 					do
 					{
-						Packet* packet = NetworkCore::GetInstance().AllocatePacket();
+						Command* command = NetworkCore::GetInstance().AllocateCommand();
 
-						if( packet == nullptr )
+						if( command == nullptr )
 							return;
 
-						int packetSize = 0;
-						if( NetworkCore::GetInstance().DecodePacket( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_), packet ) == false )
+						int packetSize = NetworkCore::GetInstance().ParsePacket( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_), command );
+						if( packetSize == 0 )
 						{
-							NetworkCore::GetInstance().FreePacket( packet );
+							NetworkCore::GetInstance().DeallocateCommand( command );
 							break;
 						}
 						else
 						{
-							NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet), sessionEvent.session_ ) );
-							sessionEvent.session_->ReadBufferConsume( packet->GetPacketSize() );
-							sessionEvent.recvSize_ -= packet->GetPacketSize();
+							NetworkCore::GetInstance().PushCommand( command );
+							sessionEvent.session_->ReadBufferConsume( packetSize );
+							sessionEvent.recvSize_ -= packetSize;
 						}
 
 					} while( sessionEvent.recvSize_ > 0 );

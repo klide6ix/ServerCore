@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAX_NET_BUFFER 24000
+
 
 class NetworkBuffer
 {

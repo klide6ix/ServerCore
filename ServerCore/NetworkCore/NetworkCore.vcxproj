@@ -64,7 +64,7 @@
     <ProjectGuid>{9135578B-E7DB-4A4B-9F69-81CD318B0B61}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NetworkCore</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

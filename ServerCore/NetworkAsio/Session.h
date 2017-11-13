@@ -2,13 +2,14 @@
 
 #include <boost/asio.hpp>
 
-#include "../Utility/Packet.h"
-#include "../Utility/NetworkBuffer.h"
+#include "../Utility/BufferSerializer.h"
 
 class Session : public std::enable_shared_from_this<Session>
 {
 	void*						sessionObj_ = nullptr;
-	NetworkBuffer				recvBuffer_;
+	BufferSerializer			recvBuffer_;
+	BufferSerializer			sendBuffer_;
+	
 	boost::asio::ip::tcp::socket socket_;
 
 	volatile bool				isShutdown_;
@@ -18,13 +19,16 @@ class Session : public std::enable_shared_from_this<Session>
 	boost::asio::deadline_timer	recvRetry_;
 	boost::asio::deadline_timer	sendRetry_;
 	
-	void ProcessReceive_( size_t bytes_transferred );
+	void _processReceive( size_t bytes_transferred );
 
 public:
 	boost::asio::ip::tcp::socket& GetSocket() { return socket_; }
 	
 	Session();
 	~Session();
+	
+	BufferSerializer& GetReceiveBuffer() { return recvBuffer_; }
+	BufferSerializer& GetSendBuffer() { return sendBuffer_; }
 
 	void  SetSessionObject( void* obj ) { sessionObj_ = obj; }
 	void* GetSessionObject() { return sessionObj_; }
@@ -35,17 +39,9 @@ public:
 	void Disconnect( bool wait_for_removal );
 
 	bool IsClosed() const;
+	void Close();
+	void Shutdown();
 
-	char* RecvBufferPos() { return recvBuffer_.GetBufferPosRead(); }
-	void  ReadBufferConsume( int size );
-	void  RecvBufferConsume( int size );
-	void  ArrangeBuffer();
-	void  Close();
-	void  Shutdown();
-
-	int  SendPacket( Packet& packet );
-	
-	size_t SendBuffer( const void* buffer, size_t size );
-	size_t SendBuffer( std::vector<char>& buffer, size_t size );
-	size_t RecvBuffer( std::vector<char>& buffer, size_t size );
+	size_t SendBuffer();
+	size_t SendBuffer( BufferSerializer& buffer );
 };

@@ -38,6 +38,8 @@
 #define SERVER_PORT 1500
 
 #include "TestProtocolEncode.h"
+#include "TestProtocolDecode.h"
+
 
 class ServerTest : public ServerApp
 {
@@ -69,31 +71,49 @@ public:
 	ParserTest() {}
 	virtual ~ParserTest() {}
 
-	virtual bool encodeMessage( const char* src, int srcSize, Packet* packet )
+	virtual int ParseStream( const char* src, int srcSize, Command* command )
 	{
-		packet->SetPacketSize( srcSize );
-		memcpy( packet->GetPacketBuffer(), src, srcSize );
-
-		return true;
-	}
-	virtual bool decodeMessage( const char* src, int srcSize, Packet* packet )
-	{
-		if( packet == nullptr )
-			return false;
+		if( command == nullptr )
+			return 0;
 
 		if( sizeof(PACKET_HEADER) > srcSize )
-			return false;
+			return 0;
 
 		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
 		if( static_cast<int>(header->size_) > srcSize )
-			return false;
+			return 0;
 
-		packet->SetPacketSize( header->size_ );
-		packet->SetProtocol( header->protocol_ );
-		
-		memcpy( packet->GetPacketBuffer(), src, header->size_ );
+		command->cmdID_ = header->protocol_;
+		command->cmdBuffer_.initializeBuffer( src, header->size_ );
 
-		return true;
+		return header->size_;
+	}
+};
+
+class TestIterator : public IEncodeIterator
+{
+	std::vector<float>& list;
+	std::vector<float>::iterator itr;
+
+public:
+
+	TestIterator(std::vector<float>& data) : list( data ), itr( list.begin() ) {}
+
+	virtual void begin()
+	{
+		itr = list.begin();
+	}
+	virtual void next()
+	{
+		++itr;
+	}
+	virtual bool hasNext()
+	{
+		return itr != list.end();
+	}
+	virtual bool fill( BufferSerializer& serializer )
+	{
+		return serializer.put_data( (*itr) );
 	}
 };
 
@@ -109,26 +129,27 @@ int main()
 	NetworkCore::GetInstance().InitializeAccepter();
 	NetworkCore::GetInstance().AddAcceptPort( SERVER_PORT );
 
-	NetworkCore::GetInstance().AddServerCommand( CS_ECHO_TEST_REQ, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( CS_ECHO_TEST_REQ, [] ( Command* cmd ) -> unsigned int
 	{
 		static int _packetCount = 0;
 		static std::chrono::system_clock::time_point before;		
 
 		auto start = std::chrono::system_clock::now();
-		Packet* pck = static_cast<Packet*>(cmd.cmdMessage_);
-
 		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
 
 		if( serverApp == nullptr )
 			return __LINE__;
 
-		Packet echoPacket;
-		echoPacket.SetProtocol( SC_ECHO_TEST_ACK );
-		echoPacket.AddPacketData( pck->GetPacketBuffer() + sizeof( PACKET_HEADER ), pck->GetPacketSize() - sizeof( PACKET_HEADER ) );
+		PCK_CS_ECHO_TEST_REQ pck;
+		decode_CS_ECHO_TEST_REQ( cmd->cmdBuffer_, pck );
+
+		BufferSerializer broadcastBuffer;
+		TestIterator testItr(pck.data3_);
+		encode_SC_ECHO_TEST_ACK( broadcastBuffer, pck.data1_, pck.data2_, 2048, &testItr );
 
 		for( auto session : serverApp->GetClientList() )
 		{
-			session->SendPacket( echoPacket );
+			session->SendBuffer( broadcastBuffer );
 		}
 		
 		++_packetCount;
@@ -144,19 +165,20 @@ int main()
 		return 0;
 	} );
 
-	NetworkCore::GetInstance().AddServerCommand( CS_DB_TEST_REQ, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( CS_DB_TEST_REQ, [] ( Command* cmd ) -> unsigned int
 	{
 		char* query = "select * from city where Name like '%SE%';";
 		DatabaseCore::GetInstance()->PushQuery( query, strlen(query)  );
 		return 0;
 	} );
 
-	NetworkCore::GetInstance().AddServerCommand( CS_PONG, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( CS_PONG, [] ( Command* cmd ) -> unsigned int
 	{
 		printf("Pong Recv\n");
 		return 0;
 	} );
 
+	// Timer
 	NetworkCore::GetInstance().AddTimerCommand( 0, [] ( TimerObject& obj ) -> unsigned int
 	{
 		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
@@ -164,17 +186,18 @@ int main()
 		if( serverApp == nullptr )
 			return __LINE__;
 
-		printf("Send Ping\n");
+		if( serverApp->GetClientList().empty() == true )
+			return 0;
 
-		Packet ping;
-		PACKET_HEADER header;
-		header.protocol_ = SC_PING;
-		header.size_ = static_cast<unsigned short>(sizeof( PACKET_HEADER ));
-		ping.AddPacketData( (const char*)&header, sizeof( PACKET_HEADER ) );
+		//printf("Send Ping\n");
+
+		BufferSerializer broadcastBuffer;
+		unsigned int seq = 9999;
+		encode_SC_PING( broadcastBuffer, seq );
 
 		for( auto session : serverApp->GetClientList() )
 		{
-			session->SendPacket( ping );
+			session->SendBuffer( broadcastBuffer );
 		}
 
 		return 0;

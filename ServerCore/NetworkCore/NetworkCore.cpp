@@ -24,7 +24,6 @@
 
 #include "../Utility/ObjectPool.h"
 #include "../Utility/Parser.h"
-#include "../Utility/Packet.h"
 
 #ifdef _WIN32
 #pragma comment(lib, "Ws2_32.lib")
@@ -47,7 +46,7 @@ public:
 	std::shared_ptr<CommandQueue>		dbQueue_ = nullptr;
 	std::shared_ptr<EventTimer>			timerQueue_ = nullptr;
 
-	ObjectPool<Packet>					packetPool_;
+	ObjectPool<Command>					commandPool_;
 
 	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
 	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
@@ -135,8 +134,8 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 	if( networkImpl_->networkModel_->InitNetworkModel() == false )
 		return false;
 
-	networkImpl_->packetPool_.SetMaxPoolSize( 32 * 10 );
-	if( networkImpl_->packetPool_.Init() == false )
+	networkImpl_->commandPool_.SetMaxPoolSize( 32 * 10 );
+	if( networkImpl_->commandPool_.Init() == false )
 		return false;
 
 	for( auto thread : networkImpl_->networkThreads_ )
@@ -241,34 +240,29 @@ ServerApp* NetworkCore::GetServerApp()
 	return networkImpl_->serverApp_.get();
 }
 
-bool NetworkCore::EncodePacket( const char* src, int srcSize, Packet* packet )
+int NetworkCore::ParsePacket( const char* src, int srcSize, Command* command )
 {
-	return networkImpl_->parser_->encodeMessage( src, srcSize, packet );
+	return networkImpl_->parser_->ParseStream( src, srcSize, command );
 }
 
-bool NetworkCore::DecodePacket( const char* src, int srcSize, Packet* packet )
+Command* NetworkCore::AllocateCommand()
 {
-	return networkImpl_->parser_->decodeMessage( src, srcSize, packet );
+	return networkImpl_->commandPool_.Alloc();
 }
 
-Packet* NetworkCore::AllocatePacket()
+void NetworkCore::DeallocateCommand( Command* obj )
 {
-	return networkImpl_->packetPool_.Alloc();
+	networkImpl_->commandPool_.Free( obj );
 }
 
-void NetworkCore::FreePacket( Packet* obj )
-{
-	networkImpl_->packetPool_.Free( obj );
-}
-
-void NetworkCore::PushCommand( Command& cmd )
+void NetworkCore::PushCommand( Command* cmd )
 {
 	networkImpl_->workQueue_->PushCommand( cmd );
 }
 
-bool NetworkCore::PopCommand( Command& cmd )
+Command* NetworkCore::PopCommand()
 {
-	return networkImpl_->workQueue_->PopCommand( cmd );
+	return networkImpl_->workQueue_->PopCommand();
 }
 
 void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )

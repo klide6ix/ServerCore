@@ -34,7 +34,8 @@
 #pragma comment(lib, "DatabaseConnector.lib")
 #endif
 
-#include "TestProtocolDecode2.h"
+#include "TestProtocolEncode.h"
+#include "TestProtocolDecode.h"
 
 #define SERVER_PORT 1500
 
@@ -44,31 +45,50 @@ public:
 	ParserTest() {}
 	virtual ~ParserTest() {}
 
-	virtual bool encodeMessage( const char* src, int srcSize, Packet* packet )
+	virtual int ParseStream( const char* src, int srcSize, Command* command )
 	{
-		packet->SetPacketSize( srcSize );
-		memcpy( packet->GetPacketBuffer(), src, srcSize );
-
-		return true;
-	}
-	virtual bool decodeMessage( const char* src, int srcSize, Packet* packet )
-	{
-		if( packet == nullptr )
-			return false;
+		if( command == nullptr )
+			return 0;
 
 		if( sizeof(PACKET_HEADER) > srcSize )
-			return false;
+			return 0;
 
 		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
 		if( static_cast<int>(header->size_) > srcSize )
-			return false;
+			return 0;
 
-		packet->SetPacketSize( header->size_ );
-		packet->SetProtocol( header->protocol_ );
-		
-		memcpy( packet->GetPacketBuffer(), src, header->size_ );
+		command->cmdID_ = header->protocol_;
+		command->cmdBuffer_.initializeBuffer( src, header->size_ );
 
-		return true;
+		return header->size_;
+	}
+};
+
+
+class TestIterator : public IEncodeIterator
+{
+	std::vector<float>& list;
+	std::vector<float>::iterator itr;
+
+public:
+
+	TestIterator(std::vector<float>& data) : list( data ), itr( list.begin() ) {}
+
+	virtual void begin()
+	{
+		itr = list.begin();
+	}
+	virtual void next()
+	{
+		++itr;
+	}
+	virtual bool hasNext()
+	{
+		return itr != list.end();
+	}
+	virtual bool fill( BufferSerializer& serializer )
+	{
+		return serializer.put_data( (*itr) );
 	}
 };
 
@@ -79,22 +99,16 @@ int main()
 	NetworkCore::GetInstance().InitializeEngine( new ServerApp );
 	NetworkCore::GetInstance().InitializeParser( new ParserTest );
 
-	NetworkCore::GetInstance().AddServerCommand( SC_ECHO_TEST_ACK, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( SC_ECHO_TEST_ACK, [] ( Command* cmd ) -> unsigned int
 	{
-		Packet* packet = static_cast<Packet*>(cmd.cmdMessage_);
-		//printf("Recv : %s\n", packet->GetPacketData() );
 		return 0;
 	} );
 
-	NetworkCore::GetInstance().AddServerCommand( SC_PING, [] ( Command& cmd ) -> unsigned int
+	NetworkCore::GetInstance().AddServerCommand( SC_PING, [] ( Command* cmd ) -> unsigned int
 	{
-		Packet packet;
-		PACKET_HEADER header;
-		header.protocol_ = CS_PONG;
-		header.size_ = static_cast<unsigned short>(sizeof( PACKET_HEADER ));
-		packet.AddPacketData( (const char*)&header, sizeof( PACKET_HEADER ) );
-
-		cmd.cmdSession_->SendPacket( packet );
+		BufferSerializer buffer;
+		encode_SC_PING( buffer, 0 );
+		cmd->cmdSession_->SendBuffer( buffer );
 
 		return 0;
 	} );
@@ -110,43 +124,33 @@ int main()
 	NetworkCore::GetInstance().AddSession( newSession, 0 );
 
 	// 패킷 테스트
-	std::array<char, 2048> message;
-	message.fill( 'a' );
-	Packet packet;
-	PACKET_HEADER header;
-	header.protocol_ = CS_ECHO_TEST_REQ;
-	header.size_ = static_cast<unsigned short>(sizeof( PACKET_HEADER ) + message.size());
-	packet.AddPacketData( (const char*)&header, sizeof( PACKET_HEADER ) );
-	packet.AddPacketData( message.data(), static_cast<unsigned short>(message.size()) );
-	while( true )
+	int data1 = 999;
+	std::array<char, 2048> data2;
+	data2.fill( 'a' );
+	std::vector<float> data3;
+	data3.push_back( 1.1f );
+	data3.push_back( 2.1f );
+	data3.push_back( 3.1f );
+
+	// 에코 테스트
+	//while( true )
 	{
-		newSession->SendPacket( packet );
+		BufferSerializer buffer;
+		TestIterator testItr(data3);
+		encode_CS_ECHO_TEST_REQ( buffer, data1, data2.data(), 2048, &testItr );
+		newSession->SendBuffer( buffer );
 		
 		// 1초에 1000번
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 
-	// 에코 테스트
-	/*
-	while( true )
-	{
-		std::string msg;
-		std::cout << "Message : ";
-		std::cin >> msg;
-
-		Packet packet;
-
-		packet.AddPacketData( msg.c_str(), static_cast<unsigned short>(msg.size()) );
-		newSession->SendPacket( packet );
-	}
-	*/
-
+	
 	// DB 연결 테스트
 	/*while( true )
 	{
-		Packet packet;
-		packet.SetProtocol( (PROTOCOL_TYPE)1 );
-		newSession->SendPacket( packet );
+		BufferSerializer buffer;
+		encode_CS_DB_TEST_REQ( buffer );
+		newSession->SendBuffer( buffer );
 
 		Sleep(1);
 	}*/

@@ -53,7 +53,7 @@ int Session::RecvPost()
 	// WSABUF 구조체 셋팅
 	WSABUF wsaBuffer;
 	wsaBuffer.buf = recvBuffer_.GetBufferPosRecv();
-	wsaBuffer.len = recvBuffer_.GetBufferSize();
+	wsaBuffer.len = recvBuffer_.GetBufferRemainSize();
 
 	DWORD dwRecvBytes = 0;
 	DWORD dwFlags = 0;	
@@ -103,12 +103,12 @@ int Session::RecvPacket()
 		return -1;
 	}
 
-	if( recvBuffer_.GetBufferSize() <= 0 )
+	if( recvBuffer_.GetBufferRemainSize() <= 0 )
 	{
 		return -1;
 	}
 
-	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPosRecv(), recvBuffer_.GetBufferSize(), 0  );
+	int size = recv( socket_.GetSocket(), recvBuffer_.GetBufferPosRecv(), recvBuffer_.GetBufferRemainSize(), 0  );
 
 	if ( size < 0 )
 	{
@@ -133,14 +133,6 @@ int Session::RecvPacket()
 void Session::Close()
 {
 	socket_.CloseSocket();
-}
-
-int Session::SendPacket( Packet& packet )
-{
-	if( socket_.GetSocket() == INVALID_SOCKET )
-		return 0;
-
-	return send( socket_.GetSocket(), packet.GetPacketBuffer(), packet.GetPacketSize(), 0 );
 }
 
 void Session::Connect( const std::string& addr, std::uint32_t port )

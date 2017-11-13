@@ -4,8 +4,7 @@
 #include <functional>
 #include <vector>
 
-#include "../Utility/Packet.h"
-#include "../Utility/NetworkBuffer.h"
+#include "../Utility/BufferSerializer.h"
 
 #include "Socket.h"
 
@@ -26,7 +25,8 @@ class Session
 	OVERLAPPEDEX overlappedSend_;
 	OVERLAPPEDEX overlappedRecv_;
 
-	NetworkBuffer recvBuffer_;
+	BufferSerializer recvBuffer_;
+	BufferSerializer sendBuffer_;
 
 public:
 	Session();
@@ -35,6 +35,9 @@ public:
 
 	SOCKET GetSocket();
 	void SetSocket( Socket& socket );
+
+	BufferSerializer& GetReceiveBuffer() { return recvBuffer_; }
+	BufferSerializer& GetSendBuffer() { return sendBuffer_; }
 
 	bool ConnectTo( const char* ip, int port );
 	int  RecvPost();
@@ -45,8 +48,6 @@ public:
 	void  RecvBufferConsume( int size );
 	void  ArrangeBuffer();
 	int   GetCurrentRecvBufferSize();
-
-	int  SendPacket( Packet& packet );
 
 	void Close();
 

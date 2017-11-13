@@ -42,30 +42,35 @@ void Session::Disconnect( bool /*wait_for_removal*/ )
 	Close();
 }
 
-void Session::ProcessReceive_( size_t bytes_transferred )
+void Session::_processReceive( size_t bytes_transferred )
 {
 	do
 	{
-		Packet* packet = NetworkCore::GetInstance().AllocatePacket();
+		Command* command = NetworkCore::GetInstance().AllocateCommand();
 
-		if( packet == nullptr )
+		if( command == nullptr )
 			break;
 
-		if( NetworkCore::GetInstance().DecodePacket( RecvBufferPos(), static_cast<int>(bytes_transferred), packet ) == false )
+		command->cmdSession_ = this;
+
+		int packetSize = NetworkCore::GetInstance().ParsePacket( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred), command );
+
+		if( packetSize == 0 )
 		{
-			NetworkCore::GetInstance().FreePacket( packet );
+			NetworkCore::GetInstance().DeallocateCommand( command );
 			break;
 		}
 		else
 		{
-			NetworkCore::GetInstance().PushCommand( Command( static_cast<COMMAND_ID>(packet->GetProtocol()), static_cast<void*>(packet), this ) );
-			ReadBufferConsume( packet->GetPacketSize() );
-			bytes_transferred -= packet->GetPacketSize();
+			NetworkCore::GetInstance().PushCommand( command );
+			recvBuffer_.ConsumeReadBuffer( packetSize );
+			bytes_transferred -= packetSize;
 		}
 
 	} while( bytes_transferred > 0 );
 
-	ArrangeBuffer();
+	recvBuffer_.ArrageBuffer();
+	
 	RecvPost();
 }
 
@@ -81,13 +86,13 @@ bool Session::RecvPost()
 		{
 			//printf("_handle_read_retry (%d)\n", recvBuffer_.GetCurrentBufferSize());
 
-			ProcessReceive_( recvBuffer_.GetCurrentBufferSize() );
+			_processReceive( recvBuffer_.GetCurrentBufferSize() );
 		} );
 
 		return true;
 	}
 
-	socket_.async_receive( boost::asio::buffer( recvBuffer_.GetBufferPosRecv(), recvBuffer_.GetBufferSize() ), [this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
+	socket_.async_receive( boost::asio::buffer( recvBuffer_.GetBufferPosRecv(), recvBuffer_.GetBufferRemainSize() ), [this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
 	{
 		if( bytes_transferred == 0 )
 		{
@@ -95,26 +100,11 @@ bool Session::RecvPost()
 			return;
 		}
 
-		RecvBufferConsume( static_cast<int>(bytes_transferred) );
-		ProcessReceive_( bytes_transferred );
+		recvBuffer_.ConsumeRecvBuffer( static_cast<int>(bytes_transferred) );
+		_processReceive( bytes_transferred );
 	});
 
 	return true;
-}
-
-void Session::RecvBufferConsume( int size )
-{
-	recvBuffer_.ConsumeRecvBuffer( size );
-}
-
-void Session::ReadBufferConsume( int size )
-{
-	recvBuffer_.ConsumeReadBuffer( size );
-}
-
-void Session::ArrangeBuffer()
-{
-	recvBuffer_.ArrageBuffer();
 }
 
 bool Session::IsClosed() const
@@ -143,9 +133,9 @@ void Session::Shutdown()
 	isShutdown_ = true;
 }
 
-int Session::SendPacket( Packet& packet )
+size_t Session::SendBuffer()
 {
-	boost::asio::async_write( socket_, boost::asio::buffer( packet.GetPacketBuffer(), packet.GetPacketSize() ), [this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
+	boost::asio::async_write( socket_, boost::asio::buffer( sendBuffer_.GetBuffer(), sendBuffer_.GetSize() ),	[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
 	{
 		//printf("_handle_write(%d)\n", bytes_transferred );
 	});
@@ -153,27 +143,12 @@ int Session::SendPacket( Packet& packet )
 	return 0;
 }
 
-size_t Session::SendBuffer( const void* buffer, size_t size )
+size_t Session::SendBuffer( BufferSerializer& buffer )
 {
-	boost::asio::async_write( socket_, boost::asio::buffer( buffer, size ),	[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
+	boost::asio::async_write( socket_, boost::asio::buffer( buffer.GetBuffer(), buffer.GetSize() ),	[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
 	{
 		//printf("_handle_write(%d)\n", bytes_transferred );
 	});
 
-	return 0;
-}
-
-size_t Session::SendBuffer( std::vector<char>& buffer, size_t size )
-{
-	boost::asio::async_write( socket_, boost::asio::buffer( buffer, size ), [this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
-	{
-		//printf("_handle_write(%d)\n", bytes_transferred );
-	});
-
-	return 0;
-}
-
-size_t Session::RecvBuffer( std::vector<char>& buffer, size_t size )
-{
 	return 0;
 }

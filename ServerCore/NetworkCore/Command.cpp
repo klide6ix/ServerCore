@@ -10,10 +10,8 @@ CommandQueue::~CommandQueue()
 
 	for( auto itr : commandQueue_ )
 	{
-		if( itr.cmdMessage_ != nullptr )
-		{
-			delete itr.cmdMessage_;
-		}
+		if( itr != nullptr )
+			delete itr;
 	}
 
 	commandQueue_.clear();
@@ -25,31 +23,32 @@ bool CommandQueue::_Empty()
 	return commandQueue_.empty();
 }
 
-bool CommandQueue::PopCommand( Command& cmd )
+Command* CommandQueue::PopCommand()
 {
 	if( _Empty() == true )
 	{
 		std::unique_lock<std::mutex> lock( queueLock_ );
 		queueCond_.wait( lock );
 	}
-	
+
 	std::unique_lock<std::mutex> lock { commandMutex_ };
 
 	if( commandQueue_.empty() == true )
 	{
-		return false;
+		return nullptr;
 	}
 
-	cmd = commandQueue_.front();
+	Command* cmd = commandQueue_.front();
 	commandQueue_.pop_front();
 
-	return true;
+	return cmd;
 }
 
-void CommandQueue::PushCommand( Command& cmd )
+void CommandQueue::PushCommand( Command* cmd )
 {
-	if( cmd.cmdMessage_ == nullptr )
+	if( cmd == nullptr )
 		return;
+
 	{
 		std::unique_lock<std::mutex> lock { commandMutex_ };
 		commandQueue_.push_back( cmd );

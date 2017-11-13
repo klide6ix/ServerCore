@@ -1,5 +1,4 @@
 import json
-from os import path
 import os
 import shutil
 
@@ -291,7 +290,8 @@ def CreateEncoderInlFile( jsonName ) :
 				resultFile.write( "\tunsigned short* count = serializer.GetTypePointer<unsigned short>();\n" )
 
 				resultFile.write( "\tif( count == nullptr )\n" )
-				resultFile.write( "\t\treturn false;\n\n" )
+				resultFile.write( "\t\treturn false;\n" )
+				resultFile.write( "\t(*count) = 0;\n" )
 
 				resultFile.write( "\tfor( " + ptdct['NAME'] + "->begin(); " + ptdct['NAME'] + "->hasNext(); " + ptdct['NAME'] + "->next() )\n" )
 				resultFile.write( "\t{\n" )

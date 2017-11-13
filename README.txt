@@ -1,3 +1,14 @@
+* 빌드 환경
+ - Visual studio 2017 버전 15.4.3
+ - Windows SDK 버전 : 10.0.16299.0 ( 8.1 버전에서는 빌드가 되지 않을 수도 있습니다. )
+ - Boost 1.64 
+	: 프로젝트에 User Macro로 $(BoostInclude) 에 Boost 경로를, $(BoostLib) 에 lib 경로를 설정해야 합니다.
+
+* PacketGen
+ - Python을 이용한 패킷 제너레이터
+ - 정의된 Json 형식을 읽어서 Protocol 과 Encode, Decode를 만들어 원하는 경로에 복사합니다.
+ - 테스트용 프로토콜이 정의되어 있습니다. 각종 자료형을 Echo 할 수 있는 프로토콜과 DB 연결을 테스트 할 수 있는 프로토콜이 정의되어 있습니다.
+
 * C++ 서버용 네트워크 코어.
 
  - NetworkCore : 윈도우(IOCP), 리눅스(Epoll), 테스트(Select) 모델을 이용한 네트워크 베이스 코어.
@@ -7,11 +18,5 @@
 				Json으로 쿼리 결과를 리턴하기 위해JsonCpp 적용.
 
  - TestServer : 모듈 테스트를 위한 서버 
-		프로토콜 (0) : 에코 테스트
-		프로토콜 (1) : Mysql 쿼리 테스트
-
  - TestClient : 모듈 테스트를 위한 클라이언트
 
- * ToDo
-
-- 로그 시스템
