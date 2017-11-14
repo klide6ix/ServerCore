@@ -101,6 +101,11 @@ int main()
 
 	NetworkCore::GetInstance().AddServerCommand( SC_ECHO_TEST_ACK, [] ( Command* cmd ) -> unsigned int
 	{
+		PCK_SC_ECHO_TEST_ACK pck;
+		decode_SC_ECHO_TEST_ACK( cmd->cmdBuffer_, pck );
+
+		//printf("%d, %s, %f\n", pck.data1_, pck.data2_, pck.data3_[0] );
+
 		return 0;
 	} );
 
@@ -133,7 +138,7 @@ int main()
 	data3.push_back( 3.1f );
 
 	// 에코 테스트
-	//while( true )
+	while( true )
 	{
 		BufferSerializer buffer;
 		TestIterator testItr(data3);
@@ -141,7 +146,7 @@ int main()
 		newSession->SendBuffer( buffer );
 		
 		// 1초에 1000번
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
 	}
 
 	

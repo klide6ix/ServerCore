@@ -144,7 +144,7 @@ public:
 			bufferPosRecv_ = 0;
 			bufferRemainSize_ = MAX_NET_BUFFER;
 
-			printf("ArrageBuffer Complete\n" );
+			//printf("ArrageBuffer Complete\n" );
 		}
 		else
 		{
@@ -154,7 +154,7 @@ public:
 			bufferPosRecv_ = remainSize;
 			bufferPosRead_ = 0;
 
-			printf("ArrageBuffer Remain : BufferRecv(%d)\n", bufferPosRecv_ );
+			//printf("ArrageBuffer Remain : BufferRecv(%d)\n", bufferPosRecv_ );
 		}
 	}
 
