@@ -3,7 +3,7 @@
 
 #include "ProtocolDefine.h"
 
-#define PROTOCOL_VERSION 1024
+#define PROTOCOL_VERSION 1000
 
 enum EnumTestProtocol
 {
@@ -16,9 +16,9 @@ enum EnumTestProtocol
 
 struct PCK_CS_ECHO_TEST_REQ : public PACKET_HEADER
 {
-	int data1_ = 0;
-	char  data2_[2048] = {};
-	std::vector<float> data3_;
+	int intTest_ = 0;
+	char  arrayTest_[2048] = {};
+	std::vector<float> vectorTest_;
 
 	PCK_CS_ECHO_TEST_REQ() : PACKET_HEADER()
 	{
@@ -29,9 +29,9 @@ struct PCK_CS_ECHO_TEST_REQ : public PACKET_HEADER
 
 struct PCK_SC_ECHO_TEST_ACK : public PACKET_HEADER
 {
-	int data1_ = 0;
-	char  data2_[2048] = {};
-	std::vector<float> data3_;
+	int intTest_ = 0;
+	char  arrayTest_[2048] = {};
+	std::vector<float> vectorTest_;
 
 	PCK_SC_ECHO_TEST_ACK() : PACKET_HEADER()
 	{

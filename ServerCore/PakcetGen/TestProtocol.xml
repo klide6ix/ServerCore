@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PROTOCOL_LIST>
+	<PROTOCOL NAME = "CS_ECHO_TEST_REQ">
+		<ELEMENT NAME = "intTest_" TYPE = "int" DEFAULT = "0" INDEX = "0" />
+		<ELEMENT NAME = "arrayTest_" TYPE = "char [2048]" DEFAULT = "{}" />
+		<ELEMENT NAME = "vectorTest_" TYPE = "std::vector&lt;float&gt;" />
+	</PROTOCOL>
+	
+	<PROTOCOL NAME = "SC_ECHO_TEST_ACK">
+		<ELEMENT NAME = "intTest_" TYPE = "int" DEFAULT = "0" />
+		<ELEMENT NAME = "arrayTest_" TYPE = "char [2048]" DEFAULT = "{}" />
+		<ELEMENT NAME = "vectorTest_" TYPE = "std::vector&lt;float&gt;" />
+	</PROTOCOL>
+	
+	<PROTOCOL NAME = "CS_DB_TEST_REQ">
+	</PROTOCOL>
+	
+	<PROTOCOL NAME = "SC_PING">
+		<ELEMENT NAME = "sequence_" TYPE = "unsigned int" DEFAULT = "0" />
+	</PROTOCOL>
+	
+	<PROTOCOL NAME = "CS_PONG">
+		<ELEMENT NAME = "sequence_" TYPE = "unsigned int" DEFAULT = "0" />
+	</PROTOCOL>
+</PROTOCOL_LIST>

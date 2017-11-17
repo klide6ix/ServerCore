@@ -2,8 +2,37 @@ import json
 import os
 import shutil
 
+import XmlToDict
+
 EncodeList = [ "..\TestServer", "..\TestClient" ]
 DecodeList = [ "..\TestServer", "..\TestClient" ]
+
+OrginalFileName = "TestProtocol.xml"
+
+def ReadFileJson( inputFileName ) :
+	protocolFile = open( inputFileName, 'r' )
+	fileData = protocolFile.read()
+	protocolFile.close()
+	protocols = json.loads(fileData)
+
+	for protocolName in protocols.keys() :
+		dictLine = str(protocols[protocolName])
+		dictLine = dictLine.replace('\'', '\"')
+		dictLine = dictLine.replace('None', 'null')
+		#print( dictLine )
+		protocols[protocolName] = json.loads( dictLine )
+		#print( protocolTypeDict )
+
+	#print( protocols )
+	return protocols
+
+def ReadFile( inputFileName ) :
+	extName = inputFileName[ inputFileName.find( '.' ) + 1 : ]
+
+	if extName.lower() == "json" :
+		return ReadFileJson( inputFileName )
+	elif extName.lower() == "xml" :
+		return XmlToDict.ReadFileXml( inputFileName )
 
 def CopyToEncode( FileName ) :
 	for AbsPath in EncodeList :
@@ -31,19 +60,11 @@ def CopyToDecode( FileName ) :
 			os.remove(dstFile)
 		shutil.copy2( srcFile, dstFile )
 
-def CreateProtocolFile( jsonName ) :
+def CreateProtocolFile( inputFileName ) :
 	print("CreateProtocolFile Start")
-	protocolFile = open( jsonName, 'r' )
 
-	fileData = protocolFile.read()
-	#print(fileData)
-
-	protocolFile.close()
-
-	protocolDict = json.loads(fileData)
-	#print(protocolDict)
-
-	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	protocols = ReadFile( inputFileName )
+	orgFileName = inputFileName[ : inputFileName.find( '.' ) ]
 	fileName = orgFileName + ".h"
 	
 	# 프로토콜 버전
@@ -72,18 +93,12 @@ def CreateProtocolFile( jsonName ) :
 	resultFile.write("enum Enum" + orgFileName + "\n")
 	resultFile.write("{\n")
 
-	for k in protocolDict.keys() :
-		dictLine = str(protocolDict[k])
-		dictLine = dictLine.replace('\'', '\"')
-		dictLine = dictLine.replace('None', 'null')
-		#print( dictLine )
-		protocolTypeDict = json.loads( dictLine )
+	for protocolName in protocols.keys() :
+		linedata = "\t" + protocolName + ",\n"
 
-		linedata = "\t" + k + ",\n"
-
-		for ptdct in protocolTypeDict:
+		for ptdct in protocols[protocolName]:
 			if 'INDEX' in ptdct :
-				linedata = "\t" + k + " = " + ptdct['INDEX'] + ",\n"
+				linedata = "\t" + protocolName + " = " + ptdct['INDEX'] + ",\n"
 				break
 
 		resultFile.write(linedata)
@@ -91,17 +106,12 @@ def CreateProtocolFile( jsonName ) :
 	resultFile.write("};\n\n")
 
 	# 구조체
-	for k in protocolDict.keys() :
-		dictLine = str(protocolDict[k])
-		dictLine = dictLine.replace('\'', '\"')
-		dictLine = dictLine.replace('None', 'null')
-		protocolTypeDict = json.loads( dictLine )
-
-		resultFile.write("struct PCK_" + k + " : public PACKET_HEADER\n")
+	for protocolName in protocols.keys() :
+		resultFile.write("struct PCK_" + protocolName + " : public PACKET_HEADER\n")
 		resultFile.write("{\n")
 
 		# 멤버 변수
-		for ptdct in protocolTypeDict:
+		for ptdct in protocols[protocolName]:
 			if type(ptdct['TYPE']) != str :
 				continue
 
@@ -123,10 +133,10 @@ def CreateProtocolFile( jsonName ) :
 
 		# 생성자
 		resultFile.write("\n")
-		resultFile.write("\tPCK_" + k + "() : PACKET_HEADER()\n")
+		resultFile.write("\tPCK_" + protocolName + "() : PACKET_HEADER()\n")
 		resultFile.write("\t{\n")
-		resultFile.write("\t\tsetProtocol( " + k + ");\n")
-		resultFile.write("\t\tsetSize( sizeof( PCK_" + k + " ) );\n")
+		resultFile.write("\t\tsetProtocol( " + protocolName + ");\n")
+		resultFile.write("\t\tsetSize( sizeof( PCK_" + protocolName + " ) );\n")
 		resultFile.write("\t}\n")
 		resultFile.write("};\n\n")
 
@@ -140,14 +150,7 @@ def CreateProtocolFile( jsonName ) :
 	print("CreateProtocolFile End")
 #CreateProtocolFile end
 
-def ParseFunctionLine( resultFile, protocolName, dictLine, isDefine, isEncode ) :
-	dictLine = dictLine.replace('\'', '\"')
-	dictLine = dictLine.replace('None', 'null')
-	#print(dictLine)
-	protocolTypeDict = json.loads( dictLine )
-
-	#print( protocolName, protocolTypeDict )
-
+def ParseFunctionLine( resultFile, protocolName, protocolTypeDict, isDefine, isEncode ) :
 	resultFile.write( "inline static bool ")
 	if isEncode == True :
 		resultFile.write( "encode_" )
@@ -196,21 +199,13 @@ def ParseFunctionLine( resultFile, protocolName, dictLine, isDefine, isEncode ) 
 
 # ParseFunctionLine End
 
-def CreateEncoderFile( jsonName ) :
+def CreateEncoderFile( inputFileName ) :
 
 	print("CreateEncoderFile Start")
 
-	protocolFile = open( jsonName, 'r' )
+	protocols = ReadFile( inputFileName )
 
-	fileData = protocolFile.read()
-	#print(fileData)
-
-	protocolFile.close()
-
-	protocolDict = json.loads(fileData)
-	#print(protocolDict)
-
-	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	orgFileName = inputFileName[ : inputFileName.find( '.' ) ]
 	fileName = orgFileName + "Encode.h"
 	resultFile = open( fileName, 'w' )
 
@@ -228,8 +223,8 @@ def CreateEncoderFile( jsonName ) :
 	resultFile.write("\tvirtual bool fill( BufferSerializer& serializer ) = 0;\n")
 	resultFile.write("};\n\n")
 
-	for k in protocolDict.keys() :
-		ParseFunctionLine( resultFile, k, str(protocolDict[k]), True, True )
+	for protocolName in protocols.keys() :
+		ParseFunctionLine( resultFile, protocolName, protocols[protocolName], True, True )
 
 	resultFile.write("\n#include \"" + orgFileName + "Encode.inl\"\n")
 	resultFile.close()
@@ -240,41 +235,27 @@ def CreateEncoderFile( jsonName ) :
 #CreateEncoderFile end
 
 
-def CreateEncoderInlFile( jsonName ) :
+def CreateEncoderInlFile( inputFileName ) :
 
 	print("CreateEncoderInlFile Start")
 
-	protocolFile = open( jsonName, 'r' )
+	protocols = ReadFile( inputFileName )
 
-	fileData = protocolFile.read()
-	#print(fileData)
-
-	protocolFile.close()
-
-	protocolDict = json.loads(fileData)
-	#print(protocolDict)
-
-	fileName = jsonName[ : jsonName.find( '.' ) ]
+	fileName = inputFileName[ : inputFileName.find( '.' ) ]
 	fileName = fileName + "Encode.inl"
 	resultFile = open( fileName, 'w' )
 
-	for k in protocolDict.keys() :
+	for protocolName in protocols.keys() :
 
 		# 정의
-		ParseFunctionLine( resultFile, k, str(protocolDict[k]), False, True )
-
-		dictLine = str(protocolDict[k])
-		dictLine = dictLine.replace('\'', '\"')
-		dictLine = dictLine.replace('None', 'null')
-		#print( dictLine )
-		protocolTypeDict = json.loads( dictLine )
+		ParseFunctionLine( resultFile, protocolName, protocols[protocolName], False, True )
 
 		# 내용
 		resultFile.write("{\n")
 		resultFile.write("\tPACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();\n")
-		resultFile.write("\theader->protocol_ = " + k + ";\n\n")
+		resultFile.write("\theader->protocol_ = " + protocolName + ";\n\n")
 
-		for ptdct in protocolTypeDict :
+		for ptdct in protocols[protocolName] :
 			if type(ptdct['TYPE']) != str :
 				continue
 
@@ -304,7 +285,7 @@ def CreateEncoderInlFile( jsonName ) :
 				resultFile.write( "\tserializer.put_data( " + ptdct['NAME'] + " );\n" )
 
 			# 마지막 라인일 경우 줄바꿈 추가
-			if ptdct == protocolTypeDict[-1] :
+			if ptdct == protocols[protocolName][-1] :
 				resultFile.write( "\n" )
 	
 		resultFile.write("\theader->size_ = static_cast<unsigned short>( serializer.GetSize() );\n")
@@ -319,18 +300,12 @@ def CreateEncoderInlFile( jsonName ) :
 	print("CreateEncoderInlFile End")
 #CreateEncoderInlFile end
 
-def CreateDecoderFile( jsonName ) :
+def CreateDecoderFile( inputFileName ) :
 	print("CreateDecoderFile Start")
 
-	protocolFile = open( jsonName, 'r' )
+	protocols = ReadFile( inputFileName )
 
-	fileData = protocolFile.read()
-
-	protocolFile.close()
-
-	protocolDict = json.loads(fileData)
-
-	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	orgFileName = inputFileName[ : inputFileName.find( '.' ) ]
 	fileName = orgFileName + "Decode.h"
 	resultFile = open( fileName, 'w' )
 
@@ -338,8 +313,8 @@ def CreateDecoderFile( jsonName ) :
 	resultFile.write("#include \"" + orgFileName + ".h\"\n\n")
 	resultFile.write("#include \"..\\Utility\\BufferSerializer.h\"\n\n")
 
-	for k in protocolDict.keys() :
-		resultFile.write("inline static bool decode_" + k + "( BufferSerializer& serializer, PCK_" + k + "& pck );\n")
+	for protocolName in protocols.keys() :
+		resultFile.write("inline static bool decode_" + protocolName + "( BufferSerializer& serializer, PCK_" + protocolName + "& pck );\n")
 
 	resultFile.write("\n#include \"" + orgFileName + "Decode.inl\"\n")
 	resultFile.close()
@@ -349,38 +324,26 @@ def CreateDecoderFile( jsonName ) :
 	print("CreateDecoderFile End")
 #CreateDecoderFile end
 
-def CreateDecoderInlineFile( jsonName ) :
+def CreateDecoderInlineFile( inputFileName ) :
 	print("CreateDecoderInlineHeader Start")
 
-	protocolFile = open( jsonName, 'r' )
+	protocols = ReadFile( inputFileName )
 
-	fileData = protocolFile.read()
-
-	protocolFile.close()
-
-	protocolDict = json.loads(fileData)
-
-	orgFileName = jsonName[ : jsonName.find( '.' ) ]
+	orgFileName = inputFileName[ : inputFileName.find( '.' ) ]
 	fileName = orgFileName + "Decode.inl"
 	resultFile = open( fileName, 'w' )
 
-	for k in protocolDict.keys() :
+	for protocolName in protocols.keys() :
 
-		resultFile.write("inline static bool decode_" + k + "( BufferSerializer& serializer, PCK_" + k + "& pck )\n")
-
-		dictLine = str(protocolDict[k])
-		dictLine = dictLine.replace('\'', '\"')
-		dictLine = dictLine.replace('None', 'null')
-		#print( dictLine )
-		protocolTypeDict = json.loads( dictLine )
+		resultFile.write("inline static bool decode_" + protocolName + "( BufferSerializer& serializer, PCK_" + protocolName + "& pck )\n")
 
 		# 내용
 		resultFile.write("{\n")
 		resultFile.write("\tPACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();\n")
-		resultFile.write("\tif( header->protocol_ != " + k + " )\n")
+		resultFile.write("\tif( header->protocol_ != " + protocolName + " )\n")
 		resultFile.write("\t\treturn false;\n\n")
 
-		for ptdct in protocolTypeDict :
+		for ptdct in protocols[protocolName] :
 			if type(ptdct['TYPE']) != str :
 				continue
 
@@ -392,7 +355,7 @@ def CreateDecoderInlineFile( jsonName ) :
 			# 벡터
 			elif ptdct['TYPE'].find( 'std::vector<' ) != -1 :
 
-				vectorType = ptdct['TYPE'][ ptdct['TYPE'].find( '<' ) + 1 : ptdct['TYPE'].find( ']' ) ]
+				vectorType = ptdct['TYPE'][ ptdct['TYPE'].find( '<' ) + 1 : ptdct['TYPE'].find( '>' )]
 				resultFile.write( "\tunsigned short* count = serializer.GetTypePointer<unsigned short>();\n" )
 
 				resultFile.write( "\tif( count == nullptr )\n" )
@@ -410,7 +373,7 @@ def CreateDecoderInlineFile( jsonName ) :
 				resultFile.write( "\tserializer.get_data( pck." + ptdct['NAME'] + " );\n" )
 
 			# 마지막 라인일 경우 줄바꿈 추가
-			if ptdct == protocolTypeDict[-1] :
+			if ptdct == protocols[protocolName][-1] :
 				resultFile.write( "\n" )
 	
 		resultFile.write("\n\treturn true;\n")
@@ -425,13 +388,13 @@ def CreateDecoderInlineFile( jsonName ) :
 CopyToEncode( "ProtocolDefine.h" )
 CopyToDecode( "ProtocolDefine.h" )
 
-CreateProtocolFile( "TestProtocol.json" )
+CreateProtocolFile( OrginalFileName )
 
-CreateEncoderFile( "TestProtocol.json" )
-CreateEncoderInlFile( "TestProtocol.json" )
+CreateEncoderFile( OrginalFileName )
+CreateEncoderInlFile( OrginalFileName )
 
-CreateDecoderFile( "TestProtocol.json" )
-CreateDecoderInlineFile( "TestProtocol.json" )
+CreateDecoderFile( OrginalFileName )
+CreateDecoderInlineFile( OrginalFileName )
 
 
 

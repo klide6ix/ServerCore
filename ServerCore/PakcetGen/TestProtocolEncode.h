@@ -13,8 +13,8 @@ public:
 	virtual bool fill( BufferSerializer& serializer ) = 0;
 };
 
-inline static bool encode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, const int& data1_, const char * data2_, const unsigned short& data2Size_, IEncodeIterator* data3_ );
-inline static bool encode_SC_ECHO_TEST_ACK( BufferSerializer& serializer, const int& data1_, const char * data2_, const unsigned short& data2Size_, IEncodeIterator* data3_ );
+inline static bool encode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, const int& intTest_, const char * arrayTest_, const unsigned short& arrayTestSize_, IEncodeIterator* vectorTest_ );
+inline static bool encode_SC_ECHO_TEST_ACK( BufferSerializer& serializer, const int& intTest_, const char * arrayTest_, const unsigned short& arrayTestSize_, IEncodeIterator* vectorTest_ );
 inline static bool encode_CS_DB_TEST_REQ( BufferSerializer& serializer );
 inline static bool encode_SC_PING( BufferSerializer& serializer, const unsigned int& sequence_ );
 inline static bool encode_CS_PONG( BufferSerializer& serializer, const unsigned int& sequence_ );

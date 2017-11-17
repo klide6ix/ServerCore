@@ -144,8 +144,8 @@ int main()
 		decode_CS_ECHO_TEST_REQ( cmd->cmdBuffer_, pck );
 
 		BufferSerializer broadcastBuffer;
-		TestIterator testItr(pck.data3_);
-		encode_SC_ECHO_TEST_ACK( broadcastBuffer, pck.data1_, pck.data2_, 2048, &testItr );
+		TestIterator testItr(pck.vectorTest_);
+		encode_SC_ECHO_TEST_ACK( broadcastBuffer, pck.intTest_, pck.arrayTest_, 2048, &testItr );
 
 		for( auto session : serverApp->GetClientList() )
 		{

@@ -1,16 +1,16 @@
 {
 	"CS_ECHO_TEST_REQ" :
 	[
-		{ "TYPE" : "int", "NAME" : "data1_", "DEFAULT" : "0", "INDEX" : "0" },
-		{ "TYPE" : "char [2048]", "NAME" : "data2_", "DEFAULT" : "{}" },
-		{ "TYPE" : "std::vector<float>", "NAME" : "data3_" }
+		{ "TYPE" : "int", "NAME" : "intTest_", "DEFAULT" : "0", "INDEX" : "0" },
+		{ "TYPE" : "char [2048]", "NAME" : "arrayTest_", "DEFAULT" : "{}" },
+		{ "TYPE" : "std::vector<float>", "NAME" : "vectorTest_" }
 	],
 	
 	"SC_ECHO_TEST_ACK" :
 	[
-		{ "TYPE" : "int", "NAME" : "data1_", "DEFAULT" : "0" },
-		{ "TYPE" : "char [2048]", "NAME" : "data2_", "DEFAULT" : "{}" },
-		{ "TYPE" : "std::vector<float>", "NAME" : "data3_" }
+		{ "TYPE" : "int", "NAME" : "intTest_", "DEFAULT" : "0" },
+		{ "TYPE" : "char [2048]", "NAME" : "arrayTest_", "DEFAULT" : "{}" },
+		{ "TYPE" : "std::vector<float>", "NAME" : "vectorTest_" }
 	],
 	
 	"CS_DB_TEST_REQ" :

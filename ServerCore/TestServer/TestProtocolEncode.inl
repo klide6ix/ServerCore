@@ -1,17 +1,17 @@
-inline static bool encode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, const int& data1_, const char * data2_, const unsigned short& data2Size_, IEncodeIterator* data3_ )
+inline static bool encode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, const int& intTest_, const char * arrayTest_, const unsigned short& arrayTestSize_, IEncodeIterator* vectorTest_ )
 {
 	PACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();
 	header->protocol_ = CS_ECHO_TEST_REQ;
 
-	serializer.put_data( data1_ );
-	serializer.put_data( data2_, data2Size_ );
+	serializer.put_data( intTest_ );
+	serializer.put_data( arrayTest_, arrayTestSize_ );
 	unsigned short* count = serializer.GetTypePointer<unsigned short>();
 	if( count == nullptr )
 		return false;
 	(*count) = 0;
-	for( data3_->begin(); data3_->hasNext(); data3_->next() )
+	for( vectorTest_->begin(); vectorTest_->hasNext(); vectorTest_->next() )
 	{
-		data3_->fill( serializer );
+		vectorTest_->fill( serializer );
 		++(*count);
 	}
 
@@ -19,20 +19,20 @@ inline static bool encode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, const 
 
 	return true;
 }
-inline static bool encode_SC_ECHO_TEST_ACK( BufferSerializer& serializer, const int& data1_, const char * data2_, const unsigned short& data2Size_, IEncodeIterator* data3_ )
+inline static bool encode_SC_ECHO_TEST_ACK( BufferSerializer& serializer, const int& intTest_, const char * arrayTest_, const unsigned short& arrayTestSize_, IEncodeIterator* vectorTest_ )
 {
 	PACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();
 	header->protocol_ = SC_ECHO_TEST_ACK;
 
-	serializer.put_data( data1_ );
-	serializer.put_data( data2_, data2Size_ );
+	serializer.put_data( intTest_ );
+	serializer.put_data( arrayTest_, arrayTestSize_ );
 	unsigned short* count = serializer.GetTypePointer<unsigned short>();
 	if( count == nullptr )
 		return false;
 	(*count) = 0;
-	for( data3_->begin(); data3_->hasNext(); data3_->next() )
+	for( vectorTest_->begin(); vectorTest_->hasNext(); vectorTest_->next() )
 	{
-		data3_->fill( serializer );
+		vectorTest_->fill( serializer );
 		++(*count);
 	}
 

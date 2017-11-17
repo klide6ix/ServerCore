@@ -1,12 +1,12 @@
-inline bool decode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, PCK_CS_ECHO_TEST_REQ& pck )
+inline static bool decode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, PCK_CS_ECHO_TEST_REQ& pck )
 {
 	PACKET_HEADER* header = serializer.GetTypePointer<PACKET_HEADER>();
 	if( header->protocol_ != CS_ECHO_TEST_REQ )
 		return false;
 
-	serializer.get_data( pck.data1_ );
+	serializer.get_data( pck.intTest_ );
 	unsigned short size = 0;
-	serializer.get_data( pck.data2_, size );
+	serializer.get_data( pck.arrayTest_, size );
 	unsigned short* count = serializer.GetTypePointer<unsigned short>();
 	if( count == nullptr )
 		return false;
@@ -15,7 +15,7 @@ inline bool decode_CS_ECHO_TEST_REQ( BufferSerializer& serializer, PCK_CS_ECHO_T
 	{
 		float temp;
 		serializer.get_data( temp );
-		pck.data3_.push_back( temp );
+		pck.vectorTest_.push_back( temp );
 	}
 
 
@@ -27,9 +27,9 @@ inline static bool decode_SC_ECHO_TEST_ACK( BufferSerializer& serializer, PCK_SC
 	if( header->protocol_ != SC_ECHO_TEST_ACK )
 		return false;
 
-	serializer.get_data( pck.data1_ );
+	serializer.get_data( pck.intTest_ );
 	unsigned short size = 0;
-	serializer.get_data( pck.data2_, size );
+	serializer.get_data( pck.arrayTest_, size );
 	unsigned short* count = serializer.GetTypePointer<unsigned short>();
 	if( count == nullptr )
 		return false;
@@ -38,7 +38,7 @@ inline static bool decode_SC_ECHO_TEST_ACK( BufferSerializer& serializer, PCK_SC
 	{
 		float temp;
 		serializer.get_data( temp );
-		pck.data3_.push_back( temp );
+		pck.vectorTest_.push_back( temp );
 	}
 
 
