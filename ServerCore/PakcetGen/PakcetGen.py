@@ -1,8 +1,7 @@
 import json
 import os
 import shutil
-
-import XmlToDict
+import xml.etree.ElementTree
 
 EncodeList = [ "..\TestServer", "..\TestClient" ]
 DecodeList = [ "..\TestServer", "..\TestClient" ]
@@ -26,13 +25,30 @@ def ReadFileJson( inputFileName ) :
 	#print( protocols )
 	return protocols
 
+
+def ReadFileXml( inputFileName ) :
+	tree = xml.etree.ElementTree.parse( inputFileName )
+	protocolAll = tree.getroot()
+	
+	protocolDict = {}
+
+	for protocol in protocolAll :
+		protocolName = protocol.attrib["NAME"]
+		protocolDict[protocolName] = []
+		for protocolElem in protocol :
+			protocolDict[protocolName].append( dict(protocolElem.items()) )
+
+	return protocolDict
+
+
 def ReadFile( inputFileName ) :
 	extName = inputFileName[ inputFileName.find( '.' ) + 1 : ]
 
 	if extName.lower() == "json" :
 		return ReadFileJson( inputFileName )
 	elif extName.lower() == "xml" :
-		return XmlToDict.ReadFileXml( inputFileName )
+		return ReadFileXml( inputFileName )
+
 
 def CopyToEncode( FileName ) :
 	for AbsPath in EncodeList :
@@ -46,6 +62,7 @@ def CopyToEncode( FileName ) :
 		if os.path.exists(dstFile):
 			os.remove(dstFile)
 		shutil.copy( srcFile, dstFile )
+
 
 def CopyToDecode( FileName ) :
 	for AbsPath in DecodeList :

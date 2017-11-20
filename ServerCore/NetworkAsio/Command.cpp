@@ -6,15 +6,20 @@ CommandQueue::CommandQueue()
 
 CommandQueue::~CommandQueue()
 {
-	std::unique_lock<std::mutex> lock { commandMutex_ };
-
-	for( auto itr : commandQueue_ )
 	{
-		if( itr != nullptr )
-			delete itr;
+		std::unique_lock<std::mutex> lock { commandMutex_ };
+
+		for( auto itr : commandQueue_ )
+		{
+			if( itr != nullptr )
+				delete itr;
+		}
+
+		commandQueue_.clear();
 	}
 
-	commandQueue_.clear();
+	std::unique_lock<std::mutex> lock( queueLock_ );
+	queueCond_.notify_one();
 }
 
 bool CommandQueue::_Empty()

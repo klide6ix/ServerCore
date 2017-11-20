@@ -20,9 +20,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="PakcetGen.py" />
-    <Compile Include="XmlToDict.py">
-      <SubType>Code</SubType>
-    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ProtocolDefine.h" />
+    <Content Include="TestProtocol.json" />
+    <Content Include="TestProtocol.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

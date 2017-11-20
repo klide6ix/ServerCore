@@ -124,7 +124,10 @@ int main()
 		return 0;
 
 	if( newSession->ConnectTo( "127.0.0.1", SERVER_PORT ) == false )
+	{
+		NetworkCore::GetInstance().StopServer();
 		return 0;
+	}
 
 	NetworkCore::GetInstance().AddSession( newSession, 0 );
 

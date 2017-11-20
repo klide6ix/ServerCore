@@ -32,7 +32,14 @@ bool Session::ConnectTo( const char* ip, int port )
 	boost::asio::ip::tcp::resolver::query query( ip, std::to_string( port ) );
 	boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve( query );
 
-	boost::asio::connect( socket_, endpoint_iterator );
+	try
+	{
+		boost::asio::connect( socket_, endpoint_iterator );
+	}
+	catch( const boost::system::system_error& ex )
+	{
+		return false;
+	}
 
 	return true;
 }

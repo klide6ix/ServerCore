@@ -3,7 +3,7 @@
 
 #include "ProtocolDefine.h"
 
-#define PROTOCOL_VERSION 1000
+#define PROTOCOL_VERSION 1001
 
 enum EnumTestProtocol
 {
