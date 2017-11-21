@@ -24,15 +24,17 @@ class BufferSerializer
 
 public:
 	BufferSerializer() {}
-	BufferSerializer( const char* msg, unsigned int len )
-	{
-		unsigned int length = (std::min)( len, (unsigned int)MAX_NET_BUFFER );
-		memcpy( buffer_.data(), msg, length );
-	}
-
 	~BufferSerializer() {}
 
-	void initializeBuffer( const char* msg, unsigned short msgLen )
+	void ResetBuffer()
+	{
+		std::fill( buffer_.begin(), buffer_.end(), 0 );
+		bufferPosRead_ = 0;
+		bufferPosRecv_ = 0;
+		bufferRemainSize_ = MAX_NET_BUFFER;
+	}
+
+	void InitializeBuffer( const char* msg, unsigned short msgLen )
 	{
 		memcpy( bufferPos_, msg, msgLen );
 		bufferPosRead_ = 0;

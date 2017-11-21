@@ -31,12 +31,15 @@ void NetworkThread::Process()
 				{
 					do
 					{
+						if( NetworkCore::GetInstance().IsCompletePacket( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_) ) == false )
+							break;
+
 						Command* command = NetworkCore::GetInstance().AllocateCommand();
 
 						if( command == nullptr )
 							return;
 
-						int packetSize = NetworkCore::GetInstance().ParsePacket( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_), command );
+						int packetSize = NetworkCore::GetInstance().ParseBuffer( sessionEvent.session_->RecvBufferPos(), static_cast<int>(sessionEvent.recvSize_), command );
 						if( packetSize == 0 )
 						{
 							NetworkCore::GetInstance().DeallocateCommand( command );

@@ -68,7 +68,8 @@ public:
 	void AddSession( Session* newSession, int acceptPort );
 	void CloseSession( Session* session );
 
-	int ParsePacket( const char* src, int srcSize, Command* command );
+	bool IsCompletePacket( const char* src, int srcSize );
+	int ParseBuffer( const char* src, int srcSize, Command* command );
 
 	Command* AllocateCommand();
 	void DeallocateCommand( Command* obj );

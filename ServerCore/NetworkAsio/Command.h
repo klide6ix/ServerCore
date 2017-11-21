@@ -16,8 +16,19 @@ public:
 	Session*		 cmdSession_ = nullptr;
 	BufferSerializer cmdBuffer_;
 
-	Command() {}
-	Command( COMMAND_ID id, Session* session, const char* message, size_t messageLen ) : cmdID_(id), cmdSession_(session), cmdBuffer_( message, messageLen ) {}
+	Command()
+	{
+		cmdID_ = 0;
+		cmdSession_ = nullptr;
+		cmdBuffer_.ResetBuffer();
+	}
+
+	~Command()
+	{
+		cmdID_ = 0;
+		cmdSession_ = nullptr;
+		cmdBuffer_.ResetBuffer();
+	}
 };
 
 using CommandFunction_t = unsigned int (*)( Command* command );

@@ -66,9 +66,6 @@
     <ClInclude Include="..\Utility\IThread.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utility\NetworkBuffer.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\Utility\ObjectPool.h">
       <Filter>Utility</Filter>
     </ClInclude>

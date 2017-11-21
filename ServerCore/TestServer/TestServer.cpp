@@ -71,20 +71,30 @@ public:
 	ParserTest() {}
 	virtual ~ParserTest() {}
 
+	virtual bool IsCompletePacket( const char* src, int srcSize )
+	{
+		if( srcSize < sizeof(PACKET_HEADER) )
+			return false;
+
+		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
+		if( srcSize < static_cast<int>(header->size_) )
+			return false;
+
+		return true;
+	}
+
 	virtual int ParseStream( const char* src, int srcSize, Command* command )
 	{
 		if( command == nullptr )
 			return 0;
 
-		if( sizeof(PACKET_HEADER) > srcSize )
+		if( IsCompletePacket( src, srcSize ) == false )
 			return 0;
 
 		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
-		if( static_cast<int>(header->size_) > srcSize )
-			return 0;
 
 		command->cmdID_ = header->protocol_;
-		command->cmdBuffer_.initializeBuffer( src, header->size_ );
+		command->cmdBuffer_.InitializeBuffer( src, header->size_ );
 
 		return header->size_;
 	}

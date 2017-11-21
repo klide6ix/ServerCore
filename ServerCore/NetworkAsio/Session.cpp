@@ -36,7 +36,7 @@ bool Session::ConnectTo( const char* ip, int port )
 	{
 		boost::asio::connect( socket_, endpoint_iterator );
 	}
-	catch( const boost::system::system_error& ex )
+	catch( const boost::system::system_error& /*ex*/ )
 	{
 		return false;
 	}
@@ -53,6 +53,9 @@ void Session::_processReceive( size_t bytes_transferred )
 {
 	do
 	{
+		if( NetworkCore::GetInstance().IsCompletePacket( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred) ) == false )
+			break;
+
 		Command* command = NetworkCore::GetInstance().AllocateCommand();
 
 		if( command == nullptr )
@@ -60,7 +63,7 @@ void Session::_processReceive( size_t bytes_transferred )
 
 		command->cmdSession_ = this;
 
-		int packetSize = NetworkCore::GetInstance().ParsePacket( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred), command );
+		int packetSize = NetworkCore::GetInstance().ParseBuffer( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred), command );
 
 		if( packetSize == 0 )
 		{

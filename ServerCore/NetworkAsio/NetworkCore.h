@@ -51,7 +51,8 @@ public:
 	void CloseSession( Session* session );
 	void ShutdownSession( Session* session );
 
-	int ParsePacket( const char* src, int srcSize, Command* command );
+	bool IsCompletePacket( const char* src, int srcSize );
+	int ParseBuffer( const char* src, int srcSize, Command* command );
 
 	Command* AllocateCommand();
 	void DeallocateCommand( Command* obj );

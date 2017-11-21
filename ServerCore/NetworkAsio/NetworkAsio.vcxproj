@@ -30,7 +30,6 @@
     <ClInclude Include="..\Utility\BufferSerializer.h" />
     <ClInclude Include="..\Utility\IThread.h" />
     <ClInclude Include="..\Utility\LogWriter.h" />
-    <ClInclude Include="..\Utility\NetworkBuffer.h" />
     <ClInclude Include="..\Utility\ObjectPool.h" />
     <ClInclude Include="..\Utility\ObjectQueue.h" />
     <ClInclude Include="..\Utility\Packet.h" />

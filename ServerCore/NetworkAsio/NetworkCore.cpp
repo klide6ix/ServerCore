@@ -206,7 +206,12 @@ ServerApp* NetworkCore::GetServerApp()
 	return networkImpl_->serverApp_.get();
 }
 
-int NetworkCore::ParsePacket( const char* src, int srcSize, Command* command )
+bool NetworkCore::IsCompletePacket( const char* src, int srcSize )
+{
+	return networkImpl_->parser_->IsCompletePacket( src, srcSize );
+}
+
+int NetworkCore::ParseBuffer( const char* src, int srcSize, Command* command )
 {
 	return networkImpl_->parser_->ParseStream( src, srcSize, command );
 }
