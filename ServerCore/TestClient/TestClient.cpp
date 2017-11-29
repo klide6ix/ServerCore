@@ -72,6 +72,11 @@ public:
 
 		return header->size_;
 	}
+
+	virtual int ParseDatagram( const char* src, int srcSize, Command* command )
+	{
+		return srcSize;
+	}
 };
 
 

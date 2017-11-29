@@ -43,7 +43,6 @@ public:
 	std::shared_ptr<NetworkModel>		networkModel_ = nullptr;
 
 	std::shared_ptr<CommandQueue>		workQueue_ = nullptr;
-	std::shared_ptr<CommandQueue>		dbQueue_ = nullptr;
 	std::shared_ptr<EventTimer>			timerQueue_ = nullptr;
 
 	ObjectPool<Command>					commandPool_;
@@ -97,7 +96,6 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 		networkImpl_->serverApp_.reset( application );
 
 		networkImpl_->workQueue_ = std::make_shared<CommandQueue>();
-		networkImpl_->dbQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->timerQueue_ = std::make_shared<EventTimer>();
 
 		networkImpl_->sessionManager_ = std::make_shared<SessionManager>();

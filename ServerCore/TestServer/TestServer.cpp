@@ -8,6 +8,10 @@
 
 #include "../DatabaseConnector/DatabaseCore.h"
 
+#ifdef _WIN32
+#pragma comment(lib, "DatabaseConnector.lib")
+#endif
+
 #define USE_BOOST_ASIO
 #ifdef USE_BOOST_ASIO
 
@@ -31,9 +35,12 @@
 
 #endif
 
+#include "../NetworkUDP/NetworkUdp.h"
+
 #ifdef _WIN32
-#pragma comment(lib, "DatabaseConnector.lib")
+#pragma comment(lib, "NetworkUdp.lib")
 #endif
+
 
 #define SERVER_PORT 1500
 
@@ -97,6 +104,11 @@ public:
 		command->cmdBuffer_.InitializeBuffer( src, header->size_ );
 
 		return header->size_;
+	}
+
+	virtual int ParseDatagram( const char* src, int srcSize, Command* command )
+	{
+		return srcSize;
 	}
 };
 
@@ -224,6 +236,11 @@ int main()
 	DatabaseCore::GetInstance()->InitRedisClient();
 	DatabaseCore::GetInstance()->StartRedisClient();
 	*/
+
+	// Set UDP
+	NetworkUdp::GetInstance().InitializeEngine();
+	NetworkUdp::GetInstance().StartUdp();
+
 
 	// Join Server
 	NetworkCore::GetInstance().StartServer();

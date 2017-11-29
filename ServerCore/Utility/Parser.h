@@ -11,6 +11,7 @@ public:
 
 	virtual bool IsCompletePacket( const char* src, int srcSize ) = 0;
 	virtual int ParseStream( const char* src, int srcSize, Command* command ) = 0;
+	virtual int ParseDatagram( const char* src, int srcSize, Command* command ) = 0;
 };
 
 class ParserDefault : public IParser
@@ -25,6 +26,11 @@ public:
 	}
 
 	virtual int ParseStream( const char* src, int srcSize, Command* command )
+	{
+		return srcSize;
+	}
+
+	virtual int ParseDatagram( const char* src, int srcSize, Command* command )
 	{
 		return srcSize;
 	}

@@ -12,7 +12,6 @@
 
 class IParser;
 class Session;
-class Socket;
 
 class ServerApp;
 class NetworkImplement;
@@ -22,6 +21,9 @@ class NetworkCore
 {
 	static std::unique_ptr<NetworkCore>	 instance_;
 	static std::once_flag				 onceFlag_;
+
+	int networkThreadCount_ = std::thread::hardware_concurrency();
+	int workThreadCount_ = std::thread::hardware_concurrency();
 
 	NetworkImplement* networkImpl_ = nullptr;
 
@@ -36,6 +38,9 @@ public:
 	ServerApp* GetServerApp();
 
 	void MakeDaemon( bool debug, char* ServiceName );
+
+	void SetNetworkThreadCount( int count ) { networkThreadCount_ = count; }
+	void SetWorkThreadCount( int count ) { workThreadCount_ = count; }
 
 	bool InitializeEngine( ServerApp* application );
 	bool InitializeParser( IParser* parser );

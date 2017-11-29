@@ -34,7 +34,6 @@ public:
 	std::shared_ptr<SessionManager>					sessionManager_ = nullptr;
 
 	std::shared_ptr<CommandQueue>					workQueue_ = nullptr;
-	std::shared_ptr<CommandQueue>					dbQueue_ = nullptr;
 	std::shared_ptr<EventTimer>						timerQueue_ = nullptr;
 
 	ObjectPool<Command>								commandPool_;
@@ -86,16 +85,19 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 		networkImpl_->serverApp_.reset( application );
 
 		networkImpl_->workQueue_ = std::make_shared<CommandQueue>();
-		networkImpl_->dbQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->timerQueue_ = std::make_shared<EventTimer>();
 
 		networkImpl_->sessionManager_ = std::make_shared<SessionManager>();
 		networkImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(networkImpl_->ioService_);
 
-		for( unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i )
+		for( int i = 0; i < networkThreadCount_; ++i )
+		{
+			networkImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
+		}
+
+		for( int i = 0; i < workThreadCount_; ++i )
 		{
 			networkImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
-			networkImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
 		}
 
 		networkImpl_->timerThread_ = std::make_shared<TimerThread>();
@@ -240,7 +242,7 @@ void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t comma
 {
 	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
 	{
-		networkImpl_->serverCommand_.insert( std::pair< TIMER_ID, CommandFunction_t >( protocol, command ) );
+		networkImpl_->serverCommand_.insert( std::pair< COMMAND_ID, CommandFunction_t >( protocol, command ) );
 	}
 	else
 	{
