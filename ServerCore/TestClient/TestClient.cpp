@@ -30,8 +30,10 @@
 
 #endif
 
+#include "../NetworkUDP/NetworkUdp.h"
+
 #ifdef _WIN32
-#pragma comment(lib, "DatabaseConnector.lib")
+#pragma comment(lib, "NetworkUdp.lib")
 #endif
 
 #include "TestProtocolEncode.h"
@@ -71,11 +73,6 @@ public:
 		command->cmdBuffer_.InitializeBuffer( src, header->size_ );
 
 		return header->size_;
-	}
-
-	virtual int ParseDatagram( const char* src, int srcSize, Command* command )
-	{
-		return srcSize;
 	}
 };
 
@@ -156,6 +153,7 @@ int main()
 	data3.push_back( 3.1f );
 
 	// 에코 테스트
+	/*
 	while( true )
 	{
 		BufferSerializer buffer;
@@ -166,6 +164,7 @@ int main()
 		// 1초에 1000번
 		std::this_thread::sleep_for(std::chrono::microseconds(1));
 	}
+	*/
 
 	
 	// DB 연결 테스트
@@ -177,6 +176,9 @@ int main()
 
 		Sleep(1);
 	}*/
+
+	// UDP 테스트
+	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
 
 	NetworkCore::GetInstance().StopServer();
 

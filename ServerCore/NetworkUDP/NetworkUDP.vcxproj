@@ -23,7 +23,7 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="NetworkThread.h" />
     <ClInclude Include="NetworkUdp.h" />
-    <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="UdpSessionManager.h" />
     <ClInclude Include="UdpSession.h" />
     <ClInclude Include="WorkThread.h" />
   </ItemGroup>
@@ -31,7 +31,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="NetworkThread.cpp" />
     <ClCompile Include="NetworkUdp.cpp" />
-    <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="UdpSessionManager.cpp" />
     <ClCompile Include="UdpSession.cpp" />
     <ClCompile Include="WorkThread.cpp" />
   </ItemGroup>

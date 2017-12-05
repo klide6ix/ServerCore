@@ -7,14 +7,14 @@
 #include "UdpSession.h"
 
 
-class SessionManager
+class UdpSessionManager
 {
 	ObjectPool<UdpSession>	sessionPool_;
 	std::mutex	mutex_;
 
 public:
-	SessionManager();
-	~SessionManager();
+	UdpSessionManager();
+	~UdpSessionManager();
 
 	UdpSession* CreateUdpSession();
 	void RestoreUdpSession( UdpSession* session );

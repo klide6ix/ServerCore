@@ -28,7 +28,7 @@ public:
 	virtual ~NetworkUdp();
 	static NetworkUdp& GetInstance();
 
-	bool InitializeEngine( ServerApp* application );
+	bool InitializeEngine();
 
 	void StartUdp();
 	void StopUdp();
@@ -36,18 +36,18 @@ public:
 	UdpSession* CreateUdpSession();
 	void CloseUdpSession( UdpSession* session );
 
-	bool IsCompletePacket( const char* src, int srcSize );
-	int ParseBuffer( const char* src, int srcSize, Command* command );
+	bool IsCompleteDatagram( const char* src, int srcSize );
+	int ParseDatagram( const char* src, int srcSize, UdpCommand* command );
 
-	Command* AllocateCommand();
-	void DeallocateCommand( Command* obj );
+	UdpCommand* AllocateUdpCommand();
+	void DeallocateUdpCommand( UdpCommand* obj );
 
-	// Command
-	void PushCommand( Command* cmd );
-	Command* PopCommand();
+	// UdpCommand
+	void PushUdpCommand( UdpCommand* cmd );
+	UdpCommand* PopUdpCommand();
 
-	void AddServerCommand( COMMAND_ID protocol, CommandFunction_t command );
-	CommandFunction_t GetServerCommand( COMMAND_ID protocol );
+	void AddServerCommand( COMMAND_ID protocol, UdpCommandFunction_t command );
+	UdpCommandFunction_t GetServerCommand( COMMAND_ID protocol );
 
 	boost::asio::io_service& GetIoService();
 };

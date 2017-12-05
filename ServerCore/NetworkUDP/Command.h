@@ -9,21 +9,21 @@
 using COMMAND_ID = unsigned int;
 
 class UdpSession;
-class Command
+class UdpCommand
 {
 public:
 	COMMAND_ID		 cmdID_ = 0;
 	UdpSession*		 cmdSession_ = nullptr;
 	BufferSerializer cmdBuffer_;
 
-	Command()
+	UdpCommand()
 	{
 		cmdID_ = 0;
 		cmdSession_ = nullptr;
 		cmdBuffer_.ResetBuffer();
 	}
 
-	~Command()
+	~UdpCommand()
 	{
 		cmdID_ = 0;
 		cmdSession_ = nullptr;
@@ -31,22 +31,22 @@ public:
 	}
 };
 
-using CommandFunction_t = unsigned int (*)( Command* command );
+using UdpCommandFunction_t = unsigned int (*)( UdpCommand* command );
 
-class CommandQueue
+class UdpCommandQueue
 {
 	std::mutex					queueLock_;
 	std::condition_variable		queueCond_;
 
-	std::list<Command*>			commandQueue_;
+	std::list<UdpCommand*>		commandQueue_;
 	std::mutex					commandMutex_;
 
 	bool _Empty();
 
 public:
-	CommandQueue();
-	virtual ~CommandQueue();
+	UdpCommandQueue();
+	virtual ~UdpCommandQueue();
 
-	Command* PopCommand();
-	void PushCommand( Command* obj );
+	UdpCommand* PopCommand();
+	void PushCommand( UdpCommand* obj );
 };

@@ -1,18 +1,18 @@
 #include <memory>
-#include "SessionManager.h"
+#include "UdpSessionManager.h"
 
 
-SessionManager::SessionManager()
+UdpSessionManager::UdpSessionManager()
 {
 	sessionPool_.Init();
 }
 
 
-SessionManager::~SessionManager()
+UdpSessionManager::~UdpSessionManager()
 {
 }
 
-UdpSession* SessionManager::CreateUdpSession()
+UdpSession* UdpSessionManager::CreateUdpSession()
 {
 	std::unique_lock<std::mutex> lock { mutex_ };
 
@@ -24,7 +24,7 @@ UdpSession* SessionManager::CreateUdpSession()
 	return newSession;
 }
 
-void SessionManager::RestoreUdpSession( UdpSession* session )
+void UdpSessionManager::RestoreUdpSession( UdpSession* session )
 {
 	if( session == nullptr )
 		return;

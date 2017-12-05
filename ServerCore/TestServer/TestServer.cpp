@@ -36,6 +36,7 @@
 #endif
 
 #include "../NetworkUDP/NetworkUdp.h"
+#include "../NetworkUDP/UdpSession.h"
 
 #ifdef _WIN32
 #pragma comment(lib, "NetworkUdp.lib")
@@ -43,6 +44,7 @@
 
 
 #define SERVER_PORT 1500
+#define UDP_SERVER_PORT 2500
 
 #include "TestProtocolEncode.h"
 #include "TestProtocolDecode.h"
@@ -104,11 +106,6 @@ public:
 		command->cmdBuffer_.InitializeBuffer( src, header->size_ );
 
 		return header->size_;
-	}
-
-	virtual int ParseDatagram( const char* src, int srcSize, Command* command )
-	{
-		return srcSize;
 	}
 };
 
@@ -239,6 +236,12 @@ int main()
 
 	// Set UDP
 	NetworkUdp::GetInstance().InitializeEngine();
+	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
+	if( udpSession == nullptr )
+		return 0;
+
+	udpSession->InitializeUdpSession( UDP_SERVER_PORT );
+
 	NetworkUdp::GetInstance().StartUdp();
 
 

@@ -24,9 +24,6 @@
     <ClInclude Include="UdpSession.h">
       <Filter>Session</Filter>
     </ClInclude>
-    <ClInclude Include="SessionManager.h">
-      <Filter>Session</Filter>
-    </ClInclude>
     <ClInclude Include="Command.h">
       <Filter>Command</Filter>
     </ClInclude>
@@ -39,15 +36,15 @@
     <ClInclude Include="..\Utility\Parser.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="UdpSessionManager.h">
+      <Filter>Session</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetworkUdp.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="UdpSession.cpp">
-      <Filter>Session</Filter>
-    </ClCompile>
-    <ClCompile Include="SessionManager.cpp">
       <Filter>Session</Filter>
     </ClCompile>
     <ClCompile Include="Command.cpp">
@@ -58,6 +55,9 @@
     </ClCompile>
     <ClCompile Include="NetworkThread.cpp">
       <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="UdpSessionManager.cpp">
+      <Filter>Session</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

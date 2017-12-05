@@ -1,10 +1,10 @@
 #include "Command.h"
 
-CommandQueue::CommandQueue()
+UdpCommandQueue::UdpCommandQueue()
 {
 }
 
-CommandQueue::~CommandQueue()
+UdpCommandQueue::~UdpCommandQueue()
 {
 	{
 		std::unique_lock<std::mutex> lock { commandMutex_ };
@@ -22,13 +22,13 @@ CommandQueue::~CommandQueue()
 	queueCond_.notify_one();
 }
 
-bool CommandQueue::_Empty()
+bool UdpCommandQueue::_Empty()
 {
 	std::unique_lock<std::mutex> lock { commandMutex_ };
 	return commandQueue_.empty();
 }
 
-Command* CommandQueue::PopCommand()
+UdpCommand* UdpCommandQueue::PopCommand()
 {
 	if( _Empty() == true )
 	{
@@ -43,13 +43,13 @@ Command* CommandQueue::PopCommand()
 		return nullptr;
 	}
 
-	Command* cmd = commandQueue_.front();
+	UdpCommand* cmd = commandQueue_.front();
 	commandQueue_.pop_front();
 
 	return cmd;
 }
 
-void CommandQueue::PushCommand( Command* cmd )
+void UdpCommandQueue::PushCommand( UdpCommand* cmd )
 {
 	if( cmd == nullptr )
 		return;
