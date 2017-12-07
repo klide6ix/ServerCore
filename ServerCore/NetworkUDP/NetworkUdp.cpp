@@ -8,7 +8,7 @@
 #include "../Utility/Parser.h"
 #include "../Utility/BoostObjectPoolWrapper.h"
 
-class NetworkImplement
+class UdpImplement
 {
 public:
 
@@ -17,7 +17,6 @@ public:
 	boost::asio::io_service							ioService_;
 	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
 
-	std::shared_ptr<IParser>						parser_ = nullptr;
 	std::shared_ptr<ServerApp>						serverApp_ = nullptr;
 	std::shared_ptr<UdpSessionManager>				sessionManager_ = nullptr;
 
@@ -35,8 +34,8 @@ NetworkUdp::NetworkUdp()
 
 NetworkUdp::~NetworkUdp()
 {
-	if( networkImpl_ != nullptr )
-		delete networkImpl_;
+	if( udpImpl_ != nullptr )
+		delete udpImpl_;
 }
 
 std::unique_ptr<NetworkUdp> NetworkUdp::instance_;
@@ -57,19 +56,17 @@ bool NetworkUdp::InitializeEngine()
 {
 	try
 	{
-		networkImpl_ = new NetworkImplement();
+		udpImpl_ = new UdpImplement();
 
-		//networkImpl_->serverApp_.reset( application );
+		udpImpl_->workQueue_ = std::make_shared<UdpCommandQueue>();
 
-		networkImpl_->workQueue_ = std::make_shared<UdpCommandQueue>();
-
-		networkImpl_->sessionManager_ = std::make_shared<UdpSessionManager>();
-		networkImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(networkImpl_->ioService_);
+		udpImpl_->sessionManager_ = std::make_shared<UdpSessionManager>();
+		udpImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(udpImpl_->ioService_);
 
 		for( unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i )
 		{
-			networkImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
-			networkImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
+			udpImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
+			udpImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
 		}
 	}
 	catch( std::bad_alloc& )
@@ -77,16 +74,16 @@ bool NetworkUdp::InitializeEngine()
 		return false;
 	}
 
-	networkImpl_->commandPool_.SetMaxPoolSize( 32 * 10 );
-	if( networkImpl_->commandPool_.Init() == false )
+	udpImpl_->commandPool_.SetMaxPoolSize( 32 * 10 );
+	if( udpImpl_->commandPool_.Init() == false )
 		return false;
 
-	for( auto thread : networkImpl_->networkThreads_ )
+	for( auto thread : udpImpl_->networkThreads_ )
 	{
 		thread->StartThread();
 	}
 
-	for( auto thread : networkImpl_->workThreads_ )
+	for( auto thread : udpImpl_->workThreads_ )
 	{
 		thread->StartThread();
 	}
@@ -96,7 +93,7 @@ bool NetworkUdp::InitializeEngine()
 
 UdpSession* NetworkUdp::CreateUdpSession()
 {
-	return networkImpl_->sessionManager_->CreateUdpSession();
+	return udpImpl_->sessionManager_->CreateUdpSession();
 }
 
 void NetworkUdp::CloseUdpSession( UdpSession* session )
@@ -104,67 +101,72 @@ void NetworkUdp::CloseUdpSession( UdpSession* session )
 	if( session == nullptr )
 		return;
 
-	//networkImpl_->serverApp_->OnClose( session );
-	networkImpl_->sessionManager_->RestoreUdpSession( session );
+	//udpImpl_->serverApp_->OnClose( session );
+	udpImpl_->sessionManager_->RestoreUdpSession( session );
 
 	session->Close();
 }
 
 bool NetworkUdp::IsCompleteDatagram( const char* src, int srcSize )
 {
-	return networkImpl_->parser_->IsCompletePacket( src, srcSize );
+	return true;
 }
 
 int NetworkUdp::ParseDatagram( const char* src, int srcSize, UdpCommand* command )
 {
-	return networkImpl_->parser_->ParseDatagram( src, srcSize, command );
+	if( command == nullptr )
+		return 0;
+
+	command->cmdBuffer_.InitializeBuffer( src, srcSize );
+
+	return srcSize;
 }
 
 UdpCommand* NetworkUdp::AllocateUdpCommand()
 {
-	return networkImpl_->commandPool_.Alloc();
+	return udpImpl_->commandPool_.Alloc();
 }
 
 void NetworkUdp::DeallocateUdpCommand( UdpCommand* obj )
 {
-	networkImpl_->commandPool_.Free( obj );
+	udpImpl_->commandPool_.Free( obj );
 }
 
 void NetworkUdp::PushUdpCommand( UdpCommand* cmd )
 {
-	networkImpl_->workQueue_->PushCommand( cmd );
+	udpImpl_->workQueue_->PushCommand( cmd );
 }
 
 UdpCommand* NetworkUdp::PopUdpCommand()
 {
-	return networkImpl_->workQueue_->PopCommand();
+	return udpImpl_->workQueue_->PopCommand();
 }
 
 void NetworkUdp::AddServerCommand( COMMAND_ID protocol, UdpCommandFunction_t command )
 {
-	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
+	if( udpImpl_->serverCommand_.find( protocol ) == udpImpl_->serverCommand_.end() )
 	{
-		networkImpl_->serverCommand_.insert( std::pair< COMMAND_ID, UdpCommandFunction_t >( protocol, command ) );
+		udpImpl_->serverCommand_.insert( std::pair< COMMAND_ID, UdpCommandFunction_t >( protocol, command ) );
 	}
 	else
 	{
-		networkImpl_->serverCommand_[protocol] = command;
+		udpImpl_->serverCommand_[protocol] = command;
 	}
 }
 
 UdpCommandFunction_t NetworkUdp::GetServerCommand( COMMAND_ID protocol )
 {
-	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
+	if( udpImpl_->serverCommand_.find( protocol ) == udpImpl_->serverCommand_.end() )
 	{
 		return nullptr;
 	}
 
-	return networkImpl_->serverCommand_[protocol];
+	return udpImpl_->serverCommand_[protocol];
 }
 
 void NetworkUdp::StartUdp()
 {
-	for( auto thread : networkImpl_->networkThreads_ )
+	for( auto thread : udpImpl_->networkThreads_ )
 	{
 		if( thread != nullptr )
 			thread->JoinThread();
@@ -173,15 +175,15 @@ void NetworkUdp::StartUdp()
 
 void NetworkUdp::StopUdp()
 {
-	networkImpl_->ioWork_->get_io_service().stop();
+	udpImpl_->ioWork_->get_io_service().stop();
 
-	for( auto thread : networkImpl_->networkThreads_ )
+	for( auto thread : udpImpl_->networkThreads_ )
 	{
 		if( thread != nullptr )
 			thread->StopThread();
 	}
 
-	for( auto thread : networkImpl_->workThreads_ )
+	for( auto thread : udpImpl_->workThreads_ )
 	{
 		if( thread != nullptr )
 			thread->StopThread();
@@ -189,7 +191,7 @@ void NetworkUdp::StopUdp()
 
 }
 
-boost::asio::io_service& NetworkUdp::GetIoService()
+boost::asio::io_service& NetworkUdp::GetUdpIoService()
 {
-	return networkImpl_->ioService_;
+	return udpImpl_->ioService_;
 }

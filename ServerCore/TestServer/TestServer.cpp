@@ -236,6 +236,12 @@ int main()
 
 	// Set UDP
 	NetworkUdp::GetInstance().InitializeEngine();
+	NetworkUdp::GetInstance().AddServerCommand( 0, [] ( UdpCommand* cmd ) -> unsigned int
+	{
+		return cmd->cmdSession_->SendDatagram( cmd->cmdSession_->GetSessionPoint(), cmd->cmdBuffer_ );
+
+	} );
+
 	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
 	if( udpSession == nullptr )
 		return 0;

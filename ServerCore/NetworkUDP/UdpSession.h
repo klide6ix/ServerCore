@@ -7,7 +7,9 @@
 class UdpSession
 {
 	boost::asio::ip::udp::socket udpSocket_;
-	boost::asio::ip::udp::endpoint remote_endpoint_;
+	
+	boost::asio::ip::udp::endpoint thisEndpoint_;
+	boost::asio::ip::udp::endpoint remoteEndpoint_;
 
 	void*						sessionObj_ = nullptr;
 	BufferSerializer			recvBuffer_;
@@ -18,8 +20,10 @@ public:
 	UdpSession();
 	~UdpSession();
 
+	boost::asio::ip::udp::endpoint& GetSessionPoint() { return thisEndpoint_; }
+
 	bool InitializeUdpSession( int port );
-	int  SendTo();
+	int  SendDatagram( boost::asio::ip::udp::endpoint& sendPoint, BufferSerializer& data );
 
 	void Close();
 };

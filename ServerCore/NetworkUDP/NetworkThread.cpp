@@ -3,5 +3,5 @@
 
 void NetworkThread::Process()
 {
-	NetworkUdp::GetInstance().GetIoService().run();
+	NetworkUdp::GetInstance().GetUdpIoService().run();
 }

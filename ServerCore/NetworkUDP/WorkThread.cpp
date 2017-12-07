@@ -5,7 +5,7 @@ void WorkThread::Process()
 {
 	while( IsRunning() == true )
 	{
-		UdpCommand* command = NetworkUdp::GetInstance().PopCommand();
+		UdpCommand* command = NetworkUdp::GetInstance().PopUdpCommand();
 		
 		if( command == nullptr )
 			continue;
@@ -17,6 +17,6 @@ void WorkThread::Process()
 			workFunc( command );
 		}
 
-		NetworkUdp::GetInstance().DeallocateCommand( command );
+		NetworkUdp::GetInstance().DeallocateUdpCommand( command );
 	}
 }

@@ -10,7 +10,7 @@ class IParser;
 class UdpSession;
 
 class ServerApp;
-class NetworkImplement;
+class UdpImplement;
 class AsioModel;
 
 class NetworkUdp
@@ -18,7 +18,7 @@ class NetworkUdp
 	static std::unique_ptr<NetworkUdp>	 instance_;
 	static std::once_flag				 onceFlag_;
 
-	NetworkImplement* networkImpl_ = nullptr;
+	UdpImplement* udpImpl_ = nullptr;
 
 	NetworkUdp();
 	NetworkUdp(const NetworkUdp& src) = delete;
@@ -49,6 +49,6 @@ public:
 	void AddServerCommand( COMMAND_ID protocol, UdpCommandFunction_t command );
 	UdpCommandFunction_t GetServerCommand( COMMAND_ID protocol );
 
-	boost::asio::io_service& GetIoService();
+	boost::asio::io_service& GetUdpIoService();
 };
 

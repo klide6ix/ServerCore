@@ -30,16 +30,20 @@
 
 #endif
 
+#include "TestProtocolEncode.h"
+#include "TestProtocolDecode.h"
+
 #include "../NetworkUDP/NetworkUdp.h"
+#include "../NetworkUDP/UdpSession.h"
 
 #ifdef _WIN32
 #pragma comment(lib, "NetworkUdp.lib")
 #endif
 
-#include "TestProtocolEncode.h"
-#include "TestProtocolDecode.h"
 
 #define SERVER_PORT 1500
+#define UDP_SERVER_PORT 2500
+#define UDP_CLIENT_PORT 2501
 
 class ParserTest : public IParser
 {
@@ -130,6 +134,7 @@ int main()
 		return 0;
 	} );
 
+	/*
 	Session* newSession = NetworkCore::GetInstance().CreateSession();
 
 	if( newSession == nullptr )
@@ -153,7 +158,6 @@ int main()
 	data3.push_back( 3.1f );
 
 	// 에코 테스트
-	/*
 	while( true )
 	{
 		BufferSerializer buffer;
@@ -178,8 +182,34 @@ int main()
 	}*/
 
 	// UDP 테스트
-	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
+	NetworkUdp::GetInstance().InitializeEngine();
+	NetworkUdp::GetInstance().AddServerCommand( 0, [] ( UdpCommand* cmd ) -> unsigned int
+	{
+		return cmd->cmdSession_->SendDatagram( cmd->cmdSession_->GetSessionPoint(), cmd->cmdBuffer_ );
 
+	} );
+
+	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
+	if( udpSession == nullptr )
+		return 0;
+
+	udpSession->InitializeUdpSession( UDP_CLIENT_PORT );
+	boost::asio::ip::udp::endpoint serverPoint;
+	serverPoint = boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), UDP_SERVER_PORT );
+	int udpIdx = 0;
+	while( true )
+	{
+		BufferSerializer buffer;
+		char msg[128] = {};
+
+		sprintf( msg, "UdpEchoTest[%d]", udpIdx++ );
+		buffer.put_data( msg, static_cast<unsigned short>(strlen(msg)) );
+		
+		udpSession->SendDatagram( serverPoint, buffer );
+
+		// 1초에 1000번
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
+	}
 	NetworkCore::GetInstance().StopServer();
 
 	return 0;

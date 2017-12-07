@@ -2,33 +2,43 @@
 #include "NetworkUdp.h"
 
 UdpSession::UdpSession() :
-	udpSocket_(NetworkUdp::GetInstance().GetIoService())
+	udpSocket_(NetworkUdp::GetInstance().GetUdpIoService())
 {
 }
 
 
 UdpSession::~UdpSession()
 {
+	if( udpSocket_.is_open() == true )
+	{
+		udpSocket_.close();
+	}
 }
 
 void UdpSession::StartReceive()
 {
-	udpSocket_.async_receive_from( boost::asio::buffer( recvBuffer_.GetBuffer(), recvBuffer_.GetBufferRemainSize() ), remote_endpoint_,
+	udpSocket_.async_receive_from( boost::asio::buffer( recvBuffer_.GetBuffer(), recvBuffer_.GetBufferRemainSize() ), remoteEndpoint_,
 		[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
 	{
 		if( !error || error == boost::asio::error::message_size )
 		{
-			if( NetworkUdp::GetInstance().IsCompletePacket( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred) ) == false )
-				break;
+			if( NetworkUdp::GetInstance().IsCompleteDatagram( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred) ) == false )
+			{
+				StartReceive();
+				return;
+			}
 
 			UdpCommand* command = NetworkUdp::GetInstance().AllocateUdpCommand();
 
 			if( command == nullptr )
-				break;
+			{
+				StartReceive();
+				return;
+			}
 
 			command->cmdSession_ = this;
 
-			int packetSize = NetworkUdp::GetInstance().ParseBuffer( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred), command );
+			int packetSize = NetworkUdp::GetInstance().ParseDatagram( recvBuffer_.GetBufferPosRead(), static_cast<int>(bytes_transferred), command );
 
 			if( packetSize == 0 )
 			{
@@ -46,14 +56,22 @@ void UdpSession::StartReceive()
 
 bool UdpSession::InitializeUdpSession( int port )
 {
-	boost::asio::ip::udp::endpoint endpoint( boost::asio::ip::udp::v4(), port );
-	udpSocket_.bind( endpoint );
+	thisEndpoint_ =  boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), port );
+	udpSocket_.bind( thisEndpoint_ );
 
 	StartReceive();
+
+	return true;
 }
 
-int UdpSession::SendTo()
+int UdpSession::SendDatagram( boost::asio::ip::udp::endpoint& sendPoint, BufferSerializer& data )
 {
+	udpSocket_.async_send_to(boost::asio::buffer(data.GetBuffer(), data.GetSize()), sendPoint,
+		[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
+	{
+		//printf("SendDatagram(%d)\n", bytes_transferred );
+	});
+
 	return 0;
 }
 
