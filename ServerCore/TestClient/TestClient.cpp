@@ -185,8 +185,8 @@ int main()
 	NetworkUdp::GetInstance().InitializeEngine();
 	NetworkUdp::GetInstance().AddServerCommand( 0, [] ( UdpCommand* cmd ) -> unsigned int
 	{
-		return cmd->cmdSession_->SendDatagram( cmd->cmdSession_->GetSessionPoint(), cmd->cmdBuffer_ );
-
+		printf( "Echo Data (%s)\n", cmd->cmdBuffer_.GetBuffer() );
+		return 0;
 	} );
 
 	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
@@ -195,7 +195,7 @@ int main()
 
 	udpSession->InitializeUdpSession( UDP_CLIENT_PORT );
 	boost::asio::ip::udp::endpoint serverPoint;
-	serverPoint = boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), UDP_SERVER_PORT );
+	serverPoint = boost::asio::ip::udp::endpoint( boost::asio::ip::address_v4::from_string("127.0.0.1"), UDP_SERVER_PORT );
 	int udpIdx = 0;
 	while( true )
 	{
@@ -204,6 +204,8 @@ int main()
 
 		sprintf( msg, "UdpEchoTest[%d]", udpIdx++ );
 		buffer.put_data( msg, static_cast<unsigned short>(strlen(msg)) );
+
+		//printf( "%s\n", msg );
 		
 		udpSession->SendDatagram( serverPoint, buffer );
 

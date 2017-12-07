@@ -1,7 +1,7 @@
-#include "WorkThread.h"
+#include "UdpWorkThread.h"
 #include "NetworkUdp.h"
 
-void WorkThread::Process()
+void UdpWorkThread::Process()
 {
 	while( IsRunning() == true )
 	{

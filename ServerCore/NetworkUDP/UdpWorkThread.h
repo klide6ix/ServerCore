@@ -2,11 +2,11 @@
 
 #include "../Utility/IThread.h"
 
-class NetworkThread : public IThread
+class UdpWorkThread : public IThread
 {
 public:
-	NetworkThread() {}
-	virtual ~NetworkThread() {}
+	UdpWorkThread() {}
+	virtual ~UdpWorkThread() {}
 
 	virtual void Process();
 };

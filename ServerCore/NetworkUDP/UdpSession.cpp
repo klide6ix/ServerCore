@@ -56,9 +56,18 @@ void UdpSession::StartReceive()
 
 bool UdpSession::InitializeUdpSession( int port )
 {
-	thisEndpoint_ =  boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), port );
-	udpSocket_.bind( thisEndpoint_ );
-
+	boost::system::error_code errorCode;
+	thisEndpoint_ = boost::asio::ip::udp::endpoint( boost::asio::ip::address_v4::any(), port );
+	udpSocket_.open(boost::asio::ip::udp::v4(), errorCode);
+	
+	if( errorCode )
+		return false;
+	
+	udpSocket_.bind(thisEndpoint_, errorCode);
+	
+	if( errorCode )
+		return false;
+	
 	StartReceive();
 
 	return true;
@@ -69,7 +78,7 @@ int UdpSession::SendDatagram( boost::asio::ip::udp::endpoint& sendPoint, BufferS
 	udpSocket_.async_send_to(boost::asio::buffer(data.GetBuffer(), data.GetSize()), sendPoint,
 		[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
 	{
-		//printf("SendDatagram(%d)\n", bytes_transferred );
+		//printf("SendDatagram completed(%d)\n", bytes_transferred );
 	});
 
 	return 0;

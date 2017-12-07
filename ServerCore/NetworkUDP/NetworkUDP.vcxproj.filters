@@ -27,17 +27,17 @@
     <ClInclude Include="Command.h">
       <Filter>Command</Filter>
     </ClInclude>
-    <ClInclude Include="WorkThread.h">
-      <Filter>Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkThread.h">
-      <Filter>Thread</Filter>
-    </ClInclude>
     <ClInclude Include="..\Utility\Parser.h">
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="UdpSessionManager.h">
       <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="UdpNetworkThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="UdpWorkThread.h">
+      <Filter>Thread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -50,14 +50,14 @@
     <ClCompile Include="Command.cpp">
       <Filter>Command</Filter>
     </ClCompile>
-    <ClCompile Include="WorkThread.cpp">
-      <Filter>Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="NetworkThread.cpp">
-      <Filter>Thread</Filter>
-    </ClCompile>
     <ClCompile Include="UdpSessionManager.cpp">
       <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="UdpNetworkThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="UdpWorkThread.cpp">
+      <Filter>Thread</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

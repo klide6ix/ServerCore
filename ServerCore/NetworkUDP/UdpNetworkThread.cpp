@@ -1,7 +1,7 @@
-#include "NetworkThread.h"
+#include "UdpNetworkThread.h"
 #include "NetworkUdp.h"
 
-void NetworkThread::Process()
+void UdpNetworkThread::Process()
 {
 	NetworkUdp::GetInstance().GetUdpIoService().run();
 }

@@ -21,19 +21,19 @@
   <ItemGroup>
     <ClInclude Include="..\Utility\Parser.h" />
     <ClInclude Include="Command.h" />
-    <ClInclude Include="NetworkThread.h" />
+    <ClInclude Include="UdpNetworkThread.h" />
     <ClInclude Include="NetworkUdp.h" />
     <ClInclude Include="UdpSessionManager.h" />
     <ClInclude Include="UdpSession.h" />
-    <ClInclude Include="WorkThread.h" />
+    <ClInclude Include="UdpWorkThread.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Command.cpp" />
-    <ClCompile Include="NetworkThread.cpp" />
+    <ClCompile Include="UdpNetworkThread.cpp" />
     <ClCompile Include="NetworkUdp.cpp" />
     <ClCompile Include="UdpSessionManager.cpp" />
     <ClCompile Include="UdpSession.cpp" />
-    <ClCompile Include="WorkThread.cpp" />
+    <ClCompile Include="UdpWorkThread.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

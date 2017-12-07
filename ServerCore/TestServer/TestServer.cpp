@@ -238,6 +238,7 @@ int main()
 	NetworkUdp::GetInstance().InitializeEngine();
 	NetworkUdp::GetInstance().AddServerCommand( 0, [] ( UdpCommand* cmd ) -> unsigned int
 	{
+		//printf("UDP Command 0\n");
 		return cmd->cmdSession_->SendDatagram( cmd->cmdSession_->GetSessionPoint(), cmd->cmdBuffer_ );
 
 	} );
@@ -247,9 +248,6 @@ int main()
 		return 0;
 
 	udpSession->InitializeUdpSession( UDP_SERVER_PORT );
-
-	NetworkUdp::GetInstance().StartUdp();
-
 
 	// Join Server
 	NetworkCore::GetInstance().StartServer();

@@ -1,7 +1,7 @@
 #include "NetworkUdp.h"
 #include "UdpSessionManager.h"
-#include "NetworkThread.h"
-#include "WorkThread.h"
+#include "UdpNetworkThread.h"
+#include "UdpWorkThread.h"
 
 #include "../Utility/LogWriter.h"
 #include "../Utility/ObjectPool.h"
@@ -14,7 +14,7 @@ public:
 
 	std::map< COMMAND_ID, UdpCommandFunction_t >	serverCommand_;
 
-	boost::asio::io_service							ioService_;
+	boost::asio::io_service							udpIoService_;
 	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
 
 	std::shared_ptr<ServerApp>						serverApp_ = nullptr;
@@ -24,8 +24,8 @@ public:
 
 	ObjectPool<UdpCommand>							commandPool_;
 
-	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
-	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
+	std::vector<std::shared_ptr<UdpNetworkThread>>		networkThreads_;
+	std::vector<std::shared_ptr<UdpWorkThread>>		workThreads_;
 };
 
 NetworkUdp::NetworkUdp()
@@ -61,12 +61,12 @@ bool NetworkUdp::InitializeEngine()
 		udpImpl_->workQueue_ = std::make_shared<UdpCommandQueue>();
 
 		udpImpl_->sessionManager_ = std::make_shared<UdpSessionManager>();
-		udpImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(udpImpl_->ioService_);
+		udpImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(udpImpl_->udpIoService_);
 
 		for( unsigned int i = 0; i < std::thread::hardware_concurrency(); ++i )
 		{
-			udpImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
-			udpImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
+			udpImpl_->workThreads_.push_back( std::make_shared<UdpWorkThread>() );
+			udpImpl_->networkThreads_.push_back( std::make_shared<UdpNetworkThread>() );
 		}
 	}
 	catch( std::bad_alloc& )
@@ -193,5 +193,5 @@ void NetworkUdp::StopUdp()
 
 boost::asio::io_service& NetworkUdp::GetUdpIoService()
 {
-	return udpImpl_->ioService_;
+	return udpImpl_->udpIoService_;
 }
