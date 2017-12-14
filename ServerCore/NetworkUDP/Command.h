@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/asio.hpp>
+
 #include <list>
 #include <mutex>
 #include <condition_variable>
@@ -12,20 +14,18 @@ class UdpSession;
 class UdpCommand
 {
 public:
-	COMMAND_ID		 cmdID_ = 0;
-	UdpSession*		 cmdSession_ = nullptr;
-	BufferSerializer cmdBuffer_;
+	UdpSession*						cmdSession_ = nullptr;
+	boost::asio::ip::udp::endpoint	cmdEndPoint_;
+	BufferSerializer				cmdBuffer_;
 
 	UdpCommand()
 	{
-		cmdID_ = 0;
 		cmdSession_ = nullptr;
 		cmdBuffer_.ResetBuffer();
 	}
 
 	~UdpCommand()
 	{
-		cmdID_ = 0;
 		cmdSession_ = nullptr;
 		cmdBuffer_.ResetBuffer();
 	}

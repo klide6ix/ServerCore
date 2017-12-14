@@ -10,7 +10,7 @@ void UdpWorkThread::Process()
 		if( command == nullptr )
 			continue;
 
-		UdpCommandFunction_t workFunc = NetworkUdp::GetInstance().GetServerCommand( command->cmdID_ );
+		UdpCommandFunction_t workFunc = NetworkUdp::GetInstance().GetUdpCommand();
 
 		if( workFunc != nullptr )
 		{

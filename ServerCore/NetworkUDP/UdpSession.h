@@ -4,6 +4,7 @@
 
 #include "../Utility/BufferSerializer.h"
 
+class UdpCommand;
 class UdpSession
 {
 	boost::asio::ip::udp::socket udpSocket_;
@@ -14,7 +15,11 @@ class UdpSession
 	void*						sessionObj_ = nullptr;
 	BufferSerializer			recvBuffer_;
 
-	void StartReceive();
+	unsigned int _GetCRC( const char* src, int srcSize );
+	bool _IsCompleteDatagram( unsigned int crc, const char* src, int srcSize );
+	int	 _ParseDatagram( const char* src, unsigned short srcSize, UdpCommand* command );
+
+	void _StartReceive();
 
 public:
 	UdpSession();

@@ -12,7 +12,7 @@ class UdpImplement
 {
 public:
 
-	std::map< COMMAND_ID, UdpCommandFunction_t >	serverCommand_;
+	UdpCommandFunction_t							udpCommandFunction_ = nullptr;
 
 	boost::asio::io_service							udpIoService_;
 	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
@@ -24,7 +24,7 @@ public:
 
 	ObjectPool<UdpCommand>							commandPool_;
 
-	std::vector<std::shared_ptr<UdpNetworkThread>>		networkThreads_;
+	std::vector<std::shared_ptr<UdpNetworkThread>>	networkThreads_;
 	std::vector<std::shared_ptr<UdpWorkThread>>		workThreads_;
 };
 
@@ -107,21 +107,6 @@ void NetworkUdp::CloseUdpSession( UdpSession* session )
 	session->Close();
 }
 
-bool NetworkUdp::IsCompleteDatagram( const char* src, int srcSize )
-{
-	return true;
-}
-
-int NetworkUdp::ParseDatagram( const char* src, int srcSize, UdpCommand* command )
-{
-	if( command == nullptr )
-		return 0;
-
-	command->cmdBuffer_.InitializeBuffer( src, srcSize );
-
-	return srcSize;
-}
-
 UdpCommand* NetworkUdp::AllocateUdpCommand()
 {
 	return udpImpl_->commandPool_.Alloc();
@@ -142,26 +127,14 @@ UdpCommand* NetworkUdp::PopUdpCommand()
 	return udpImpl_->workQueue_->PopCommand();
 }
 
-void NetworkUdp::AddServerCommand( COMMAND_ID protocol, UdpCommandFunction_t command )
+void NetworkUdp::SetUdpCommand( UdpCommandFunction_t command )
 {
-	if( udpImpl_->serverCommand_.find( protocol ) == udpImpl_->serverCommand_.end() )
-	{
-		udpImpl_->serverCommand_.insert( std::pair< COMMAND_ID, UdpCommandFunction_t >( protocol, command ) );
-	}
-	else
-	{
-		udpImpl_->serverCommand_[protocol] = command;
-	}
+	udpImpl_->udpCommandFunction_ = command;
 }
 
-UdpCommandFunction_t NetworkUdp::GetServerCommand( COMMAND_ID protocol )
+UdpCommandFunction_t NetworkUdp::GetUdpCommand()
 {
-	if( udpImpl_->serverCommand_.find( protocol ) == udpImpl_->serverCommand_.end() )
-	{
-		return nullptr;
-	}
-
-	return udpImpl_->serverCommand_[protocol];
+	return udpImpl_->udpCommandFunction_;
 }
 
 void NetworkUdp::StartUdp()

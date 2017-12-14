@@ -183,9 +183,12 @@ int main()
 
 	// UDP Å×½ºÆ®
 	NetworkUdp::GetInstance().InitializeEngine();
-	NetworkUdp::GetInstance().AddServerCommand( 0, [] ( UdpCommand* cmd ) -> unsigned int
+	NetworkUdp::GetInstance().SetUdpCommand( [] ( UdpCommand* cmd ) -> unsigned int
 	{
-		printf( "Echo Data (%s)\n", cmd->cmdBuffer_.GetBuffer() );
+		char msg[128] = {};
+		unsigned short size = 0;
+		cmd->cmdBuffer_.get_data( msg, size );
+		printf( "Echo : %s\n", msg );
 		return 0;
 	} );
 

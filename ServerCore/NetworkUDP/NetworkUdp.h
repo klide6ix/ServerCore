@@ -36,9 +36,6 @@ public:
 	UdpSession* CreateUdpSession();
 	void CloseUdpSession( UdpSession* session );
 
-	bool IsCompleteDatagram( const char* src, int srcSize );
-	int ParseDatagram( const char* src, int srcSize, UdpCommand* command );
-
 	UdpCommand* AllocateUdpCommand();
 	void DeallocateUdpCommand( UdpCommand* obj );
 
@@ -46,8 +43,8 @@ public:
 	void PushUdpCommand( UdpCommand* cmd );
 	UdpCommand* PopUdpCommand();
 
-	void AddServerCommand( COMMAND_ID protocol, UdpCommandFunction_t command );
-	UdpCommandFunction_t GetServerCommand( COMMAND_ID protocol );
+	void SetUdpCommand( UdpCommandFunction_t command );
+	UdpCommandFunction_t GetUdpCommand();
 
 	boost::asio::io_service& GetUdpIoService();
 };

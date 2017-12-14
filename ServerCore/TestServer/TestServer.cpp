@@ -236,10 +236,13 @@ int main()
 
 	// Set UDP
 	NetworkUdp::GetInstance().InitializeEngine();
-	NetworkUdp::GetInstance().AddServerCommand( 0, [] ( UdpCommand* cmd ) -> unsigned int
+	NetworkUdp::GetInstance().SetUdpCommand( [] ( UdpCommand* cmd ) -> unsigned int
 	{
-		//printf("UDP Command 0\n");
-		return cmd->cmdSession_->SendDatagram( cmd->cmdSession_->GetSessionPoint(), cmd->cmdBuffer_ );
+		char msg[128] = {};
+		unsigned short size = 0;
+		cmd->cmdBuffer_.get_data( msg, size );
+		printf( "Msg : %s\n", msg );
+		return cmd->cmdSession_->SendDatagram( cmd->cmdEndPoint_, cmd->cmdBuffer_ );
 
 	} );
 
