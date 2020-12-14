@@ -17,7 +17,7 @@ public:
 	TIMER_TYPE	 timerTime_;
 	unsigned int timerDuration_ = 0;
 	TIMER_ID	 timerID_ = 0;
-	TIMER_USE	 timerUse_ = 1;
+	TIMER_USE	 timerCount_ = 1;
 	unsigned int timerKey_ = 0;
 	void*		 timerMsg_ = nullptr;
 	bool		 timerDeleted_ = false;

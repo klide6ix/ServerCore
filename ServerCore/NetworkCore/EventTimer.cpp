@@ -36,7 +36,7 @@ unsigned int EventTimer::PushTimer( TIMER_ID id, int workCount, int workTime, vo
 	obj->timerDuration_ = workTime;
 	obj->timerID_ = id;
 	obj->timerKey_ = timerIdx_++;
-	obj->timerUse_ = workCount;
+	obj->timerCount_ = workCount;
 	obj->timerMsg_ = object;
 
 	timerQueue_.push( obj );
@@ -58,16 +58,16 @@ bool EventTimer::PopTimer( TimerObject*& obj )
 	obj = timerQueue_.top();
 	timerQueue_.pop();
 
-	if( obj->timerUse_ == TIMER_INFINITE )
+	if( obj->timerCount_ == TIMER_INFINITE )
 	{
 		obj->timerTime_ = std::chrono::system_clock::now() + std::chrono::seconds( obj->timerDuration_ );
 		timerQueue_.push( obj );
 	}
-	else if( obj->timerUse_ > 0 )
+	else if( obj->timerCount_ > 0 )
 	{
-		--obj->timerUse_;
+		--obj->timerCount_;
 
-		if( obj->timerUse_ > 0 )
+		if( obj->timerCount_ > 0 )
 		{
 			obj->timerTime_ = std::chrono::system_clock::now() + std::chrono::seconds( obj->timerDuration_ );
 			timerQueue_.push( obj );

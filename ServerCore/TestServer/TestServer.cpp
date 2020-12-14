@@ -59,16 +59,16 @@ public:
 	ServerTest() {}
 	~ServerTest() {}
 
-	virtual void OnAccept( int port, void* session ) override
+	virtual void OnAccept(int port, void* session) override
 	{
-		printf( "Accept Session [%d]\n", port );
-		clientList_.push_back( static_cast<Session*>(session) );
+		printf("Accept Session [%d]\n", port);
+		clientList_.push_back(static_cast<Session*>(session));
 	}
 
-	virtual void OnClose( void* session ) override
+	virtual void OnClose(void* session) override
 	{
-		printf( "Close Session\n" );
-		clientList_.remove( static_cast<Session*>(session) );
+		printf("Close Session\n");
+		clientList_.remove(static_cast<Session*>(session));
 	}
 
 	std::list<Session*>& GetClientList() { return clientList_; }
@@ -80,30 +80,30 @@ public:
 	ParserTest() {}
 	virtual ~ParserTest() {}
 
-	virtual bool IsCompletePacket( const char* src, int srcSize )
+	virtual bool IsCompletePacket(const char* src, int srcSize)
 	{
-		if( srcSize < sizeof(PACKET_HEADER) )
+		if (srcSize < sizeof(PACKET_HEADER))
 			return false;
 
 		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
-		if( srcSize < static_cast<int>(header->size_) )
+		if (srcSize < static_cast<int>(header->size_))
 			return false;
 
 		return true;
 	}
 
-	virtual int ParseStream( const char* src, int srcSize, Command* command )
+	virtual int ParseStream(const char* src, int srcSize, Command* command)
 	{
-		if( command == nullptr )
+		if (command == nullptr)
 			return 0;
 
-		if( IsCompletePacket( src, srcSize ) == false )
+		if (IsCompletePacket(src, srcSize) == false)
 			return 0;
 
 		const PACKET_HEADER* header = reinterpret_cast<const PACKET_HEADER*>(src);
 
 		command->cmdID_ = header->protocol_;
-		command->cmdBuffer_.InitializeBuffer( src, header->size_ );
+		command->cmdBuffer_.InitializeBuffer(src, header->size_);
 
 		return header->size_;
 	}
@@ -116,7 +116,7 @@ class TestIterator : public IEncodeIterator
 
 public:
 
-	TestIterator(std::vector<float>& data) : list( data ), itr( list.begin() ) {}
+	TestIterator(std::vector<float>& data) : list(data), itr(list.begin()) {}
 
 	virtual void begin()
 	{
@@ -130,99 +130,99 @@ public:
 	{
 		return itr != list.end();
 	}
-	virtual bool fill( BufferSerializer& serializer )
+	virtual bool fill(BufferSerializer& serializer)
 	{
-		return serializer.put_data( (*itr) );
+		return serializer.put_data((*itr));
 	}
 };
 
 int main()
 {
-	Logger::GetInstance().Initialize( "Log", "Old_Log", "TestServer" );
-	Logger::GetInstance().Log( "Start Server" );
-	Logger::GetInstance().Log( "Server Port [%d]", SERVER_PORT );
+	Logger::GetInstance().Initialize("Log", "Old_Log", "TestServer");
+	Logger::GetInstance().Log("Start Server");
+	Logger::GetInstance().Log("Server Port [%d]", SERVER_PORT);
 
-	NetworkCore::GetInstance().InitializeEngine( new ServerTest );
-	NetworkCore::GetInstance().InitializeParser( new ParserTest );
+	NetworkCore::GetInstance().InitializeEngine(new ServerTest);
+	NetworkCore::GetInstance().InitializeParser(new ParserTest);
 
 	NetworkCore::GetInstance().InitializeAccepter();
-	NetworkCore::GetInstance().AddAcceptPort( SERVER_PORT );
+	NetworkCore::GetInstance().AddAcceptPort(SERVER_PORT);
 
-	NetworkCore::GetInstance().AddServerCommand( CS_ECHO_TEST_REQ, [] ( Command* cmd ) -> unsigned int
-	{
-		static int _packetCount = 0;
-		static std::chrono::system_clock::time_point before;		
-
-		auto start = std::chrono::system_clock::now();
-		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
-
-		if( serverApp == nullptr )
-			return __LINE__;
-
-		PCK_CS_ECHO_TEST_REQ pck;
-		decode_CS_ECHO_TEST_REQ( cmd->cmdBuffer_, pck );
-
-		BufferSerializer broadcastBuffer;
-		TestIterator testItr(pck.vectorTest_);
-		encode_SC_ECHO_TEST_ACK( broadcastBuffer, pck.intTest_, pck.arrayTest_, 2048, &testItr );
-
-		for( auto session : serverApp->GetClientList() )
+	NetworkCore::GetInstance().AddServerCommand(CS_ECHO_TEST_REQ, [](Command* cmd) -> unsigned int
 		{
-			session->SendBuffer( broadcastBuffer );
-		}
-		
-		++_packetCount;
+			static int _packetCount = 0;
+			static std::chrono::system_clock::time_point before;
 
-		std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-		if( std::chrono::duration_cast<std::chrono::seconds>(now - before).count() > 1 )
+			auto start = std::chrono::system_clock::now();
+			ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
+
+			if (serverApp == nullptr)
+				return __LINE__;
+
+			PCK_CS_ECHO_TEST_REQ pck;
+			decode_CS_ECHO_TEST_REQ(cmd->cmdBuffer_, pck);
+
+			BufferSerializer broadcastBuffer;
+			TestIterator testItr(pck.vectorTest_);
+			encode_SC_ECHO_TEST_ACK(broadcastBuffer, pck.intTest_, pck.arrayTest_, 2048, &testItr);
+
+			for (auto session : serverApp->GetClientList())
+			{
+				session->SendBuffer(broadcastBuffer);
+			}
+
+			++_packetCount;
+
+			std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+			if (std::chrono::duration_cast<std::chrono::seconds>(now - before).count() > 1)
+			{
+				printf("RecvPacket (%d)\n", _packetCount);
+				before = now;
+				_packetCount = 0;
+			}
+
+			return 0;
+		});
+
+	NetworkCore::GetInstance().AddServerCommand(CS_DB_TEST_REQ, [](Command* cmd) -> unsigned int
 		{
-			printf("RecvPacket (%d)\n", _packetCount );
-			before = now;
-			_packetCount = 0;
-		}
+			char* query = "select * from city where Name like '%SE%';";
+			DatabaseCore::GetInstance()->PushQuery(query, strlen(query));
+			return 0;
+		});
 
-		return 0;
-	} );
-
-	NetworkCore::GetInstance().AddServerCommand( CS_DB_TEST_REQ, [] ( Command* cmd ) -> unsigned int
-	{
-		char* query = "select * from city where Name like '%SE%';";
-		DatabaseCore::GetInstance()->PushQuery( query, strlen(query)  );
-		return 0;
-	} );
-
-	NetworkCore::GetInstance().AddServerCommand( CS_PONG, [] ( Command* cmd ) -> unsigned int
-	{
-		printf("Pong Recv\n");
-		return 0;
-	} );
+	NetworkCore::GetInstance().AddServerCommand(CS_PONG, [](Command* cmd) -> unsigned int
+		{
+			printf("Pong Recv\n");
+			return 0;
+		});
 
 	// Timer
-	NetworkCore::GetInstance().AddTimerCommand( 0, [] ( TimerObject& obj ) -> unsigned int
-	{
-		ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
-
-		if( serverApp == nullptr )
-			return __LINE__;
-
-		if( serverApp->GetClientList().empty() == true )
-			return 0;
-
-		//printf("Send Ping\n");
-
-		BufferSerializer broadcastBuffer;
-		unsigned int seq = 9999;
-		encode_SC_PING( broadcastBuffer, seq );
-
-		for( auto session : serverApp->GetClientList() )
+	NetworkCore::GetInstance().AddTimerCommand(TIMER_PING, [](TimerObject& obj) -> unsigned int
 		{
-			session->SendBuffer( broadcastBuffer );
-		}
+			ServerTest* serverApp = dynamic_cast<ServerTest*>(NetworkCore::GetInstance().GetServerApp());
 
-		return 0;
-	} );
+			if (serverApp == nullptr)
+				return __LINE__;
 
-	NetworkCore::GetInstance().PushTimerMessage( 0, TIMER_INFINITE, 10, nullptr );
+			if (serverApp->GetClientList().empty() == true)
+				return 0;
+
+			//printf("Send Ping\n");
+
+			BufferSerializer broadcastBuffer;
+			unsigned int seq = 9999;
+			encode_SC_PING(broadcastBuffer, seq);
+
+			for (auto session : serverApp->GetClientList())
+			{
+				session->SendBuffer(broadcastBuffer);
+			}
+
+			return 0;
+		});
+
+	NetworkCore::GetInstance().PushTimerMessage(TIMER_PING, TIMER_INFINITE, 10, nullptr);
 
 	// Set Database
 	/*
@@ -236,21 +236,21 @@ int main()
 
 	// Set UDP
 	NetworkUdp::GetInstance().InitializeEngine();
-	NetworkUdp::GetInstance().SetUdpCommand( [] ( UdpCommand* cmd ) -> unsigned int
-	{
-		char msg[128] = {};
-		unsigned short size = 0;
-		cmd->cmdBuffer_.get_data( msg, size );
-		printf( "Msg : %s\n", msg );
-		return cmd->cmdSession_->SendDatagram( cmd->cmdEndPoint_, cmd->cmdBuffer_ );
+	NetworkUdp::GetInstance().SetUdpCommand([](UdpCommand* cmd) -> unsigned int
+		{
+			char msg[128] = {};
+			unsigned short size = 0;
+			cmd->cmdBuffer_.get_data(msg, size);
+			printf("Msg : %s\n", msg);
+			return cmd->cmdSession_->SendDatagram(cmd->cmdEndPoint_, cmd->cmdBuffer_);
 
-	} );
+		});
 
 	UdpSession* udpSession = NetworkUdp::GetInstance().CreateUdpSession();
-	if( udpSession == nullptr )
+	if (udpSession == nullptr)
 		return 0;
 
-	udpSession->InitializeUdpSession( UDP_SERVER_PORT );
+	udpSession->InitializeUdpSession(UDP_SERVER_PORT);
 
 	// Join Server
 	NetworkCore::GetInstance().StartServer();
