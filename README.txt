@@ -1,8 +1,8 @@
 * 빌드 환경
- - Visual studio 2017 버전 15.4.3
- - Windows SDK 버전 : 10.0.16299.0 ( 8.1 버전에서는 빌드가 되지 않을 수도 있습니다. )
- - Boost 1.64 
-	: 프로젝트에 User Macro로 $(BoostInclude) 에 Boost 경로를, $(BoostLib) 에 lib 경로를 설정해야 합니다.
+ - Visual studio 2019 버전 16.8.3
+ - Windows SDK 버전 : 10.0.18362.0
+ - Boost 1.74 
+	: set_boost_path.bat 를 이용해 자신의 boost 경로를 환경변수로 지정해야 한다.
 
 * PacketGen
  - Python을 이용한 패킷 제너레이터
