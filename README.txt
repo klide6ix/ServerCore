@@ -1,22 +1,21 @@
-* ºôµå È¯°æ
- - Visual studio 2019 ¹öÀü 16.8.3
- - Windows SDK ¹öÀü : 10.0.18362.0
+* ë¹Œë“œ í™˜ê²½
+ - Visual studio 2019 ë²„ì „ 16.8.3
+ - Windows SDK ë²„ì „ : 10.0.18362.0
  - Boost 1.74 
-	: set_boost_path.bat ¸¦ ÀÌ¿ëÇØ ÀÚ½ÅÀÇ boost °æ·Î¸¦ È¯°æº¯¼ö·Î ÁöÁ¤ÇØ¾ß ÇÑ´Ù.
+	: set_boost_path.bat ë¥¼ ì´ìš©í•´ ìžì‹ ì˜ boost ê²½ë¡œë¥¼ í™˜ê²½ë³€ìˆ˜ë¡œ ì§€ì •í•´ì•¼ í•œë‹¤.
 
 * PacketGen
- - PythonÀ» ÀÌ¿ëÇÑ ÆÐÅ¶ Á¦³Ê·¹ÀÌÅÍ
- - Á¤ÀÇµÈ Json Çü½ÄÀ» ÀÐ¾î¼­ Protocol °ú Encode, Decode¸¦ ¸¸µé¾î ¿øÇÏ´Â °æ·Î¿¡ º¹»çÇÕ´Ï´Ù.
- - Å×½ºÆ®¿ë ÇÁ·ÎÅäÄÝÀÌ Á¤ÀÇµÇ¾î ÀÖ½À´Ï´Ù. °¢Á¾ ÀÚ·áÇüÀ» Echo ÇÒ ¼ö ÀÖ´Â ÇÁ·ÎÅäÄÝ°ú DB ¿¬°áÀ» Å×½ºÆ® ÇÒ ¼ö ÀÖ´Â ÇÁ·ÎÅäÄÝÀÌ Á¤ÀÇµÇ¾î ÀÖ½À´Ï´Ù.
+ - Pythonì„ ì´ìš©í•œ íŒ¨í‚· ì œë„ˆë ˆì´í„°
+ - ì •ì˜ëœ Json í˜•ì‹ì„ ì½ì–´ì„œ Protocol ê³¼ Encode, Decodeë¥¼ ë§Œë“¤ì–´ ì›í•˜ëŠ” ê²½ë¡œì— ë³µì‚¬í•©ë‹ˆë‹¤.
+ - í…ŒìŠ¤íŠ¸ìš© í”„ë¡œí† ì½œì´ ì •ì˜ë˜ì–´ ìžˆìŠµë‹ˆë‹¤. ê°ì¢… ìžë£Œí˜•ì„ Echo í•  ìˆ˜ ìžˆëŠ” í”„ë¡œí† ì½œê³¼ DB ì—°ê²°ì„ í…ŒìŠ¤íŠ¸ í•  ìˆ˜ ìžˆëŠ” í”„ë¡œí† ì½œì´ ì •ì˜ë˜ì–´ ìžˆìŠµë‹ˆë‹¤.
 
-* C++ ¼­¹ö¿ë ³×Æ®¿öÅ© ÄÚ¾î.
+* C++ ì„œë²„ìš© ë„¤íŠ¸ì›Œí¬ ì½”ì–´.
 
- - NetworkCore : À©µµ¿ì(IOCP), ¸®´ª½º(Epoll), Å×½ºÆ®(Select) ¸ðµ¨À» ÀÌ¿ëÇÑ ³×Æ®¿öÅ© º£ÀÌ½º ÄÚ¾î.
- - NetworkAsio : BoostÀÇ Asio¸¦ ÀÌ¿ëÇÑ ³×Æ®¿öÅ© º£ÀÌ½º ÄÚ¾î. NetworkCore¿Í ÀÎÅÍÆäÀÌ½º¸¦ ¸ÂÃã.
- - DatabaseConnector :  ODBC¸¦ ÀÌ¿ëÇÑ µ¥ÀÌÅÍ º£ÀÌ½º ¿¬°á ÇÁ·ÎÁ§Æ®. MysqlÀ» ÀÌ¿ëÇØ¼­ Å×½ºÆ®.
-				Redis Á¢¼ÓÀ» À§ÇÑ CppRedis (https://github.com/Cylix/cpp_redis) Å¬¶óÀÌ¾ðÆ®¸¦ Àû¿ë. ³×Æ®¿öÅ© Åë½ÅÀº tacopie¸¦ Á¦°ÅÇÏ°í Boost Asio¸¦ ÀÌ¿ë.
-				JsonÀ¸·Î Äõ¸® °á°ú¸¦ ¸®ÅÏÇÏ±â À§ÇØJsonCpp Àû¿ë.
+ - NetworkCore : ìœˆë„ìš°(IOCP), ë¦¬ëˆ…ìŠ¤(Epoll), í…ŒìŠ¤íŠ¸(Select) ëª¨ë¸ì„ ì´ìš©í•œ ë„¤íŠ¸ì›Œí¬ ë² ì´ìŠ¤ ì½”ì–´.
+ - NetworkAsio : Boostì˜ Asioë¥¼ ì´ìš©í•œ ë„¤íŠ¸ì›Œí¬ ë² ì´ìŠ¤ ì½”ì–´. NetworkCoreì™€ ì¸í„°íŽ˜ì´ìŠ¤ë¥¼ ë§žì¶¤.
+ - DatabaseConnector :  ODBCë¥¼ ì´ìš©í•œ ë°ì´í„° ë² ì´ìŠ¤ ì—°ê²° í”„ë¡œì íŠ¸. Mysqlì„ ì´ìš©í•´ì„œ í…ŒìŠ¤íŠ¸.
+				Redis ì ‘ì†ì„ ìœ„í•œ CppRedis (https://github.com/Cylix/cpp_redis) í´ë¼ì´ì–¸íŠ¸ë¥¼ ì ìš©. ë„¤íŠ¸ì›Œí¬ í†µì‹ ì€ tacopieë¥¼ ì œê±°í•˜ê³  Boost Asioë¥¼ ì´ìš©.
+				Jsonìœ¼ë¡œ ì¿¼ë¦¬ ê²°ê³¼ë¥¼ ë¦¬í„´í•˜ê¸° ìœ„í•´JsonCpp ì ìš©.
 
- - TestServer : ¸ðµâ Å×½ºÆ®¸¦ À§ÇÑ ¼­¹ö 
- - TestClient : ¸ðµâ Å×½ºÆ®¸¦ À§ÇÑ Å¬¶óÀÌ¾ðÆ®
-
+ - TestServer : ëª¨ë“ˆ í…ŒìŠ¤íŠ¸ë¥¼ ìœ„í•œ ì„œë²„ 
+ - TestClient : ëª¨ë“ˆ í…ŒìŠ¤íŠ¸ë¥¼ ìœ„í•œ í´ë¼ì´ì–¸íŠ¸
