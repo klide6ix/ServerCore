@@ -136,7 +136,7 @@ int UdpSession::SendDatagram( boost::asio::ip::udp::endpoint& sendPoint, BufferS
 	udpSocket_.async_send_to(boost::asio::buffer(datagram.GetBuffer(), datagram.GetSize()), sendPoint,
 		[this] ( boost::system::error_code const& error, std::size_t bytes_transferred )
 	{
-		printf("SendDatagram completed(%d)\n", bytes_transferred );
+		printf("SendDatagram completed(%zd)\n", bytes_transferred );
 	});
 
 	return 0;

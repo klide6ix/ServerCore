@@ -25,8 +25,8 @@ public:
 
 	std::map< COMMAND_ID, CommandFunction_t >		serverCommand_;
 	std::map< TIMER_ID, TimerFunction_t >			timerCommand_;
-	
-	boost::asio::io_service							ioService_;
+
+	boost::asio::io_service						ioService_;
 	std::shared_ptr<boost::asio::io_service::work>	ioWork_ = nullptr;
 
 	std::shared_ptr<IParser>						parser_ = nullptr;
@@ -34,14 +34,14 @@ public:
 	std::shared_ptr<SessionManager>					sessionManager_ = nullptr;
 
 	std::shared_ptr<CommandQueue>					workQueue_ = nullptr;
-	std::shared_ptr<EventTimer>						timerQueue_ = nullptr;
+	std::shared_ptr<EventTimer>					timerQueue_ = nullptr;
 
-	ObjectPool<Command>								commandPool_;
+	ObjectPool<Command>							commandPool_;
 
 	std::vector<std::shared_ptr<Accepter>>			accepters_;
 	std::vector<std::shared_ptr<NetworkThread>>		networkThreads_;
-	std::vector<std::shared_ptr<WorkThread>>		workThreads_;
-	
+	std::vector<std::shared_ptr<WorkThread>>			workThreads_;
+
 	std::shared_ptr<TimerThread>					timerThread_;
 };
 
@@ -56,7 +56,7 @@ NetworkCore::~NetworkCore()
 {
 	WSACleanup();
 
-	if( networkImpl_ != nullptr )
+	if (networkImpl_ != nullptr)
 		delete networkImpl_;
 }
 
@@ -65,24 +65,24 @@ std::once_flag NetworkCore::onceFlag_;
 
 NetworkCore& NetworkCore::GetInstance()
 {
-	std::call_once( onceFlag_, [] 
-	{
-		instance_.reset(new NetworkCore);
-	});
+	std::call_once(onceFlag_, []
+		{
+			instance_.reset(new NetworkCore);
+		});
 
 	return *instance_;
 }
 
-bool NetworkCore::InitializeEngine( ServerApp* application )
+bool NetworkCore::InitializeEngine(ServerApp* application)
 {
-	if( application == nullptr )
+	if (application == nullptr)
 		return false;
 
 	try
 	{
 		networkImpl_ = new NetworkImplement();
 
-		networkImpl_->serverApp_.reset( application );
+		networkImpl_->serverApp_.reset(application);
 
 		networkImpl_->workQueue_ = std::make_shared<CommandQueue>();
 		networkImpl_->timerQueue_ = std::make_shared<EventTimer>();
@@ -90,62 +90,62 @@ bool NetworkCore::InitializeEngine( ServerApp* application )
 		networkImpl_->sessionManager_ = std::make_shared<SessionManager>();
 		networkImpl_->ioWork_ = std::make_shared<boost::asio::io_service::work>(networkImpl_->ioService_);
 
-		for( int i = 0; i < networkThreadCount_; ++i )
+		for (int i = 0; i < networkThreadCount_; ++i)
 		{
-			networkImpl_->networkThreads_.push_back( std::make_shared<NetworkThread>() );
+			networkImpl_->networkThreads_.push_back(std::make_shared<NetworkThread>());
 		}
 
-		for( int i = 0; i < workThreadCount_; ++i )
+		for (int i = 0; i < workThreadCount_; ++i)
 		{
-			networkImpl_->workThreads_.push_back( std::make_shared<WorkThread>() );
+			networkImpl_->workThreads_.push_back(std::make_shared<WorkThread>());
 		}
 
 		networkImpl_->timerThread_ = std::make_shared<TimerThread>();
 	}
-	catch( std::bad_alloc& )
+	catch (std::bad_alloc&)
 	{
 		return false;
 	}
 
-	networkImpl_->commandPool_.SetMaxPoolSize( 32 * 10 );
-	if( networkImpl_->commandPool_.Init() == false )
+	networkImpl_->commandPool_.SetMaxPoolSize(32 * 10);
+	if (networkImpl_->commandPool_.Init() == false)
 		return false;
 
-	for( auto thread : networkImpl_->networkThreads_ )
+	for (auto thread : networkImpl_->networkThreads_)
 	{
 		thread->StartThread();
 	}
 
-	for( auto thread : networkImpl_->workThreads_ )
+	for (auto thread : networkImpl_->workThreads_)
 	{
 		thread->StartThread();
 	}
 
 	networkImpl_->timerThread_->StartThread();
 
-	signal( SIGABRT, [] (int param) 
-	{
-		printf("abort\n"); 
-	} );
+	signal(SIGABRT, [](int param)
+		{
+			printf("abort\n");
+		});
 
-	signal( SIGINT, [] (int param) 
-	{
-		printf("abort\n"); 
-	} );
+	signal(SIGINT, [](int param)
+		{
+			printf("abort\n");
+		});
 
 	return true;
 }
 
-bool NetworkCore::InitializeParser( IParser* parser )
+bool NetworkCore::InitializeParser(IParser* parser)
 {
-	if( parser == nullptr )
+	if (parser == nullptr)
 		return false;
 
 	try
 	{
-		networkImpl_->parser_.reset( parser );
+		networkImpl_->parser_.reset(parser);
 	}
-	catch( std::bad_alloc& )
+	catch (std::bad_alloc&)
 	{
 		return false;
 	}
@@ -158,10 +158,10 @@ bool NetworkCore::InitializeAccepter()
 	return true;
 }
 
-bool NetworkCore::AddAcceptPort( int port )
+bool NetworkCore::AddAcceptPort(int port)
 {
-	auto accepter = std::make_shared<Accepter>( GetIoService(), port );
-	networkImpl_->accepters_.push_back( accepter );
+	auto accepter = std::make_shared<Accepter>(GetIoService(), port);
+	networkImpl_->accepters_.push_back(accepter);
 
 	accepter->StartAccept();
 
@@ -173,31 +173,31 @@ Session* NetworkCore::CreateSession()
 	return networkImpl_->sessionManager_->CreateSession();
 }
 
-void NetworkCore::AddSession( Session* newSession, int acceptPort )
+void NetworkCore::AddSession(Session* newSession, int acceptPort)
 {
-	networkImpl_->serverApp_->OnAccept( acceptPort, newSession );
+	networkImpl_->serverApp_->OnAccept(acceptPort, newSession);
 
-	if( newSession->RecvPost() == false )
+	if (newSession->RecvPost() == false)
 	{
-		CloseSession( newSession );
+		CloseSession(newSession);
 		return;
 	}
 }
 
-void NetworkCore::CloseSession( Session* session )
+void NetworkCore::CloseSession(Session* session)
 {
-	if( session == nullptr )
+	if (session == nullptr)
 		return;
 
-	networkImpl_->serverApp_->OnClose( session );
-	networkImpl_->sessionManager_->RestoreSession( session );
+	networkImpl_->serverApp_->OnClose(session);
+	networkImpl_->sessionManager_->RestoreSession(session);
 
 	session->Close();
 }
 
-void NetworkCore::ShutdownSession( Session* session )
+void NetworkCore::ShutdownSession(Session* session)
 {
-	if( session == nullptr )
+	if (session == nullptr)
 		return;
 
 	session->Shutdown();
@@ -208,14 +208,14 @@ ServerApp* NetworkCore::GetServerApp()
 	return networkImpl_->serverApp_.get();
 }
 
-bool NetworkCore::IsCompletePacket( const char* src, int srcSize )
+bool NetworkCore::IsCompletePacket(const char* src, int srcSize)
 {
-	return networkImpl_->parser_->IsCompletePacket( src, srcSize );
+	return networkImpl_->parser_->IsCompletePacket(src, srcSize);
 }
 
-int NetworkCore::ParseBuffer( const char* src, int srcSize, Command* command )
+int NetworkCore::ParseBuffer(const char* src, int srcSize, Command* command)
 {
-	return networkImpl_->parser_->ParseStream( src, srcSize, command );
+	return networkImpl_->parser_->ParseStream(src, srcSize, command);
 }
 
 Command* NetworkCore::AllocateCommand()
@@ -223,14 +223,14 @@ Command* NetworkCore::AllocateCommand()
 	return networkImpl_->commandPool_.Alloc();
 }
 
-void NetworkCore::DeallocateCommand( Command* obj )
+void NetworkCore::DeallocateCommand(Command* obj)
 {
-	networkImpl_->commandPool_.Free( obj );
+	networkImpl_->commandPool_.Free(obj);
 }
 
-void NetworkCore::PushCommand( Command* cmd )
+void NetworkCore::PushCommand(Command* cmd)
 {
-	networkImpl_->workQueue_->PushCommand( cmd );
+	networkImpl_->workQueue_->PushCommand(cmd);
 }
 
 Command* NetworkCore::PopCommand()
@@ -238,11 +238,11 @@ Command* NetworkCore::PopCommand()
 	return networkImpl_->workQueue_->PopCommand();
 }
 
-void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t command )
+void NetworkCore::AddServerCommand(COMMAND_ID protocol, CommandFunction_t command)
 {
-	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
+	if (networkImpl_->serverCommand_.find(protocol) == networkImpl_->serverCommand_.end())
 	{
-		networkImpl_->serverCommand_.insert( std::pair< COMMAND_ID, CommandFunction_t >( protocol, command ) );
+		networkImpl_->serverCommand_.insert(std::pair< COMMAND_ID, CommandFunction_t >(protocol, command));
 	}
 	else
 	{
@@ -250,9 +250,9 @@ void NetworkCore::AddServerCommand( COMMAND_ID protocol, CommandFunction_t comma
 	}
 }
 
-CommandFunction_t NetworkCore::GetServerCommand( COMMAND_ID protocol )
+CommandFunction_t NetworkCore::GetServerCommand(COMMAND_ID protocol)
 {
-	if( networkImpl_->serverCommand_.find( protocol ) == networkImpl_->serverCommand_.end() )
+	if (networkImpl_->serverCommand_.find(protocol) == networkImpl_->serverCommand_.end())
 	{
 		return nullptr;
 	}
@@ -260,21 +260,21 @@ CommandFunction_t NetworkCore::GetServerCommand( COMMAND_ID protocol )
 	return networkImpl_->serverCommand_[protocol];
 }
 
-void NetworkCore::PushTimerMessage( TIMER_ID id, int workCount, int workTime, void* object )
+void NetworkCore::PushTimerMessage(TIMER_ID id, int workCount, int workTime, void* object)
 {
-	networkImpl_->timerQueue_->PushTimer( id, workCount, workTime, object );
+	networkImpl_->timerQueue_->PushTimer(id, workCount, workTime, object);
 }
 
-bool NetworkCore::PopTimerMessage( TimerObject*& timerObj )
+bool NetworkCore::PopTimerMessage(TimerObject*& timerObj)
 {
-	return networkImpl_->timerQueue_->PopTimer( timerObj );
+	return networkImpl_->timerQueue_->PopTimer(timerObj);
 }
 
-void NetworkCore::AddTimerCommand( TIMER_ID protocol, TimerFunction_t command )
+void NetworkCore::AddTimerCommand(TIMER_ID protocol, TimerFunction_t command)
 {
-	if( networkImpl_->timerCommand_.find( protocol ) == networkImpl_->timerCommand_.end() )
+	if (networkImpl_->timerCommand_.find(protocol) == networkImpl_->timerCommand_.end())
 	{
-		networkImpl_->timerCommand_.insert( std::pair< TIMER_ID, TimerFunction_t >( protocol, command ) );
+		networkImpl_->timerCommand_.insert(std::pair< TIMER_ID, TimerFunction_t >(protocol, command));
 	}
 	else
 	{
@@ -282,9 +282,9 @@ void NetworkCore::AddTimerCommand( TIMER_ID protocol, TimerFunction_t command )
 	}
 }
 
-TimerFunction_t NetworkCore::GetTimerCommand( TIMER_ID protocol )
+TimerFunction_t NetworkCore::GetTimerCommand(TIMER_ID protocol)
 {
-	if( networkImpl_->timerCommand_.find( protocol ) == networkImpl_->timerCommand_.end() )
+	if (networkImpl_->timerCommand_.find(protocol) == networkImpl_->timerCommand_.end())
 	{
 		return nullptr;
 	}
@@ -294,31 +294,31 @@ TimerFunction_t NetworkCore::GetTimerCommand( TIMER_ID protocol )
 
 void NetworkCore::StartServer()
 {
-	for( auto thread : networkImpl_->networkThreads_ )
+	for (auto thread : networkImpl_->networkThreads_)
 	{
-		if( thread != nullptr )
+		if (thread != nullptr)
 			thread->JoinThread();
 	}
 }
 
 void NetworkCore::StopServer()
 {
-	for( auto itr : networkImpl_->accepters_ )
+	for (auto itr : networkImpl_->accepters_)
 	{
 		itr->StopAccept();
 	}
 
-	networkImpl_->ioWork_->get_io_service().stop();
+	networkImpl_->ioWork_->get_io_context().get_executor().context().stop();
 
-	for( auto thread : networkImpl_->networkThreads_ )
+	for (auto thread : networkImpl_->networkThreads_)
 	{
-		if( thread != nullptr )
+		if (thread != nullptr)
 			thread->StopThread();
 	}
 
-	for( auto thread : networkImpl_->workThreads_ )
+	for (auto thread : networkImpl_->workThreads_)
 	{
-		if( thread != nullptr )
+		if (thread != nullptr)
 			thread->StopThread();
 	}
 
@@ -330,28 +330,28 @@ boost::asio::io_service& NetworkCore::GetIoService()
 	return networkImpl_->ioService_;
 }
 
-void NetworkCore::MakeDaemon( bool debug, char* serviceName )
+void NetworkCore::MakeDaemon(bool debug, char* serviceName)
 {
 #ifndef WIN32
 	pid_t pid;
 
-	if( ( pid = fork() ) < 0 ) 
+	if ((pid = fork()) < 0)
 	{
-		exit( 0 );
+		exit(0);
 	}
-	else if( pid != 0 )
+	else if (pid != 0)
 	{
-		exit( 0 );
+		exit(0);
 	}
 
-	if( !debug )
+	if (!debug)
 	{
 		//! stdin, stdout close       
 		int fd0, fd1, fd2;
 		fd0 = open("/dev/null", O_RDWR);
-		dup2( fd0, 1 );
-		dup2( fd0, 2 );
-		close( fd0 );
+		dup2(fd0, 1);
+		dup2(fd0, 2);
+		close(fd0);
 	}
 
 

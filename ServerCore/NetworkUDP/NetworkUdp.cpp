@@ -148,7 +148,7 @@ void NetworkUdp::StartUdp()
 
 void NetworkUdp::StopUdp()
 {
-	udpImpl_->ioWork_->get_io_service().stop();
+	udpImpl_->ioWork_->get_io_context().get_executor().context().stop();
 
 	for( auto thread : udpImpl_->networkThreads_ )
 	{

@@ -3,13 +3,14 @@
 #include <memory>
 #include <functional>
 #include <vector>
+#include <string>
 
 #include "../Utility/BufferSerializer.h"
 
 #include "Socket.h"
 
 // 확장 OVERLAPPED 구조체
-#define  ASYNCFLAG_SEND				0x01
+#define  ASYNCFLAG_SEND			0x01
 #define  ASYNCFLAG_RECEIVE			0x02
 #define  ASYNCFLAG_RECE_RETRY		0x04
 
